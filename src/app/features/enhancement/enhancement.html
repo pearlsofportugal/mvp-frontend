@@ -1,0 +1,46 @@
+<div class="enrichment-page">
+  <div class="card">
+    <h2>Gerador de conteúdo com IA</h2>
+    <p class="section-description">Seleciona um imóvel, escolhe os campos e gera uma versão otimizada para SEO e legibilidade.</p>
+    <app-enrichment-form
+      (success)="onEnrichmentSuccess($event)"
+      (listingSelected)="onListingSelected($event)"
+    />
+  </div>
+
+@if (result(); as r) {
+    <div class="card">
+      <h2>Resumo da última geração</h2>
+      <app-enrichment-result [result]="r" />
+    </div>
+}
+
+  <div class="card">
+    <div class="flex-between">
+      <h2>Estatísticas de enrichment</h2>
+      <button class="btn btn-outline" type="button" (click)="reloadStats()" [disabled]="loading()">
+        Atualizar
+      </button>
+    </div>
+    @switch (viewState()) {
+      @case ('loading') {
+        <p>A carregar estatísticas...</p>
+      }
+      @case ('error') {
+        <p class="error-message">{{ error() }}</p>
+      }
+      @case ('data') {
+        <app-enrichment-stats [stats]="stats()!" />
+      }
+      @default {
+        <p>Sem dados de estatísticas.</p>
+      }
+    }
+  </div>
+
+  <div class="card">
+    <h2>Pré-visualização de conteúdo</h2>
+    <p class="section-description">Compara o texto original e o texto sugerido pela IA antes de aplicar alterações.</p>
+    <app-enrichment-preview [listingId]="selectedListingId()" />
+  </div>
+</div>

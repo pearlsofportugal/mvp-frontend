@@ -1,0 +1,30 @@
+.enrichment-page {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.flex-between {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.loading {
+	text-align: center;
+	padding: 2rem;
+	color: var(--text-dim);
+}
+
+.enrichment-page .card h2 {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.section-description {
+	margin: 0 0 0.9rem;
+	color: var(--text-dim);
+	font-size: 0.875rem;
+}

@@ -1,0 +1,60 @@
+@if (jobs().length === 0) {
+  <div class="empty">
+    <div class="icon">⚡</div>
+    <p>No jobs found.</p>
+  </div>
+} @else {
+  <div class="table-wrap">
+    <table>
+        <caption class="sr-only">List of recent scrape jobs</caption>
+      <thead>
+        <tr>
+          <th>Site</th>
+          <th>Status</th>
+          <th>Pages</th>
+          <th>Found</th>
+          <th>Scraped</th>
+          <th>Errors</th>
+          <th>Start</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (job of jobs(); track job.id) {
+          <tr>
+            <td><strong>{{ job.site_key }}</strong></td>
+            <td>
+              <span [class]="getBadgeClass(job.status)">
+                {{ job.status }}
+              </span>
+            </td>
+            <td>{{ job.progress?.pages_visited ?? '-' }}</td>
+            <td>{{ job.progress?.listings_found ?? '-' }}</td>
+            <td>{{ job.progress?.listings_scraped ?? '-' }}</td>
+            <td>{{ job.progress?.errors ?? '-' }}</td>
+            <td>{{ formatDate(job.started_at) }}</td>
+            <td>
+              <button 
+                class="btn btn-outline btn-sm" 
+                (click)="onView(job)">
+                 View
+              </button>
+              @if (job.status === 'running' || job.status === 'pending') {
+                <button 
+                  class="btn btn-danger btn-sm" 
+                  (click)="onCancel(job.id)">
+                  Cancel
+                </button>
+              }
+              <button 
+                class="btn btn-danger btn-sm" 
+                (click)="onDelete(job.id)">
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

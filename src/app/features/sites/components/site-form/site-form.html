@@ -1,0 +1,402 @@
+<div class="form-header">
+  <h2>{{ site() ? 'Edit Site' : 'New Site' }}</h2>
+  <button type="button" class="btn-icon" (click)="toggleHelp()" title="Help">
+    <span>❓</span>
+  </button>
+</div>
+
+@if (showHelp()) {
+<div class="help-panel">
+  <h4>How to configure CSS selectors</h4>
+  <p>CSS selectors identify elements on the page. Examples:</p>
+  <ul>
+    <li><code>h1</code> — Selects all h1 elements</li>
+    <li><code>.price</code> — Selects elements with the class "price"</li>
+    <li><code>#title</code> — Selects the element with the id "title"</li>
+    <li><code>div.card a</code> — Links inside divs with the class "card"</li>
+    <li><code>[data-price]</code> — Elements with the attribute data-price</li>
+  </ul>
+  <p class="tip">Tip: Use the browser's DevTools (F12) to inspect elements and copy selectors.</p>
+</div>
+}
+
+@if (error()) {
+<div class="alert alert-error">{{ error() }}</div>
+}
+
+<!-- Tab Navigation -->
+<div class="tabs">
+  <button 
+    type="button"
+    class="tab" 
+    [class.active]="activeTab() === 'basic'"
+    (click)="setTab('basic')"
+  >
+    Basic
+  </button>
+  <button 
+    type="button"
+    class="tab" 
+    [class.active]="activeTab() === 'selectors'"
+    (click)="setTab('selectors')"
+  >
+    Selectors
+  </button>
+  <button 
+    type="button"
+    class="tab" 
+    [class.active]="activeTab() === 'advanced'"
+    (click)="setTab('advanced')"
+  >
+   Advanced
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- Basic Tab -->
+  @if (activeTab() === 'basic') {
+  <div class="tab-content">
+    <div class="form-section">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="key">
+            Identifier (key) *
+            <span class="hint">Only lowercase letters, numbers, _ and -</span>
+          </label>
+          <input
+            id="key"
+            type="text"
+            formControlName="key"
+            placeholder="pearls"
+            [class.error]="form.controls.key.invalid && form.controls.key.touched"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="name">Site Name *</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Pearls of Portugal"
+            [class.error]="form.controls.name.invalid && form.controls.name.touched"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="base_url">
+          Base URL *
+          <span class="hint">Main site URL (without trailing slash)</span>
+        </label>
+        <input
+          id="base_url"
+          type="url"
+          formControlName="base_url"
+          placeholder="https://realestate.pearlsofportugal.com"
+          [class.error]="form.controls.base_url.invalid && form.controls.base_url.touched"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="extraction_mode">Extraction Mode</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" formControlName="extraction_mode" value="direct" />
+            <span class="radio-label">
+              <strong>Direct</strong>
+              <small>CSS selectors point directly to the values</small>
+            </span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" formControlName="extraction_mode" value="section" />
+            <span class="radio-label">
+              <strong>By Section</strong>
+              <small>Data organized in name/value pairs</small>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Selectors Tab -->
+  @if (activeTab() === 'selectors') {
+  <div class="tab-content selectors-tab">
+    <!-- Real Estate Page Selectors -->
+    <div class="selector-section">
+      <h3>Real Estate Identification</h3>
+      <p class="section-desc">Title, ID, URL, and publication date</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('listing'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">
+            {{ field.label }}
+            @if (field.required) { <span class="required">*</span> }
+          </label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Location Selectors -->
+    <div class="selector-section">
+      <h3>Location</h3>
+      <p class="section-desc">District, Municipality, Parish</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('location'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Property Details Selectors -->
+    <div class="selector-section">
+      <h3>Property Details</h3>
+      <p class="section-desc">Type, typology, areas, rooms, bathrooms, floor, year, energy</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('property'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Price Selectors -->
+    <div class="selector-section">
+      <h3>Price</h3>
+      <p class="section-desc">Price, transaction type, price/m²</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('price'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Features Selectors -->
+    <div class="selector-section">
+      <h3>Features</h3>
+      <p class="section-desc">Garage, elevator, balcony, A/C, pool, garden</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('features'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Contact Selectors -->
+    <div class="selector-section">
+      <h3>Advertiser / Contact</h3>
+      <p class="section-desc">Name, phone, agency email</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('contact'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- SEO/Content Selectors -->
+    <div class="selector-section">
+      <h3>Content / SEO</h3>
+      <p class="section-desc">Description, meta tags, titles</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('seo'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Image Selectors -->
+    <div class="selector-section">
+      <h3>Images</h3>
+      <p class="section-desc">Property photo gallery</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('image'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="selector-section">
+      <h3>Pagination</h3>
+      <p class="section-desc">Navigation between result pages</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('pagination'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Section-based Extraction (only for extraction_mode: section) -->
+    @if (form.controls.extraction_mode.value === 'section') {
+    <div class="selector-section section-mode">
+      <h3>🔧 Section-based Extraction</h3>
+      <p class="section-desc">Selectors to extract data from sections with name/value pairs</p>
+      
+      <div class="selector-grid">
+        @for (field of getSelectorsByCategory('section'); track field.key) {
+        <div class="selector-field">
+          <label [for]="field.key">{{ field.label }}</label>
+          <input
+            [id]="field.key"
+            type="text"
+            [formControlName]="field.key"
+            [placeholder]="field.placeholder"
+          />
+          <span class="field-hint">{{ field.description }}</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Advanced Tab -->
+  @if (activeTab() === 'advanced') {
+  <div class="tab-content">
+    <div class="form-section">
+      <div class="form-group">
+        <label for="link_pattern">
+          Link Pattern (Regex)
+          <span class="hint">Filter ad URLs by pattern</span>
+        </label>
+        <input
+          id="link_pattern"
+          type="text"
+          formControlName="link_pattern"
+          placeholder="/en/property/"
+        />
+        <span class="field-hint">Example: /property/ only accepts URLs containing "/property/"</span>
+      </div>
+
+      <div class="form-group">
+        <label for="image_filter">
+          Image Filter (Regex)
+          <span class="hint">Filter image URLs by pattern</span>
+        </label>
+        <input
+          id="image_filter"
+          type="text"
+          formControlName="image_filter"
+          placeholder="imodigi\.com/backoffice"
+        />
+        <span class="field-hint">Example: Only accept images from a specific domain</span>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button
+      type="button"
+      class="btn btn-ghost"
+      (click)="onCancel()"
+      [disabled]="submitting()"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="submitting()"
+    >
+      @if (submitting()) {
+        <span class="spinner"></span>
+        Saving...
+      } @else {
+        {{ site() ? 'Update' : 'Create Site' }}
+      }
+    </button>
+  </div>
+</form>

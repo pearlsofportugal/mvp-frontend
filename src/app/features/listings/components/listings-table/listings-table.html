@@ -1,0 +1,73 @@
+@if (realEstates().length === 0) {
+  <div class="empty">
+    <div class="icon"></div>
+    <p>No RealEstate found.</p>
+  </div>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <caption class="sr-only">
+        Recent RealEstate
+      </caption>
+
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Source</th>
+          <th>Type</th>
+          <th>Typology</th>
+          <th>Price</th>
+          <th>District</th>
+          <th>County</th>
+          <th>Area</th>
+          <th>Bedrooms</th>
+          <th>Bathrooms</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (realEstate of realEstates(); track realEstate.id) {
+          <tr>
+            <td [title]="realEstate.title || ''">
+              @if (realEstate.title) {
+                {{ realEstate.title }}
+              } @else {
+                &lt;no title&gt;
+              }
+            </td>
+            <td>{{ realEstate.source_partner }}</td>
+            <td>{{ realEstate.property_type || '-' }}</td>
+            <td>{{ realEstate.typology || '-' }}</td>
+            <td>{{ formatPrice(realEstate.price_amount, realEstate.price_currency) }}</td>
+            <td>{{ realEstate.district || '-' }}</td>
+            <td>{{ realEstate.county || '-' }}</td>
+            <td>
+              @if (realEstate.area_useful_m2) {
+                {{ realEstate.area_useful_m2 }} m²
+              } @else {
+                -
+              }
+            </td>
+            <td>{{ realEstate.bedrooms ?? '-' }}</td>
+            <td>{{ realEstate.bathrooms ?? '-' }}</td>
+            <td>
+              @if (isCreated(realEstate)) {
+                Created {{ formatDate(realEstate.created_at) }}
+              } @else {
+                Updated {{ formatDate(realEstate.updated_at) }}
+              }
+            </td>
+            <td>
+              <button
+                class="btn btn-outline btn-sm"
+                (click)="onView(realEstate)"
+                title="View details"
+              ></button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

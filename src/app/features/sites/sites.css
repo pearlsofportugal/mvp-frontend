@@ -1,0 +1,7 @@
+.mt {
+  margin-top: 0.75rem;
+}
+
+.error {
+  color: var(--red, #ef4444);
+}

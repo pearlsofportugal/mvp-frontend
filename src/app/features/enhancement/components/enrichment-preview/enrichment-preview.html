@@ -1,0 +1,56 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="listing_id">Preview por ID do imóvel (UUID)</label>
+    <input
+      type="text"
+      id="listing_id"
+      formControlName="listing_id"
+      placeholder="ex: a1b2c3d4-..."
+    />
+  </div>
+
+  @if (listingId()) {
+    <small class="form-hint">ID sincronizado automaticamente com o imóvel selecionado no formulário.</small>
+  }
+
+  @if (error()) {
+  <div class="error-message" role="alert" aria-live="assertive">{{ error() }}</div>
+  }
+
+  <div class="btn-group">
+    <button type="submit" class="btn btn-outline" [disabled]="loading()">
+      @if (loading()) { IA a gerar preview... } @else { Gerar preview IA }
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="ai-loading" role="status" aria-live="polite">
+      <div class="ai-loading-label">A gerar novo texto de preview com IA...</div>
+      <div class="ai-loading-track" aria-hidden="true">
+        <div class="ai-loading-bar"></div>
+      </div>
+    </div>
+  }
+</form>
+
+@if (preview()) {
+<div class="preview-content">
+  <div class="preview-section">
+    <h3>Descrição original</h3>
+    <div class="text-content">
+      {{ preview()!.original_description || "Sem descrição original" }}
+    </div>
+  </div>
+
+  <div class="preview-section">
+    <h3>Descrição melhorada (IA)</h3>
+    <div class="text-content enriched">
+      {{ preview()!.enriched_description || "Sem melhoria gerada" }}
+    </div>
+  </div>
+
+  <div class="preview-footer">
+    <span class="model-badge">Modelo: {{ preview()!.model_used }}</span>
+  </div>
+</div>
+}

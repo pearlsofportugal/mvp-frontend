@@ -1,0 +1,18 @@
+.media-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.media-grid img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border);
+}
+
+.media-grid img.error {
+  display: none;
+}

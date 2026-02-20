@@ -1,0 +1,71 @@
+<div class="listings-layout">
+	<div class="card">
+		<h2>Filters</h2>
+		<app-listings-filters
+			(filtersChange)="onFiltersChange($event)"
+			(viewStats)="onViewStatsRequest()"
+		/>
+	</div>
+
+	@if (showStats()) {
+		<div class="card">
+			<div class="flex-between">
+				<h2>Statistics</h2>
+				<button class="btn btn-outline btn-sm" (click)="onCloseStats()">
+					✕ Close
+				</button>
+			</div>
+			<app-listings-stats [sourcePartner]="currentFilters().source_partner" />
+		</div>
+	}
+
+	<div class="card">
+		<div class="flex-between">
+			<h2>Real Estate ({{ totalListings() }})</h2>
+			<div class="btn-group">
+				<button
+					class="btn btn-outline btn-sm"
+					(click)="onPrevPage()"
+					[disabled]="!hasPrevPage() || isLoadingListings()"
+				>
+					← Previous
+				</button>
+				<button
+					class="btn btn-outline btn-sm"
+					(click)="onNextPage()"
+					[disabled]="!hasNextPage() || isLoadingListings()"
+				>
+					Next →
+				</button>
+			</div>
+		</div>
+
+		@if (isLoadingListings()) {
+			<div class="empty">
+				<div class="icon"></div>
+				<p>Loading...</p>
+			</div>
+		} @else {
+			<app-listings-table
+				[realEstates]="realEstates()"
+				(viewRealEstate)="onViewRealEstate($event)"
+				(deleteRealEstate)="onDeleteRealEstate($event)"
+			/>
+		}
+	</div>
+
+	@if (selectedRealEstate()) {
+		<div class="card">
+			<div class="flex-between">
+				<h2>Real Estate Detail</h2>
+				<button class="btn btn-outline btn-sm" (click)="onCloseDetail()">
+					✕ Close
+				</button>
+			</div>
+			<app-listing-detail
+				[realEstate]="selectedRealEstate()!"
+				(delete)="onDeleteRealEstate($event)"
+			/>
+		</div>
+	}
+</div>

@@ -1,0 +1,138 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulário de enrichment com IA">
+  <div class="form-grid">
+    <div class="form-group full-width">
+      <label for="listing_search">Pesquisar imóvel (título ou descrição)</label>
+      <input
+        id="listing_search"
+        type="text"
+        placeholder="Escreve pelo menos 2 caracteres"
+        (input)="onSearchListings($event)"
+      />
+      @if (loadingCandidates()) {
+        <small class="form-hint">A pesquisar imóveis...</small>
+      }
+      @if (!loadingCandidates() && hasTypedSearch() && listingCandidates().length === 0) {
+        <small class="form-hint">Sem resultados para a pesquisa atual.</small>
+      }
+      @if (listingCandidates().length > 0) {
+        <div class="candidate-list" role="list" aria-label="Resultados de imóveis">
+          @for (candidate of listingCandidates(); track candidate.id) {
+            <button
+              type="button"
+              class="candidate-item"
+              (click)="onSelectListing(candidate)"
+              role="listitem"
+            >
+              <strong>{{ candidate.title || 'Sem título' }}</strong>
+              <span>{{ candidate.id }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="form-group checkbox-group">
+      <input id="target_title" type="checkbox" formControlName="target_title" />
+      <label for="target_title">Melhorar título</label>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <input id="target_description" type="checkbox" formControlName="target_description" />
+      <label for="target_description">Melhorar descrição</label>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <input id="target_meta_description" type="checkbox" formControlName="target_meta_description" />
+      <label for="target_meta_description">Melhorar meta description</label>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <input id="apply_changes" type="checkbox" formControlName="apply_changes" />
+      <label for="apply_changes">Guardar alterações na base de dados</label>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <input id="force_regeneration" type="checkbox" formControlName="force_regeneration" />
+      <label for="force_regeneration">Forçar regeneração (substituir conteúdo existente)</label>
+    </div>
+  </div>
+
+  @if (loadingListing()) {
+    <div class="info-box">A carregar informação do imóvel...</div>
+  }
+
+  @if (selectedListing(); as listing) {
+    <div class="info-box" role="status" aria-live="polite">
+      <h3>Imóvel selecionado</h3>
+      <div><strong>Título:</strong> {{ listing.title || '-' }}</div>
+      <div><strong>Fonte:</strong> {{ listing.source_partner }}</div>
+      <div><strong>Tipo:</strong> {{ listing.property_type || '-' }} {{ listing.typology || '' }}</div>
+      <div><strong>Localização:</strong> {{ listing.county || '-' }}, {{ listing.district || '-' }}</div>
+      <div><strong>Preço:</strong> {{ listing.price_amount ?? '-' }} {{ listing.price_currency || '' }}</div>
+      <div><strong>ID:</strong> {{ listing.id }}</div>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-message" role="alert" aria-live="assertive">
+      {{ error() }}
+    </div>
+  }
+
+  <div class="btn-group">
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="loading()"
+      [attr.aria-busy]="loading()"
+    >
+      @if (loading()) {
+        IA a gerar conteúdo...
+      } @else {
+        Gerar novo texto com IA
+      }
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="ai-progress" role="status" aria-live="polite">
+      <div class="ai-progress-head">
+        <strong>Geração em curso</strong>
+        <span>{{ generationProgress() }}%</span>
+      </div>
+      <p>{{ generationStatus() }}</p>
+      <div
+        class="progress-track"
+        role="progressbar"
+        aria-label="Progresso da geração por IA"
+        [attr.aria-valuenow]="generationProgress()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <div class="progress-fill" [style.width.%]="generationProgress()"></div>
+      </div>
+    </div>
+  }
+
+  @if (hasDirectResults()) {
+    <div class="info-box" role="status" aria-live="polite">
+      <h3>Resultado da geração</h3>
+      <div class="result-summary">
+        <span class="badge badge-completed">Alterados: {{ changedCount() }}</span>
+        <span class="badge badge-detail">Sem alteração: {{ unchangedCount() }}</span>
+        <span class="badge badge-list">Modelo: {{ directResult()!.model_used }}</span>
+        <span class="badge" [class.badge-active]="directResult()!.applied" [class.badge-inactive]="!directResult()!.applied">
+          {{ directResult()!.applied ? 'Aplicado' : 'Preview' }}
+        </span>
+      </div>
+      @for (item of directResult()!.results; track item.field) {
+        <div class="diff-block" [class.diff-changed]="item.changed">
+          <h4>{{ item.field }}</h4>
+          <div><strong>Antes:</strong> {{ item.original || '-' }}</div>
+          <div><strong>Depois:</strong> {{ item.enriched || '-' }}</div>
+          <div><strong>Estado:</strong> {{ item.changed ? 'Alterado' : 'Sem alteração' }}</div>
+        </div>
+      }
+    </div>
+  }
+</form>

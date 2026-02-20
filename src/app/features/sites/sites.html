@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="flex-between">
+    <h2>Site Settings</h2>
+    @if (!showForm()) {
+      <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="mt">Loading...</p>
+  } @else if (error()) {
+    <p class="mt error">{{ error() }}</p>
+  } @else {
+    <app-site-list
+      class="mt"
+      [sites]="sites()"
+      (edit)="onEditSite($event)"
+      (delete)="onDeleteSite($event)"
+    />
+  }
+</div>
+
+@if (showForm()) {
+  <div class="card mt">
+    <app-site-form
+      [site]="editingSite()"
+      (success)="onFormSuccess()"
+      (cancel)="onFormCancel()"
+    />
+  </div>
+}

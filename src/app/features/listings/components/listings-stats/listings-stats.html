@@ -1,0 +1,117 @@
+@if (isLoading()) {
+<div class="empty">
+  <div class="icon">⏳</div>
+  <p>Loading statistics...</p>
+</div>
+} @else if (stats()) {
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="value">{{ stats()!.total_listings }}</div>
+    <div class="label">Total</div>
+  </div>
+
+  @if (stats()!.avg_price) {
+  <div class="stat-card">
+    <div class="value">{{ formatPrice(stats()!.avg_price) }}</div>
+    <div class="label">Average Price</div>
+  </div>
+  }
+
+  @if (stats()!.min_price) {
+  <div class="stat-card">
+    <div class="value">{{ formatPrice(stats()!.min_price) }}</div>
+    <div class="label">Minimum Price</div>
+  </div>
+  }
+
+  @if (stats()!.max_price) {
+  <div class="stat-card">
+    <div class="value">{{ formatPrice(stats()!.max_price) }}</div>
+    <div class="label">Maximum Price</div>
+  </div>
+  }
+
+  @if (stats()!.avg_area) {
+  <div class="stat-card">
+    <div class="value">{{ stats()!.avg_area | number:'1.0-0' }} m²</div>
+    <div class="label">Average Area</div>
+  </div>
+  }
+</div>
+
+<!-- Breakdown by categories -->
+<div class="mt" style="
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    ">
+  @if (stats()!.by_property_type && getStatsEntries(stats()!.by_property_type).length > 0) {
+  <div>
+    <h3>By Type</h3>
+    @for (entry of getStatsEntries(stats()!.by_property_type); track entry[0]) {
+    <div style="
+              display: flex;
+              justify-content: space-between;
+              padding: 0.2rem 0;
+            ">
+      <span>{{ entry[0] }}</span>
+      <strong>{{ entry[1] }}</strong>
+    </div>
+    }
+  </div>
+  }
+
+  @if (stats()!.by_source_partner && getStatsEntries(stats()!.by_source_partner).length > 0) {
+  <div>
+    <h3>By Source</h3>
+    @for (entry of getStatsEntries(stats()!.by_source_partner); track entry[0]) {
+    <div style="
+              display: flex;
+              justify-content: space-between;
+              padding: 0.2rem 0;
+            ">
+      <span>{{ entry[0] }}</span>
+      <strong>{{ entry[1] }}</strong>
+    </div>
+    }
+  </div>
+  }
+
+  @if (stats()!.by_district && getStatsEntries(stats()!.by_district).length > 0) {
+  <div>
+    <h3>By District</h3>
+    @for (entry of getStatsEntries(stats()!.by_district); track entry[0]) {
+    <div style="
+              display: flex;
+              justify-content: space-between;
+              padding: 0.2rem 0;
+            ">
+      <span>{{ entry[0] }}</span>
+      <strong>{{ entry[1] }}</strong>
+    </div>
+    }
+  </div>
+  }
+
+  @if (stats()!.by_typology && getStatsEntries(stats()!.by_typology).length > 0) {
+  <div>
+    <h3>By Typology</h3>
+    @for (entry of getStatsEntries(stats()!.by_typology); track entry[0]) {
+    <div style="
+              display: flex;
+              justify-content: space-between;
+              padding: 0.2rem 0;
+            ">
+      <span>{{ entry[0] }}</span>
+      <strong>{{ entry[1] }}</strong>
+    </div>
+    }
+  </div>
+  }
+</div>
+} @else {
+<div class="empty">
+  <div class="icon"></div>
+  <p>No statistics available.</p>
+</div>
+}

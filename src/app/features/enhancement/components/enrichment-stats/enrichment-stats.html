@@ -1,0 +1,38 @@
+@if (stats(); as s) {
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="value">{{ s.total_listings }}</div>
+      <div class="label">Total Listings</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="value success">{{ s.enriched_count }}</div>
+      <div class="label">Com melhoria</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="value">{{ s.not_enriched_count }}</div>
+      <div class="label">Sem melhoria</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="value">{{ formattedEnrichmentPercentage() }}%</div>
+      <div class="label">Taxa de enrichment</div>
+    </div>
+  </div>
+
+  @if (hasSources()) {
+    <div class="by-source">
+      <h3>Por Fonte</h3>
+      <div class="source-list">
+        @for (entry of sourceEntries(); track entry[0]) {
+          <div class="source-item">
+            <strong>{{ entry[0] }}</strong>
+            <span>{{ entry[1].enriched }}/{{ entry[1].total }}</span>
+            <span class="percentage">{{ formatSourcePercentage(entry) }}%</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}

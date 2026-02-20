@@ -1,0 +1,13 @@
+.mt {
+	margin-top: 1rem;
+}
+
+.error {
+	color: var(--red, #ef4444);
+}
+
+.flex-between {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}

@@ -1,0 +1,23 @@
+/* Progress Info */
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.progress-info .phase {
+  color: var(--text-dim);
+}
+
+.progress-info .percentage {
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* Progress bar animation */
+.progress-bar .fill {
+  transition: width 0.3s ease-out;
+}

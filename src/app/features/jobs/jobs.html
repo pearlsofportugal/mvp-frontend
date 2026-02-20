@@ -1,0 +1,33 @@
+<div class="card">
+	<h2>Launch Scrape Job</h2>
+	<app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
+</div>
+
+<div class="card mt">
+	<div class="flex-between">
+		<h2>Recent Jobs</h2>
+		<button class="btn btn-outline btn-sm" (click)="reloadJobs()">
+			Refresh
+		</button>
+	</div>
+
+	@if (loading()) {
+		<p class="mt">Loading...</p>
+	} @else if (error()) {
+		<p class="mt error">{{ error() }}</p>
+	} @else {
+		<app-jobs-list
+			class="mt"
+			[jobs]="jobs()"
+			(view)="onViewJob($event)"
+			(cancel)="onCancelJob($event)"
+			(delete)="onDeleteJob($event)"
+		/>
+	}
+</div>
+
+@if (selectedJob()) {
+	<div class="card mt">
+		<app-job-detail [job]="selectedJob()!" (close)="onCloseDetail()" />
+	</div>
+}

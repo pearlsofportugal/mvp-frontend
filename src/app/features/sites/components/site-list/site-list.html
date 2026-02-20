@@ -1,0 +1,57 @@
+@if (sites().length === 0) {
+  <div class="empty">
+    <div class="icon"></div>
+    <h3>No sites configured</h3>
+    <p>Add your first site to start scraping.</p>
+  </div>
+} @else {
+  <div class="sites-grid">
+    @for (site of sites(); track site.key) {
+      <div class="site-card" [class.inactive]="!site.is_active">
+        <div class="site-header">
+          <div class="site-info">
+            <span class="site-key">{{ site.key }}</span>
+            <h3 class="site-name">{{ site.name }}</h3>
+          </div>
+          <div class="site-status">
+            @if (site.is_active) {
+              <span class="badge badge-active">Active</span>
+            } @else {
+              <span class="badge badge-inactive">Inactive</span>
+            }
+          </div>
+        </div>
+        
+        <div class="site-url">
+          <span class="url-icon">🔗</span>
+          <a [href]="site.base_url" target="_blank" rel="noopener">{{ site.base_url }}</a>
+        </div>
+        
+        <div class="site-meta">
+          <div class="meta-item">
+            <span class="meta-label">Mode</span>
+            <span class="badge badge-{{ site.extraction_mode }}">{{ site.extraction_mode === 'section' ? 'Section' : 'Direct' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Selectors</span>
+            <span class="meta-value">{{ getSelectorCount(site) }} configured</span>
+          </div>
+        </div>
+        
+        <div class="site-actions">
+          <button class="btn btn-ghost btn-sm" (click)="viewSelectors(site)" title="View selectors">
+            <span></span> View
+          </button>
+          <button class="btn btn-outline btn-sm" (click)="onEdit(site)" title="Edit site">
+            <span></span> Edit
+          </button>
+          @if (site.is_active) {
+            <button class="btn btn-danger btn-sm" (click)="onDelete(site.key)" title="Deactivate site">
+              <span>X</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
