@@ -1,78 +1,90 @@
+<!-- job-detail.html — atualizado para SSE -->
 <div class="card">
   <div class="flex-between">
-    <h2>Job Detail</h2>
-    <button class="btn btn-outline btn-sm" (click)="onClose()">
-      ✕ Close
-    </button>
+    <h2>
+      Detalhe do Job
+      @if (streaming()) {
+      <!-- Indicador visual de stream ativo — pulsa enquanto recebe dados em tempo real -->
+      <span class="live-badge" title="A receber atualizações em tempo real">● ao vivo</span>
+      }
+    </h2>
+    <div class="btn-group">
+      @if (!streaming()) {
+      <!-- Fallback manual quando SSE não está ativo (job terminado ou SSE falhou) -->
+      <button class="btn btn-outline btn-sm" (click)="onRefresh()" title="Atualizar dados do job">
+        ↻ Atualizar
+      </button>
+      }
+      <button class="btn btn-outline btn-sm" (click)="onClose()">
+        ✕ Fechar
+      </button>
+    </div>
   </div>
 
-  @if (job()) {
-    <div class="mt">
-      <dl class="detail-grid">
-        <dt>ID</dt>
-        <dd class="mono">{{ job()!.id }}</dd>
-        
-        <dt>Site</dt>
-        <dd>{{ job()!.site_key }}</dd>
-        
-        <dt>Status</dt>
-        <dd>
-          <span 
-            class="badge"
-            [class.badge-pending]="job()!.status === 'pending'"
-            [class.badge-running]="job()!.status === 'running'"
-            [class.badge-completed]="job()!.status === 'completed'"
-            [class.badge-failed]="job()!.status === 'failed'"
-            [class.badge-cancelled]="job()!.status === 'cancelled'">
-            {{ job()!.status }}
-          </span>
-        </dd>
-        
-        <dt>URL</dt>
-        <dd>{{ job()!.start_url }}</dd>
-        
-        <dt>Max Pages</dt>
-        <dd>{{ job()!.max_pages }}</dd>
-        
-        <!-- <dt>Max Listings</dt>
-        <dd>{{ job().max_listings || '-' }}</dd> -->
-        
-        <dt>Pages Visited</dt>
-        <dd>{{ job().progress?.pages_visited ?? '-' }}</dd>
-        
-        <dt>Listings Found</dt>
-        <dd>{{ job()!.progress?.listings_found ?? '-' }}</dd>
-        
-        <dt>Listings Scraped</dt>
-        <dd>{{ job()!.progress?.listings_scraped ?? '-' }}</dd>
-        
-        <dt>Errors</dt>
-        <dd>{{ job()!.progress?.errors ?? '-' }}</dd>
-        
-        <dt>Start</dt>
-        <dd>{{ job()!.started_at | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
-        
-        <dt>End</dt>
-        <dd>{{ job()!.completed_at ? (job()!.completed_at | date:'dd/MM/yyyy HH:mm:ss') : '-' }}</dd>
-        
-        @if (job()!.error_message) {
-          <dt>Error</dt>
-          <dd style="color:var(--red); grid-column: 1 / -1;">
-            {{ job()!.error_message }}
-          </dd>
-        }
-      </dl>
-      
-      <div class="progress-bar mt">
-        <div 
-          class="fill" 
-          [style.width.%]="progressPercentage()">
-        </div>
-      </div>
-      <div class="progress-info">
-        <small class="phase">{{ progressPhase() }}</small>
-        <small class="percentage">{{ progressPercentage() }}%</small>
-      </div>
+  @if (streamError()) {
+  <div class="error-message mt" role="alert">
+    ⚠️ Stream em tempo real indisponível: {{ streamError() }}.
+    O progresso continua a ser atualizado pelo polling de 3s.
+  </div>
+  }
+
+  @if (displayJob(); as job) {
+  <div class="mt">
+    <dl class="detail-grid">
+      <dt>ID</dt>
+      <dd class="mono">{{ job.id }}</dd>
+
+      <dt>Site</dt>
+      <dd>{{ job.site_key }}</dd>
+
+      <dt>Estado</dt>
+      <dd>
+        <span class="badge" [class.badge-pending]="job.status === 'pending'"
+          [class.badge-running]="job.status === 'running'" [class.badge-completed]="job.status === 'completed'"
+          [class.badge-failed]="job.status === 'failed'" [class.badge-cancelled]="job.status === 'cancelled'">
+          {{ job.status }}
+        </span>
+      </dd>
+
+      <dt>URL</dt>
+      <dd>{{ job.start_url }}</dd>
+
+      <dt>Páginas máx.</dt>
+      <dd>{{ job.max_pages }}</dd>
+
+      <dt>Páginas visitadas</dt>
+      <dd>{{ job.progress?.pages_visited ?? '-' }}</dd>
+
+      <dt>Listings encontrados</dt>
+      <dd>{{ job.progress?.listings_found ?? '-' }}</dd>
+
+      <dt>Listings guardados</dt>
+      <dd>{{ job.progress?.listings_scraped ?? '-' }}</dd>
+
+      <dt>Erros</dt>
+      <dd>{{ job.progress?.errors ?? '-' }}</dd>
+
+      <dt>Início</dt>
+      <dd>{{ job.started_at | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+
+      <dt>Fim</dt>
+      <dd>{{ job.completed_at ? (job.completed_at | date:'dd/MM/yyyy HH:mm:ss') : '-' }}</dd>
+
+      @if (job.error_message) {
+      <dt>Erro</dt>
+      <dd style="color:var(--red); grid-column: 1 / -1;">
+        {{ job.error_message }}
+      </dd>
+      }
+    </dl>
+
+    <div class="progress-bar mt">
+      <div class="fill" [style.width.%]="progressPercentage()"></div>
     </div>
+    <div class="progress-info">
+      <small class="phase">{{ progressPhase() }}</small>
+      <small class="percentage">{{ progressPercentage() }}%</small>
+    </div>
+  </div>
   }
 </div>

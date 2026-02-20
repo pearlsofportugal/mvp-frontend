@@ -1,3 +1,18 @@
+// src/app/features/enhancement/components/enrichment-form/enrichment-form.ts
+//
+// FIX (prioridade média): Error handling melhorado no subscribe do enrichListing.
+//
+// ANTES:
+//   error: (err: unknown) => this.error.set('Erro ao executar enrichment')
+//   A mensagem real do backend (ex: "Listing not found", "google_genai_api_key is not configured")
+//   era descartada silenciosamente. O utilizador via sempre a mesma mensagem genérica,
+//   mesmo que o toast do interceptor mostrasse a mensagem correta.
+//
+// DEPOIS:
+//   Extrai a mensagem da estrutura de erro do backend (ApiResponse.message ou errors[0])
+//   e mostra-a no componente. O toast do interceptor continua a funcionar em paralelo —
+//   o componente mostra o erro inline, o toast mostra-o no canto do ecrã.
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,6 +24,7 @@ import {
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { EnrichmentService } from '../../../../core/services/enrichment.service';
 import {
@@ -118,6 +134,7 @@ export class EnrichmentFormComponent {
   constructor() {
     this.destroyRef.onDestroy(() => this.stopGenerationProgress());
   }
+
   private submittedAt: number | null = null;
 
   protected onSubmit(): void {
@@ -177,13 +194,15 @@ export class EnrichmentFormComponent {
             duration_seconds: duration,
           });
         },
-        error: (err: unknown) => this.error.set('Erro ao executar enrichment'),
+        // FIX: extrair mensagem real do backend em vez de mensagem genérica
+        error: (err: unknown) => this.error.set(extractErrorMessage(err)),
       });
   }
 
   protected readonly hasDirectResults = computed(
     () => (this.directResult()?.results.length ?? 0) > 0,
   );
+
   protected onSearchListings(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.listingSearchQuery.set(input.value ?? '');
@@ -223,4 +242,47 @@ export class EnrichmentFormComponent {
     this.generationProgress.set(0);
     this.generationStepIndex.set(0);
   }
+}
+
+/**
+ * Extrai a mensagem de erro mais útil da resposta do backend.
+ *
+ * O backend retorna erros nestes formatos:
+ *   1. ApiResponse: { success: false, message: "...", errors: ["..."] }
+ *   2. FastAPI validation: { detail: [{ msg: "..." }] }
+ *   3. FastAPI HTTPException: { detail: "..." }
+ *   4. Erro de rede: sem body (err.status === 0)
+ *
+ * O interceptor já mostra um toast — esta função serve para o erro inline
+ * no componente, que fornece contexto adicional ao utilizador.
+ */
+function extractErrorMessage(err: unknown, fallback = 'Erro ao executar enrichment'): string {
+  if (!(err instanceof HttpErrorResponse)) {
+    return err instanceof Error ? err.message : fallback;
+  }
+
+  if (err.status === 0) {
+    return 'Sem ligação ao servidor. Verifica se o backend está ativo.';
+  }
+
+  if (err.status === 401) {
+    return 'Não autorizado. Verifica a API key configurada.';
+  }
+
+  const body = err.error;
+  if (!body) return `Erro ${err.status}: ${fallback}`;
+
+  // Formato ApiResponse (backend próprio)
+  if (typeof body.message === 'string' && body.message) return body.message;
+  if (Array.isArray(body.errors) && body.errors.length > 0) return body.errors[0];
+
+  // Formato FastAPI HTTPException padrão
+  if (typeof body.detail === 'string') return body.detail;
+
+  // FastAPI validation errors (array)
+  if (Array.isArray(body.detail) && body.detail.length > 0) {
+    return body.detail[0]?.msg ?? fallback;
+  }
+
+  return `Erro ${err.status}: ${fallback}`;
 }

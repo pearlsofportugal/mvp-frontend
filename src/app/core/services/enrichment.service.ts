@@ -28,9 +28,8 @@ export class EnrichmentService extends BaseApiService {
 
 
   previewEnrichment(listingId: string): Observable<EnrichmentPreview> {
-    return this.post<EnrichmentPreview>(
-      this.buildRoute(`${this.path}/preview/:listingId`, { listingId }),
-      {}
+    return this.get<EnrichmentPreview>(
+      this.buildRoute(`${this.path}/preview/:listingId`, { listingId })
     );
   }
 

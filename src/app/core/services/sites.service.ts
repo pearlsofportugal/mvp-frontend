@@ -1,14 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { SiteConfig, SiteConfigCreate } from '../models/site-config.model';
+import { SiteConfig } from '../models/site-config.model';
 import { BaseApiService } from './base-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SitesService extends BaseApiService{
+export class SitesService extends BaseApiService {
   private readonly path = '/api/v1/sites';
 
   list(): Observable<SiteConfig[]> {

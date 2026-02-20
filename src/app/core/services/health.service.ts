@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { HealthStatus } from '../models/health.model';
 import { BaseApiService } from './base-api.service';
 
