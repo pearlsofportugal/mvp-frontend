@@ -6,28 +6,23 @@
 <div class="card mt">
 	<div class="flex-between">
 		<h2>Recent Jobs</h2>
-		<button class="btn btn-outline btn-sm" (click)="reloadJobs()">
+		<button class="btn btn-outline btn-sm" (click)="onJobCreated()">
 			Refresh
 		</button>
 	</div>
 
 	@if (loading()) {
-		<p class="mt">Loading...</p>
+	<p class="mt">Loading...</p>
 	} @else if (error()) {
-		<p class="mt error">{{ error() }}</p>
+	<p class="mt error">{{ error() }}</p>
 	} @else {
-		<app-jobs-list
-			class="mt"
-			[jobs]="jobs()"
-			(view)="onViewJob($event)"
-			(cancel)="onCancelJob($event)"
-			(delete)="onDeleteJob($event)"
-		/>
+	<app-jobs-list class="mt" [jobs]="jobs()" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
+		(delete)="onDeleteJob($event)" />
 	}
 </div>
 
 @if (selectedJob()) {
-	<div class="card mt">
-		<app-job-detail [job]="selectedJob()!" (close)="onCloseDetail()" />
-	</div>
+<div class="card mt">
+	<app-job-detail [job]="selectedJob()!" (close)="onCloseDetail()" />
+</div>
 }
