@@ -1,22 +1,30 @@
 # ── Estágio de Build ──────────────────────────────────────────────────────────
+
 FROM node:20 AS build
 WORKDIR /app
 
+
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --quiet
 
 COPY . .
 RUN npm run build
 
 # ── Estágio de Execução ───────────────────────────────────────────────────────
+
 FROM node:20-slim
 WORKDIR /app
 
-# Copia apenas o output do build (browser + server)
-COPY --from=build /app/dist/frontend /app/dist/frontend
+
+USER node
+
+COPY --from=build --chown=node:node /app/dist/frontend /app/dist/frontend
 
 EXPOSE 8080
 ENV PORT=8080
 ENV NODE_ENV=production
+
+
+ENV NODE_OPTIONS="--max-old-space-size=900"
 
 CMD ["node", "dist/frontend/server/server.mjs"]

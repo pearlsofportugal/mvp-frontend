@@ -1,0 +1,31 @@
+# Dependências — reinstaladas no build pelo npm ci
+node_modules/
+
+# Output de builds anteriores
+dist/
+
+# Cache do Angular CLI
+.angular/
+
+# Git
+.git/
+.gitignore
+
+# Variáveis de ambiente — nunca devem entrar na imagem
+.env
+.env.*
+!.env.example
+environments/*
+
+# Ficheiros de desenvolvimento e IDE
+*.local
+.vscode/
+.claude/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
