@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm ci --quiet
 
 COPY . .
-RUN npm run build
+RUN npx ng build --configuration production
 
 # ── Estágio de Execução ───────────────────────────────────────────────────────
 
