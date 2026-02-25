@@ -1,31 +1,38 @@
-<div class="card">
-  <div class="flex-between">
-    <h2>Site Settings</h2>
-    @if (!showForm()) {
-      <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
+<div class="sites-page">
+  <div class="card card-generator">
+    <div class="generator-header">
+      <div class="generator-title-block">
+        <span class="generator-eyebrow">Site Configuration</span>
+        <h2 class="generator-title">Manage scraping sites</h2>
+        <p class="generator-desc">
+          Configure source websites, extraction mode, and selectors used by scraping jobs.
+        </p>
+      </div>
+
+      @if (!showForm()) {
+        <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="state-loading">
+        <div class="state-spinner"></div>
+        <span>Loading sites...</span>
+      </div>
+    } @else if (error()) {
+      <p class="error-message">{{ error() }}</p>
+    } @else {
+      <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" />
     }
   </div>
 
-  @if (loading()) {
-    <p class="mt">Loading...</p>
-  } @else if (error()) {
-    <p class="mt error">{{ error() }}</p>
-  } @else {
-    <app-site-list
-      class="mt"
-      [sites]="sites()"
-      (edit)="onEditSite($event)"
-      (delete)="onDeleteSite($event)"
-    />
+  @if (showForm()) {
+    <div class="card card-result">
+      <div class="result-header">
+        <h2 class="section-title">Site details</h2>
+        <p class="card-desc">Fill in base information and selectors to create or update a site.</p>
+      </div>
+      <app-site-form [site]="editingSite()" (success)="onFormSuccess()" (cancel)="onFormCancel()" />
+    </div>
   }
 </div>
-
-@if (showForm()) {
-  <div class="card mt">
-    <app-site-form
-      [site]="editingSite()"
-      (success)="onFormSuccess()"
-      (cancel)="onFormCancel()"
-    />
-  </div>
-}
