@@ -1,46 +1,94 @@
 <div class="enrichment-page">
-  <div class="card">
-    <h2>Gerador de conteúdo com IA</h2>
-    <p class="section-description">Seleciona um imóvel, escolhe os campos e gera uma versão otimizada para SEO e legibilidade.</p>
-    <app-enrichment-form
-      (success)="onEnrichmentSuccess($event)"
-      (listingSelected)="onListingSelected($event)"
-    />
+  <div class="card card-generator">
+    <div class="generator-header">
+      <div class="generator-title-block">
+        <span class="generator-eyebrow">AI Content Generator</span>
+        <h2 class="generator-title">Enhance your property listing</h2>
+        <p class="generator-desc">Select a property, choose what to improve, and let AI generate optimised content for
+          SEO and readability.</p>
+      </div>
+      @if (result(); as r) {
+      <div class="last-run-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Last run: {{ r.total_enriched }} changed · {{ r.duration_seconds | number:'1.1-1' }}s
+      </div>
+      }
+    </div>
+    <app-enrichment-form (success)="onEnrichmentSuccess($event)" (listingSelected)="onListingSelected($event)" />
   </div>
 
-@if (result(); as r) {
-    <div class="card">
-      <h2>Resumo da última geração</h2>
+  @if (result(); as r) {
+  <div class="card card-result" @resultReveal>
+    <div class="result-header">
+      <h2 class="section-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+        Generation result
+      </h2>
       <app-enrichment-result [result]="r" />
     </div>
-}
+  </div>
+  }
 
-  <div class="card">
-    <div class="flex-between">
-      <h2>Estatísticas de enrichment</h2>
-      <button class="btn btn-outline" type="button" (click)="reloadStats()" [disabled]="loading()">
-        Atualizar
-      </button>
+  <div class="secondary-grid">
+
+    <div class="card card-preview">
+      <div class="card-head">
+        <h2 class="section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Content preview
+        </h2>
+        <p class="card-desc">Compare original and AI-suggested text before applying.</p>
+      </div>
+      <app-enrichment-preview [listingId]="selectedListingId()" />
     </div>
-    @switch (viewState()) {
+
+    <div class="card card-stats">
+      <div class="card-head">
+        <div class="card-head-row">
+          <h2 class="section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+            Enhancement overview
+          </h2>
+          <button class="btn-icon" type="button" (click)="reloadStats()" [disabled]="loading()"
+            [class.spinning]="loading()" aria-label="Refresh stats">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      @switch (viewState()) {
       @case ('loading') {
-        <p>A carregar estatísticas...</p>
+      <div class="stats-loading">
+        <div class="stats-spinner"></div>
+        <span>Loading overview...</span>
+      </div>
       }
       @case ('error') {
-        <p class="error-message">{{ error() }}</p>
+      <p class="error-message">{{ error() }}</p>
       }
       @case ('data') {
-        <app-enrichment-stats [stats]="stats()!" />
+      <app-enrichment-stats [stats]="stats()!" />
       }
       @default {
-        <p>Sem dados de estatísticas.</p>
+      <p class="empty-state">No overview data yet.</p>
       }
-    }
-  </div>
+      }
+    </div>
 
-  <div class="card">
-    <h2>Pré-visualização de conteúdo</h2>
-    <p class="section-description">Compara o texto original e o texto sugerido pela IA antes de aplicar alterações.</p>
-    <app-enrichment-preview [listingId]="selectedListingId()" />
   </div>
 </div>

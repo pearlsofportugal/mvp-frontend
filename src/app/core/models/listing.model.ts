@@ -144,3 +144,16 @@ export interface RealEstateStats {
   by_source_partner?: Record<string, number>;
   by_typology?: Record<string, number>;
 }
+
+
+export interface RealEstateListItemExtended extends RealEstateListItem {
+  thumbnail_url?: string | null;
+  is_enriched?: boolean;
+}
+export interface ListingSearchResponse {
+  items: RealEstateListItemExtended[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+}

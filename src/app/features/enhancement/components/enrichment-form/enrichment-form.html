@@ -1,138 +1,214 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulário de enrichment com IA">
-  <div class="form-grid">
-    <div class="form-group full-width">
-      <label for="listing_search">Pesquisar imóvel (título ou descrição)</label>
-      <input
-        id="listing_search"
-        type="text"
-        placeholder="Escreve pelo menos 2 caracteres"
-        (input)="onSearchListings($event)"
-      />
-      @if (loadingCandidates()) {
-        <small class="form-hint">A pesquisar imóveis...</small>
-      }
-      @if (!loadingCandidates() && hasTypedSearch() && listingCandidates().length === 0) {
-        <small class="form-hint">Sem resultados para a pesquisa atual.</small>
-      }
-      @if (listingCandidates().length > 0) {
-        <div class="candidate-list" role="list" aria-label="Resultados de imóveis">
-          @for (candidate of listingCandidates(); track candidate.id) {
-            <button
-              type="button"
-              class="candidate-item"
-              (click)="onSelectListing(candidate)"
-              role="listitem"
-            >
-              <strong>{{ candidate.title || 'Sem título' }}</strong>
-              <span>{{ candidate.id }}</span>
-            </button>
-          }
-        </div>
-      }
-    </div>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="AI Enrichment form">
 
-    <div class="form-group checkbox-group">
-      <input id="target_title" type="checkbox" formControlName="target_title" />
-      <label for="target_title">Melhorar título</label>
+  <!-- ── PROPERTY SELECTOR ────────────────────────────────────── -->
+  <div class="form-group full-width">
+    @defer (on interaction(selectorTrigger)) {
+    <app-listing-selector [openOnInit]="true" [(selectedId)]="selectedListingId"
+      (listingConfirmed)="onListingConfirmed($event)" />
+    } @placeholder {
+    <div class="selector-field" #selectorTrigger>
+      <span class="field-label">Property</span>
+      <button type="button" class="selector-trigger">
+        <svg class="trigger-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+        <span class="trigger-text trigger-placeholder">Select property...</span>
+        <svg class="trigger-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
     </div>
-
-    <div class="form-group checkbox-group">
-      <input id="target_description" type="checkbox" formControlName="target_description" />
-      <label for="target_description">Melhorar descrição</label>
-    </div>
-
-    <div class="form-group checkbox-group">
-      <input id="target_meta_description" type="checkbox" formControlName="target_meta_description" />
-      <label for="target_meta_description">Melhorar meta description</label>
-    </div>
-
-    <div class="form-group checkbox-group">
-      <input id="apply_changes" type="checkbox" formControlName="apply_changes" />
-      <label for="apply_changes">Guardar alterações na base de dados</label>
-    </div>
-
-    <div class="form-group checkbox-group">
-      <input id="force_regeneration" type="checkbox" formControlName="force_regeneration" />
-      <label for="force_regeneration">Forçar regeneração (substituir conteúdo existente)</label>
-    </div>
+    }
   </div>
 
+  <!-- ── SELECTED LISTING INFO ─────────────────────────────────── -->
   @if (loadingListing()) {
-    <div class="info-box">A carregar informação do imóvel...</div>
+  <div class="listing-info listing-info--loading">
+    <div class="listing-info-spinner"></div>
+    <span>Loading property...</span>
+  </div>
   }
 
   @if (selectedListing(); as listing) {
-    <div class="info-box" role="status" aria-live="polite">
-      <h3>Imóvel selecionado</h3>
-      <div><strong>Título:</strong> {{ listing.title || '-' }}</div>
-      <div><strong>Fonte:</strong> {{ listing.source_partner }}</div>
-      <div><strong>Tipo:</strong> {{ listing.property_type || '-' }} {{ listing.typology || '' }}</div>
-      <div><strong>Localização:</strong> {{ listing.county || '-' }}, {{ listing.district || '-' }}</div>
-      <div><strong>Preço:</strong> {{ listing.price_amount ?? '-' }} {{ listing.price_currency || '' }}</div>
-      <div><strong>ID:</strong> {{ listing.id }}</div>
+  <div class="listing-info" role="status" aria-live="polite">
+    <div class="listing-info-title">{{ listing.title || '—' }}</div>
+    <div class="listing-info-meta">
+      <span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        {{ listing.district || '' }}{{ listing.district && listing.county ? ', ' : '' }}{{ listing.county || '—' }}
+      </span>
+      @if (listing.price_amount) {
+      <span class="listing-info-price">{{ listing.price_amount | number }} {{ listing.price_currency || '€' }}</span>
+      }
+      <span class="listing-info-source">{{ listing.source_partner }}</span>
     </div>
+  </div>
   }
 
+  <!-- ── WHAT TO ENHANCE ──────────────────────────────────────── -->
+  <div class="options-section">
+    <span class="options-label">What to enhance</span>
+    <div class="options-grid">
+
+      <div class="tooltip-wrap"
+        data-tooltip="Rewrites the property title to be more compelling and SEO-friendly. Keeps key facts like location and type.">
+        <label class="option-card" [class.option-card--active]="form.value.target_title">
+          <input type="checkbox" formControlName="target_title" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 7 4 4 20 4 20 7" />
+            <line x1="9" y1="20" x2="15" y2="20" />
+            <line x1="12" y1="4" x2="12" y2="20" />
+          </svg>
+          Title
+        </label>
+      </div>
+
+      <div class="tooltip-wrap"
+        data-tooltip="Rewrites the full property description to improve clarity, tone and readability. Highlights key selling points.">
+        <label class="option-card" [class.option-card--active]="form.value.target_description">
+          <input type="checkbox" formControlName="target_description" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="21" y1="6" x2="3" y2="6" />
+            <line x1="21" y1="10" x2="3" y2="10" />
+            <line x1="21" y1="14" x2="3" y2="14" />
+            <line x1="21" y1="18" x2="3" y2="18" />
+          </svg>
+          Description
+        </label>
+      </div>
+
+      <div class="tooltip-wrap"
+        data-tooltip="Generates a meta description (up to 160 chars) optimised for search engines and click-through rates.">
+        <label class="option-card" [class.option-card--active]="form.value.target_meta_description">
+          <input type="checkbox" formControlName="target_meta_description" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Meta description
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="behaviour-row">
+    <div class="tooltip-wrap tooltip-wrap--inline"
+      data-tooltip="Saves the AI-generated content directly to the property. If off, you get a preview only — nothing is changed.">
+      <label class="toggle-option">
+        <input type="checkbox" formControlName="apply_changes" />
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Apply changes</span>
+      </label>
+    </div>
+
+    <div class="tooltip-wrap tooltip-wrap--inline"
+      data-tooltip="Forces the AI to generate new content even if this field was already enhanced before. Previous content will be replaced.">
+      <label class="toggle-option">
+        <input type="checkbox" formControlName="force_regeneration" />
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Force regeneration</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ── ERROR ─────────────────────────────────────────────────── -->
   @if (error()) {
-    <div class="error-message" role="alert" aria-live="assertive">
-      {{ error() }}
-    </div>
+  <div class="error-message" role="alert" aria-live="assertive">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+    {{ error() }}
+  </div>
   }
 
-  <div class="btn-group">
-    <button
-      type="submit"
-      class="btn btn-primary"
-      [disabled]="loading()"
-      [attr.aria-busy]="loading()"
-    >
+  <!-- ── SUBMIT ─────────────────────────────────────────────────── -->
+  <div class="form-footer">
+    <button type="submit" class="btn-generate" [disabled]="loading()" [attr.aria-busy]="loading()">
       @if (loading()) {
-        IA a gerar conteúdo...
+      <span class="btn-generate-spinner"></span>
+      Generating...
       } @else {
-        Gerar novo texto com IA
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+      Generate with AI
       }
     </button>
   </div>
 
+  <!-- ── AI PROGRESS ───────────────────────────────────────────── -->
   @if (loading()) {
-    <div class="ai-progress" role="status" aria-live="polite">
-      <div class="ai-progress-head">
-        <strong>Geração em curso</strong>
-        <span>{{ generationProgress() }}%</span>
-      </div>
-      <p>{{ generationStatus() }}</p>
-      <div
-        class="progress-track"
-        role="progressbar"
-        aria-label="Progresso da geração por IA"
-        [attr.aria-valuenow]="generationProgress()"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        <div class="progress-fill" [style.width.%]="generationProgress()"></div>
-      </div>
+  <div class="ai-progress" role="status" aria-live="polite">
+    <div class="ai-progress-head">
+      <span class="ai-progress-status">{{ generationStatus() }}</span>
+      <span class="ai-progress-pct">{{ generationProgress() }}%</span>
     </div>
+    <div class="progress-track" role="progressbar" [attr.aria-valuenow]="generationProgress()" aria-valuemin="0"
+      aria-valuemax="100">
+      <div class="progress-fill" [style.width.%]="generationProgress()"></div>
+    </div>
+  </div>
   }
 
+  <!-- ── DIFF RESULT ────────────────────────────────────────────── -->
   @if (hasDirectResults()) {
-    <div class="info-box" role="status" aria-live="polite">
-      <h3>Resultado da geração</h3>
-      <div class="result-summary">
-        <span class="badge badge-completed">Alterados: {{ changedCount() }}</span>
-        <span class="badge badge-detail">Sem alteração: {{ unchangedCount() }}</span>
-        <span class="badge badge-list">Modelo: {{ directResult()!.model_used }}</span>
-        <span class="badge" [class.badge-active]="directResult()!.applied" [class.badge-inactive]="!directResult()!.applied">
-          {{ directResult()!.applied ? 'Aplicado' : 'Preview' }}
+  <div class="diff-result" role="status" aria-live="polite">
+
+    <div class="diff-result-header">
+      <span class="diff-result-title">Changes</span>
+      <div class="diff-badges">
+        <span class="diff-badge diff-badge--changed">{{ changedCount() }} changed</span>
+        @if (unchangedCount() > 0) {
+        <span class="diff-badge diff-badge--same">{{ unchangedCount() }} same</span>
+        }
+        <span class="diff-badge diff-badge--model">{{ directResult()!.model_used }}</span>
+        <span class="diff-badge" [class.diff-badge--applied]="directResult()!.applied"
+          [class.diff-badge--preview]="!directResult()!.applied">
+          {{ directResult()!.applied ? 'Applied' : 'Preview only' }}
         </span>
       </div>
-      @for (item of directResult()!.results; track item.field) {
-        <div class="diff-block" [class.diff-changed]="item.changed">
-          <h4>{{ item.field }}</h4>
-          <div><strong>Antes:</strong> {{ item.original || '-' }}</div>
-          <div><strong>Depois:</strong> {{ item.enriched || '-' }}</div>
-          <div><strong>Estado:</strong> {{ item.changed ? 'Alterado' : 'Sem alteração' }}</div>
-        </div>
-      }
     </div>
+
+    @for (item of directResult()!.results; track item.field) {
+    <div class="diff-field" [class.diff-field--changed]="item.changed">
+      <div class="diff-field-label">
+        <span class="diff-field-name">{{ item.field }}</span>
+        @if (item.changed) {
+        <span class="diff-field-status diff-field-status--changed">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Changed
+        </span>
+        } @else {
+        <span class="diff-field-status diff-field-status--same">Unchanged</span>
+        }
+      </div>
+      <div class="diff-columns">
+        <div class="diff-col diff-col--before">
+          <span class="diff-col-label">Before</span>
+          <p class="diff-col-text">{{ item.original || '—' }}</p>
+        </div>
+        <div class="diff-col diff-col--after">
+          <span class="diff-col-label">After</span>
+          <p class="diff-col-text">{{ item.enriched || '—' }}</p>
+        </div>
+      </div>
+    </div>
+    }
+
+  </div>
   }
+
 </form>

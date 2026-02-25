@@ -7,6 +7,7 @@ import { EnrichmentPreviewComponent } from './components/enrichment-preview/enri
 import { EnrichmentStatsComponent } from './components/enrichment-stats/enrichment-stats';
 import { EnrichmentService } from '../../core/services/enrichment.service';
 import { EnrichmentResult, EnrichmentStats } from '../../core/models/enrichment.model';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-enrichment',
@@ -15,6 +16,7 @@ import { EnrichmentResult, EnrichmentStats } from '../../core/models/enrichment.
     EnrichmentResultComponent,
     EnrichmentPreviewComponent,
     EnrichmentStatsComponent,
+    DecimalPipe
   ],
   templateUrl: './enhancement.html',
   styleUrl: './enhancement.css',
@@ -27,7 +29,6 @@ export class EnhancementComponent {
   protected readonly result = signal<EnrichmentResult | null>(null);
   protected readonly selectedListingId = signal<string | null>(null);
 
-  // Stats resource (automatic lifecycle)
   readonly statsResource = rxResource<EnrichmentStats, number>({
     params: () => this.statsRefreshTick(),
     stream: () => this.enrichmentService.getStats(),

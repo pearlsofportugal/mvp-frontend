@@ -1,0 +1,264 @@
+<!-- ── TRIGGER BUTTON ──────────────────────────────────────────── -->
+<div class="selector-field">
+    <span class="field-label">Property</span>
+
+    <button type="button" class="selector-trigger" [class.has-value]="!!confirmedListing()" (click)="open()"
+        [attr.aria-expanded]="isOpen()" aria-haspopup="dialog">
+
+        @if (confirmedListing(); as l) {
+        <!-- Thumbnail or initial avatar -->
+        @if (l.thumbnail_url) {
+        <img class="trigger-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
+        } @else {
+        <span class="trigger-thumb trigger-thumb--initial">{{ titleInitial(l.title) }}</span>
+        }
+        <span class="trigger-text">
+            <span class="trigger-title">{{ l.title || 'Sem título' }}</span>
+            <span class="trigger-sub">
+                {{ locationLabel(l) }}&nbsp;·&nbsp;{{ typeLabel(l) }}&nbsp;·&nbsp;{{ formatPrice(l.price_amount,
+                l.price_currency) }}
+            </span>
+        </span>
+        } @else {
+        <svg class="trigger-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+        </svg>
+        <span class="trigger-text trigger-placeholder">Select property...</span>
+        }
+
+        <svg class="trigger-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+        </svg>
+    </button>
+</div>
+
+<!-- ── OVERLAY + MODAL ─────────────────────────────────────────── -->
+@if (isOpen()) {
+<div class="overlay" role="presentation" (click)="onOverlayClick($event)" (keydown)="onOverlayKeydown($event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Select property">
+
+        <!-- MODAL HEADER -->
+        <div class="modal-header">
+            <div class="modal-top">
+                <span class="modal-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                    Select property
+                </span>
+                <button class="modal-close" type="button" (click)="close()" aria-label="Close modal">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="search-wrap">
+                <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input class="search-input" type="text" placeholder="Search by title, location or source..."
+                    autocomplete="off" [value]="searchQuery()" (input)="onSearch($any($event.target).value)"
+                    aria-label="Search listings" />
+                @if (searchQuery()) {
+                <button class="search-clear" type="button" (click)="clearSearch()" aria-label="Clear search">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+                }
+            </div>
+
+            <!-- Filter pills -->
+            <div class="filter-row" role="group" aria-label="Filters">
+                <button class="filter-pill" type="button" [class.active]="activeFilter() === 'all'"
+                    (click)="setFilter('all')">All</button>
+
+                <button class="filter-pill filter-pill--green" type="button"
+                    [class.active]="activeFilter() === 'enriched'" (click)="setFilter('enriched')">
+                    <span class="pill-dot pill-dot--green"></span>Enhanced
+                </button>
+
+                <button class="filter-pill filter-pill--dim" type="button"
+                    [class.active]="activeFilter() === 'not_enriched'" (click)="setFilter('not_enriched')">
+                    <span class="pill-dot pill-dot--dim"></span>Not enhanced
+                </button>
+
+                @if (allSourcePills().length > 0) {
+                <span class="filter-divider"></span>
+                }
+
+                @for (source of visibleSourcePills(); track source) {
+                <button class="filter-pill" type="button" [class.active]="activeFilter() === source"
+                    (click)="setFilter(source)">{{ source }}</button>
+                }
+
+                @if (hiddenSourceCount() > 0) {
+                <button class="filter-pill filter-pill--more" type="button" (click)="toggleSourcePills()">
+                    {{ sourcePillsExpanded() ? 'Show less' : '+' + hiddenSourceCount() + ' more' }}
+                </button>
+                }
+            </div>
+        </div>
+
+        <!-- LIST META ROW -->
+        <div class="list-meta">
+            <span class="list-count">
+                <strong>{{ resultCount() }}</strong> properties found
+            </span>
+            <select class="sort-select" [value]="activeSort()" (change)="setSort($any($event.target).value)"
+                aria-label="Sort listings">
+                <option value="title">Title A → Z</option>
+                <option value="price_asc">Price ↑</option>
+                <option value="price_desc">Price ↓</option>
+            </select>
+        </div>
+
+        <!-- LISTING LIST -->
+        <div class="listing-list" role="listbox" aria-label="Properties">
+
+            @if (isSearching()) {
+            <div class="list-state">
+                <div class="spinner"></div>
+                Searching for properties...
+            </div>
+            } @else if (displayList().length === 0) {
+            <div class="list-state">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                No properties found
+            </div>
+            } @else {
+
+            @for (listing of displayList(); track listing.id; let i = $index) {
+            <button type="button" class="listing-card" [class.selected]="pendingId() === listing.id"
+                [style.animation-delay]="i * 20 + 'ms'" role="option" [attr.aria-selected]="pendingId() === listing.id"
+                (click)="selectPending(listing)">
+
+                <!-- Photo / placeholder -->
+                @if (listing.thumbnail_url) {
+                <img class="listing-photo" [src]="listing.thumbnail_url" [alt]="listing.title ?? 'Property'"
+                    loading="lazy" />
+                } @else {
+                <div class="photo-placeholder">
+                    <span class="photo-initial">{{ titleInitial(listing.title) }}</span>
+                </div>
+                }
+
+                <!-- Body -->
+                <div class="listing-body">
+                    <span class="listing-title">{{ listing.title || 'No title' }}</span>
+                    <div class="listing-meta">
+                        <span class="listing-loc">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            {{ locationLabel(listing) }}
+                        </span>
+                        @if (typeLabel(listing) !== '—') {
+                        <span class="listing-type">{{ typeLabel(listing) }}</span>
+                        }
+                        @if (listing.bedrooms != null) {
+                        <span class="listing-type">{{ listing.bedrooms }} qt.</span>
+                        }
+                        @if (listing.area_useful_m2 != null) {
+                        <span class="listing-type">{{ listing.area_useful_m2 }} m²</span>
+                        }
+                    </div>
+                    <div class="listing-bottom-row">
+                        <span class="listing-price">{{ formatPrice(listing.price_amount, listing.price_currency)
+                            }}</span>
+                        <span class="listing-source">{{ listing.source_partner }}</span>
+                    </div>
+                </div>
+
+                <!-- Status column -->
+                <div class="listing-status">
+                    <div class="selected-check" aria-hidden="true">
+                        <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5">
+                            <polyline points="1.5,6 4.5,9 10.5,3" />
+                        </svg>
+                    </div>
+                    @if (listing.is_enriched) {
+                    <span class="enrichment-badge enrichment-badge--done">Enhanced</span>
+                    } @else {
+                    <span class="enrichment-badge enrichment-badge--none">Not enhanced</span>
+                    }
+                </div>
+            </button>
+            }
+
+            <!-- LOAD MORE -->
+            @if (hasMore()) {
+            <button type="button" class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
+                @if (isLoadingMore()) {
+                <span class="load-more-spinner"></span>
+                Loading...
+                } @else {
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+                Load more properties
+                }
+            </button>
+            }
+
+            }
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="modal-footer">
+            @if (pendingListing(); as l) {
+            <div class="footer-preview">
+                @if (l.thumbnail_url) {
+                <img class="footer-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
+                } @else {
+                <span class="footer-thumb footer-thumb--initial">{{ titleInitial(l.title) }}</span>
+                }
+                <div class="footer-preview-info">
+                    <span class="footer-preview-title">{{ l.title | slice:0:50 }}{{ (l.title?.length ?? 0) > 50 ? '…' :
+                        ''
+                        }}</span>
+                    <span class="footer-preview-sub">{{ locationLabel(l) }} · {{ formatPrice(l.price_amount,
+                        l.price_currency)
+                        }}</span>
+                </div>
+            </div>
+            } @else {
+            <span class="footer-empty">No property selected</span>
+            }
+
+            <div class="footer-btns">
+                <button class="btn btn-ghost" type="button" (click)="close()">Cancel</button>
+                <button class="btn btn-primary" type="button" [disabled]="!pendingListing()" (click)="confirm()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Confirm
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+}

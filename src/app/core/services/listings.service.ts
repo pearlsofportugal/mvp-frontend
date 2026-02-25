@@ -1,13 +1,11 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, map, Observable, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import {
   RealEstate,
   RealEstateListItem,
   RealEstateFilters,
-  PaginatedResponse,
   RealEstateStats,
+  ListingSearchResponse,
 } from '../models/listing.model';
 import { BaseApiService } from './base-api.service';
 import { PaginatedData } from '../models/api-response.model';
@@ -49,4 +47,35 @@ export class RealEstateService extends BaseApiService {
   deleteListing(id: string): Observable<void> {
     return this.delete(this.buildRoute(`${this.path}/:id`, { id }));
   }
+  searchListings(query: string, limit = 20): Observable<RealEstateListItem[]> {
+    return this.getPaginated<RealEstateListItem>(this.path, { search: query, page_size: limit })
+      .pipe(map(data => data.items));
+  }
+
+
+  searchForSelector(
+    query: string,
+    options: {
+      source_partner?: string;
+      is_enriched?: boolean;
+      page?: number;
+      page_size?: number;
+    } = {}
+  ): Observable<ListingSearchResponse> {
+    const params: Record<string, any> = {
+      q: query,
+      page: options.page ?? 1,
+      page_size: options.page_size ?? 20,
+    };
+
+    if (options.source_partner) params['source_partner'] = options.source_partner;
+    if (options.is_enriched !== undefined) params['is_enriched'] = options.is_enriched;
+
+    return this.get<ListingSearchResponse>(`${this.path}/search`, params);
+  }
+
+
+
+
+
 }

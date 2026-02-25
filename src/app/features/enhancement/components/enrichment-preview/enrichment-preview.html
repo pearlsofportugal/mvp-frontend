@@ -1,56 +1,64 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="form-group">
-    <label for="listing_id">Preview por ID do imóvel (UUID)</label>
-    <input
-      type="text"
-      id="listing_id"
-      formControlName="listing_id"
-      placeholder="ex: a1b2c3d4-..."
-    />
+@if (!listingId()) {
+<div class="preview-empty">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+  <span>Select a property above to preview AI-generated content.</span>
+</div>
+} @else {
+
+<div class="preview-toolbar">
+  <button type="button" class="btn-refresh" (click)="onRefresh()" [disabled]="loading()">
+    @if (loading()) {
+    <span class="refresh-spinner"></span>
+    Generating...
+    } @else {
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+    Generate preview
+    }
+  </button>
+</div>
+
+@if (error()) {
+<div class="preview-error" role="alert">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+  {{ error() }}
+</div>
+}
+
+@if (loading()) {
+<div class="preview-loading" role="status" aria-live="polite">
+  <div class="preview-loading-track">
+    <div class="preview-loading-bar"></div>
   </div>
+  <span>Generating preview with AI...</span>
+</div>
+}
 
-  @if (listingId()) {
-    <small class="form-hint">ID sincronizado automaticamente com o imóvel selecionado no formulário.</small>
-  }
-
-  @if (error()) {
-  <div class="error-message" role="alert" aria-live="assertive">{{ error() }}</div>
-  }
-
-  <div class="btn-group">
-    <button type="submit" class="btn btn-outline" [disabled]="loading()">
-      @if (loading()) { IA a gerar preview... } @else { Gerar preview IA }
-    </button>
-  </div>
-
-  @if (loading()) {
-    <div class="ai-loading" role="status" aria-live="polite">
-      <div class="ai-loading-label">A gerar novo texto de preview com IA...</div>
-      <div class="ai-loading-track" aria-hidden="true">
-        <div class="ai-loading-bar"></div>
-      </div>
+@if (preview(); as p) {
+<div class="preview-columns">
+  <div class="preview-col preview-col--original">
+    <div class="preview-col-head">
+      <span class="preview-col-label">Original</span>
     </div>
-  }
-</form>
-
-@if (preview()) {
-<div class="preview-content">
-  <div class="preview-section">
-    <h3>Descrição original</h3>
-    <div class="text-content">
-      {{ preview()!.original_description || "Sem descrição original" }}
-    </div>
+    <p class="preview-col-text">{{ p.original_description || 'No original description.' }}</p>
   </div>
 
-  <div class="preview-section">
-    <h3>Descrição melhorada (IA)</h3>
-    <div class="text-content enriched">
-      {{ preview()!.enriched_description || "Sem melhoria gerada" }}
+  <div class="preview-col preview-col--enriched">
+    <div class="preview-col-head">
+      <span class="preview-col-label">AI suggestion</span>
+      <span class="preview-model-badge">{{ p.model_used }}</span>
     </div>
-  </div>
-
-  <div class="preview-footer">
-    <span class="model-badge">Modelo: {{ preview()!.model_used }}</span>
+    <p class="preview-col-text">{{ p.enriched_description || 'No suggestion generated.' }}</p>
   </div>
 </div>
+}
+
 }

@@ -1,21 +1,21 @@
 <div class="stats-grid" role="list" aria-label="Resumo do resultado do enrichment">
   <div class="stat-card" role="listitem">
     <div class="value" aria-label="Total processado">{{ result().total_processed }}</div>
-    <div class="label">Processados</div>
+    <div class="label">Processed</div>
   </div>
 
   <div class="stat-card" role="listitem">
     <div class="value success" aria-label="Melhorados">{{ result().total_enriched }}</div>
-    <div class="label">Melhorados</div>
+    <div class="label">Enhanced</div>
   </div>
 
   <div class="stat-card" role="listitem">
     <div class="value error" aria-label="Erros">{{ result().total_errors }}</div>
-    <div class="label">Erros</div>
+    <div class="label">Errors</div>
   </div>
 
   <div class="stat-card" role="listitem">
     <div class="value" aria-label="Duração">{{ formattedDuration() }}</div>
-    <div class="label">Duração</div>
+    <div class="label">Duration</div>
   </div>
 </div>
