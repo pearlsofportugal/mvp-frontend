@@ -13,8 +13,6 @@
 
 	@if (loading()) {
 	<p class="mt">Loading...</p>
-	} @else if (error()) {
-	<p class="mt error">{{ error() }}</p>
 	} @else {
 	<app-jobs-list class="mt" [jobs]="jobs()" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
 		(delete)="onDeleteJob($event)" />

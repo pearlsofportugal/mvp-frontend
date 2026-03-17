@@ -1,60 +1,33 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  OnInit,
-  inject,
-  signal,
-  PLATFORM_ID,
-  DestroyRef,
-} from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HealthService } from '../../core/services/health.service';
-
-interface NavItem {
-  path: string;
-  label: string;
-  icon: string;
-}
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer, switchMap } from 'rxjs';
+import { NAV_ROUTES } from '../../app.routes';
 
 @Component({
   selector: 'app-header',
-  imports: [ RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrl: './header.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   private readonly healthService = inject(HealthService);
   protected readonly isHealthy = signal(false);
-  protected readonly healthText = signal('A verificar...');
-private readonly destroyRef = inject(DestroyRef);
+  protected readonly healthText = computed(() => (this.isHealthy() ? 'Online' : 'Offline'));
 
-  protected readonly navItems: NavItem[] = [
-    { path: '/sites', label: 'Sites', icon: '' },
-    { path: '/jobs', label: 'Jobs', icon: '' },
-    { path: '/real-estate', label: 'Real Estate', icon: '' },
-    { path: '/enhancement', label: 'Enhancement', icon: '' },
-    { path: '/export', label: 'Export', icon: '' },
-  ];
+  protected readonly navItems = NAV_ROUTES;
 
-ngOnInit(): void {
-  const intervalId = setInterval(() => this.checkHealth(), 30_000);
-  this.destroyRef.onDestroy(() => clearInterval(intervalId));
-  this.checkHealth();
-}
-
-  private checkHealth(): void {
-    this.healthService.checkHealth().subscribe({
-      next: (status) => {
-        this.isHealthy.set(status.status === 'healthy');
-        this.healthText.set(status.status === 'healthy' ? 'Online' : 'Offline');
-      },
-      error: () => {
-        this.isHealthy.set(false);
-        this.healthText.set('Offline');
-      },
-    });
+  constructor() {
+    timer(0, 30_000)
+      .pipe(
+        switchMap(() => this.healthService.checkHealth()),
+        takeUntilDestroyed(), 
+      )
+      .subscribe({
+        next: (status) => this.isHealthy.set(status?.status === 'healthy'),
+        error: () => this.isHealthy.set(false),
+      });
   }
 }

@@ -125,13 +125,7 @@ export interface RealEstateFilters {
   page_size?: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pages: number;
-  page_size: number;
-}
+
 
 export interface RealEstateStats {
   total_listings: number;
@@ -149,11 +143,4 @@ export interface RealEstateStats {
 export interface RealEstateListItemExtended extends RealEstateListItem {
   thumbnail_url?: string | null;
   is_enriched?: boolean;
-}
-export interface ListingSearchResponse {
-  items: RealEstateListItemExtended[];
-  total: number;
-  page: number;
-  page_size: number;
-  pages: number;
 }

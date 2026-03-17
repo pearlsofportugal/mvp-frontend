@@ -34,7 +34,6 @@
 
 .site-card:hover {
   border-color: var(--border-hi);
-  transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
@@ -152,4 +151,68 @@
 .badge-direct {
   background: rgba(16, 185, 129, 0.12);
   color: var(--green);
+}
+
+.confidence-wrap {
+  margin-bottom: 0.75rem;
+}
+
+.confidence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.confidence-label {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.confidence-value {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.confidence-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.conf-high { color: var(--green); background: var(--green); }
+.conf-mid { color: #f59e0b; background: #f59e0b; }
+.conf-low { color: var(--red); background: var(--red); }
+
+.site-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.55rem;
+}
+
+.site-updated {
+  font-size: 0.64rem;
+  color: var(--text-dim);
+}
+
+.confirm-delete {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.confirm-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  white-space: nowrap;
 }

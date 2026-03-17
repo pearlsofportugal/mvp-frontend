@@ -13,12 +13,8 @@ import { ListingsTableComponent } from './components/listings-table/listings-tab
 import { ListingDetailComponent } from './components/listing-detail/listing-detail';
 import { ListingsStatsComponent } from './components/listings-stats/listings-stats';
 import { RealEstateService } from '../../core/services/listings.service';
-import {
-  RealEstate,
-  RealEstateListItem,
-  RealEstateFilters,
-  PaginatedResponse,
-} from '../../core/models/listing.model';
+import { RealEstateFilters } from '../../core/models/listing.model';
+import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead } from '../../core/api/model';
 
 @Component({
   selector: 'app-listings',
@@ -43,29 +39,29 @@ export class ListingsComponent {
     page_size: 20,
   });
 
-  // Resources (automatic lifecycle — no manual subscribe for reads)
-  readonly realEstatesResource = rxResource<PaginatedResponse<RealEstateListItem>, RealEstateFilters>({
+  // Resources (automatic lifecycle � no manual subscribe for reads)
+  readonly realEstatesResource = rxResource<ApiResponsePaginatedResponse, RealEstateFilters>({
     params: () => this.currentFilters(),
     stream: ({ params }) => this.realEstateService.getListings(params),
   });
 
-  readonly detailResource = rxResource<RealEstate | null, string | null>({
+  readonly detailResource = rxResource<ListingRead | null, string | null>({
     params: () => this.selectedListingId(),
     stream: ({ params }) =>
       params ? this.realEstateService.getListingById(params) : of(null),
   });
 
   // Derived state
-  protected readonly realEstates = computed(() => this.realEstatesResource.value()?.items ?? []);
+  protected readonly realEstates = computed(() => this.realEstatesResource.value()?.data?.items ?? []);
   protected readonly isLoadingListings = computed(() => this.realEstatesResource.isLoading());
   protected readonly paginationData = computed(() => this.realEstatesResource.value());
   protected readonly selectedRealEstate = computed(() => this.detailResource.value() ?? null);
   protected readonly isLoadingDetail = computed(() => this.detailResource.isLoading());
 
   // Pagination derived
-  protected readonly totalListings = computed(() => this.paginationData()?.total ?? 0);
-  protected readonly currentPage = computed(() => this.paginationData()?.page ?? 1);
-  protected readonly totalPages = computed(() => this.paginationData()?.pages ?? 1);
+  protected readonly totalListings = computed(() => this.paginationData()?.meta?.total ?? 0);
+  protected readonly currentPage = computed(() => this.paginationData()?.meta?.page ?? 1);
+  protected readonly totalPages = computed(() => this.paginationData()?.meta?.pages ?? 1);
   protected readonly hasNextPage = computed(() => this.currentPage() < this.totalPages());
   protected readonly hasPrevPage = computed(() => this.currentPage() > 1);
 
@@ -86,9 +82,10 @@ export class ListingsComponent {
   }
 
   // Listing actions
-  onViewRealEstate(realEstate: RealEstateListItem): void {
+  onViewRealEstate(realEstate: ListingListRead): void {
     this.selectedListingId.set(realEstate.id);
   }
+
   onDeleteRealEstate(id: string): void {
     if (!confirm('Tem a certeza que deseja apagar este real estate?')) return;
 

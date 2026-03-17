@@ -1,9 +1,14 @@
 .sites-page {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1.25rem;
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+.sites-page.has-form {
+  grid-template-columns: minmax(360px, 1fr) minmax(500px, 1.6fr);
+  align-items: start;
 }
 
 .card-generator {

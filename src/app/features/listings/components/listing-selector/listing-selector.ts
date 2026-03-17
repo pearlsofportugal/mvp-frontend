@@ -23,10 +23,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SlicePipe } from '@angular/common';
 
 import { RealEstateService } from '../../../../core/services/listings.service';
-import {
-  RealEstateListItem,
-  RealEstateListItemExtended,
-} from '../../../../core/models/listing.model';
+import type { ListingSearchItem } from '../../../../core/api/model';
 
 export type SortOption = 'title' | 'price_asc' | 'price_desc';
 export type FilterOption = 'all' | 'enriched' | 'not_enriched' | string;
@@ -48,7 +45,7 @@ export class ListingSelector {
 
   // ── Inputs / Outputs ──────────────────────────────────────────
   readonly selectedId = model<string | null>(null);
-  readonly listingConfirmed = output<RealEstateListItemExtended>();
+  readonly listingConfirmed = output<ListingSearchItem>();
 
   // ── Modal state ───────────────────────────────────────────────
   protected readonly isOpen = signal(false);
@@ -57,7 +54,7 @@ export class ListingSelector {
   protected readonly searchQuery = signal('');
   private readonly search$ = new Subject<string>();
   protected readonly isSearching = signal(false);
-  protected readonly searchResults = signal<RealEstateListItemExtended[]>([]);
+  protected readonly searchResults = signal<ListingSearchItem[]>([]);
 
   // ── Pagination ────────────────────────────────────────────────
   private readonly currentPage = signal(1);
@@ -84,7 +81,7 @@ export class ListingSelector {
   );
 
   // ── Confirmed listing (shown on trigger button) ───────────────
-  protected readonly confirmedListing = signal<RealEstateListItemExtended | null>(null);
+  protected readonly confirmedListing = signal<ListingSearchItem | null>(null);
 
   // ── Filtered + sorted list ────────────────────────────────────
   protected readonly displayList = computed(() => {
@@ -97,9 +94,9 @@ export class ListingSelector {
     else if (filter !== 'all') list = list.filter((l) => l.source_partner === filter);
 
     if (sort === 'price_asc')
-      list.sort((a, b) => (a.price_amount ?? 0) - (b.price_amount ?? 0));
+      list.sort((a, b) => (Number(a.price_amount) || 0) - (Number(b.price_amount) || 0));
     else if (sort === 'price_desc')
-      list.sort((a, b) => (b.price_amount ?? 0) - (a.price_amount ?? 0));
+      list.sort((a, b) => (Number(b.price_amount) || 0) - (Number(a.price_amount) || 0));
     else list.sort((a, b) => (a.title ?? '').localeCompare(b.title ?? ''));
 
     return list;
@@ -126,22 +123,24 @@ export class ListingSelector {
 
   // ── Helpers ───────────────────────────────────────────────────
   protected formatPrice(
-    amount: number | null | undefined,
+    amount: string | number | null | undefined,
     currency: string | null | undefined,
   ): string {
     if (amount == null) return '—';
-    return `${currency ?? '€'} ${amount.toLocaleString('pt-PT')}`;
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(num)) return '—';
+    return `${currency ?? '€'} ${num.toLocaleString('pt-PT')}`;
   }
 
   protected shortId(id: string): string {
     return id.slice(0, 8) + '…';
   }
 
-  protected locationLabel(l: RealEstateListItem): string {
+  protected locationLabel(l: ListingSearchItem): string {
     return [l.county, l.district].filter(Boolean).join(', ') || '—';
   }
 
-  protected typeLabel(l: RealEstateListItem): string {
+  protected typeLabel(l: ListingSearchItem): string {
     return [l.property_type, l.typology].filter(Boolean).join(' ') || '—';
   }
 
@@ -160,7 +159,7 @@ export class ListingSelector {
     this.realEstateService
       .searchForSelector('', { page: 1, page_size: PAGE_SIZE })
       .pipe(
-        catchError(() => of({ items: [] as RealEstateListItemExtended[], total: 0 })),
+        catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((data) => {
@@ -182,7 +181,7 @@ export class ListingSelector {
     this.realEstateService
       .searchForSelector(this.activeQuery, { page: nextPage, page_size: PAGE_SIZE })
       .pipe(
-        catchError(() => of({ items: [] as RealEstateListItemExtended[], total: 0 })),
+        catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((data) => {
@@ -214,7 +213,7 @@ export class ListingSelector {
           return this.realEstateService
             .searchForSelector(query, { page: 1, page_size: PAGE_SIZE })
             .pipe(
-              catchError(() => of({ items: [] as RealEstateListItemExtended[], total: 0 })),
+              catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })),
             );
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -274,7 +273,7 @@ export class ListingSelector {
     this.search$.next('');
   }
 
-  protected selectPending(listing: RealEstateListItemExtended): void {
+  protected selectPending(listing: ListingSearchItem): void {
     this.pendingId.set(this.pendingId() === listing.id ? null : listing.id);
   }
 

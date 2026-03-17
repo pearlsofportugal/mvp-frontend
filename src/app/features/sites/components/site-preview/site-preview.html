@@ -1,0 +1,42 @@
+<div class="preview-wrap">
+  <button
+    type="button"
+    class="btn-test"
+    [disabled]="loading() || !canTest()"
+    (click)="onTest()"
+    [attr.aria-label]="'Test selector: ' + selector()"
+    [title]="canTest() ? 'Test this selector live' : 'Fill in Base URL and selector first'"
+  >
+    @if (loading()) {
+      <span class="spinner" aria-hidden="true"></span>
+    } @else {
+      ▶
+    }
+    Test
+  </button>
+
+  @if (hasRun() && !loading()) {
+    @if (result(); as r) {
+      <div
+        class="preview-result"
+        [class.no-matches]="r.matches === 0"
+        role="status"
+        [attr.aria-label]="r.matches + ' matches found'"
+      >
+        <span class="match-count" [class.zero]="r.matches === 0">
+          {{ r.matches }} {{ r.matches === 1 ? 'match' : 'matches' }}
+        </span>
+
+        @if (samples().length > 0) {
+          <ul class="sample-list" aria-label="Sample values">
+            @for (sample of samples(); track $index) {
+              <li class="sample-item">{{ sample }}</li>
+            }
+          </ul>
+        }
+      </div>
+    } @else {
+      <span class="preview-error" role="alert">Test failed</span>
+    }
+  }
+</div>

@@ -16,8 +16,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JobsService } from '../../../../core/services/jobs';
-import { SiteConfig } from '../../../../core/models/site-config.model';
-import { ScrapeJobCreate } from '../../../../core/models/scrape-job.model';
+import type { SiteConfigRead, JobCreate } from '../../../../core/api/model';
 
 type JobFormGroup = FormGroup<{
   site_key: FormControl<string>;
@@ -36,7 +35,7 @@ export class JobFormComponent {
   private readonly jobsService = inject(JobsService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly sites = input.required<SiteConfig[]>();
+  readonly sites = input.required<SiteConfigRead[]>();
   readonly jobCreated = output<void>();
 
   protected readonly submitting = signal(false);
@@ -75,7 +74,7 @@ export class JobFormComponent {
     this.error.set(null);
 
     const value = this.form.getRawValue();
-    const payload: ScrapeJobCreate = {
+    const payload: JobCreate = {
       site_key: value.site_key,
       start_url: value.start_url.trim(),
       max_pages: value.max_pages > 0 ? value.max_pages : undefined,

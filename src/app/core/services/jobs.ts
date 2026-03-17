@@ -1,56 +1,51 @@
-// src/app/core/services/jobs.ts
-//
-// MELHORIA: Adicionado streamJobProgress() que usa SSE para progresso em tempo real.
-//
-// O EventSource nativo do browser não suporta headers customizados (X-API-Key).
-// Usamos @microsoft/fetch-event-source que faz SSE sobre fetch() com suporte a headers.
-//
-// SETUP:
-//   npm install @microsoft/fetch-event-source
-//
-// O método streamJobProgress() retorna um Observable<ScrapeJob> que:
-//   - Emite um valor a cada evento SSE recebido
-//   - Completa automaticamente quando o job termina (evento 'done')
-//   - Propaga erros via Observable error channel
-//   - Cancela a ligação SSE quando o Observable é unsubscribed (takeUntilDestroyed, etc.)
-
-import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+﻿import { Injectable, inject } from '@angular/core';
+import { Observable, Subject, map } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { ScrapeJob, ScrapeJobCreate } from '../models/scrape-job.model';
-import { BaseApiService } from './base-api.service';
+import { JobsService as GeneratedJobsService } from '../api/generated/jobs/jobs.service';
+import type { JobCreate, JobRead, JobListRead } from '../api/model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class JobsService extends BaseApiService {
-  private readonly path = '/api/v1/jobs';
+export class JobsService {
+  private readonly api = inject(GeneratedJobsService);
+  private readonly basePath = '/api/v1/jobs';
 
-  getAll(): Observable<ScrapeJob[]> {
-    return this.get<ScrapeJob[]>(this.path);
+  getAll(): Observable<JobListRead[]> {
+    return this.api
+      .listJobs()
+      .pipe(map((r) => r.data ?? []));
   }
 
-  getById(id: string): Observable<ScrapeJob> {
-    return this.get<ScrapeJob>(this.buildRoute(`${this.path}/:id`, { id }));
+  getById(id: string): Observable<JobRead> {
+    return this.api
+      .getJob(id)
+      .pipe(map((r) => r.data!));
   }
 
-  create(data: ScrapeJobCreate): Observable<ScrapeJob> {
-    return this.post<ScrapeJob>(this.path, data);
+  create(data: JobCreate): Observable<JobRead> {
+    return this.api
+      .createJob(data)
+      .pipe(map((r) => r.data!));
   }
 
-  cancel(id: string): Observable<ScrapeJob> {
-    return this.post<ScrapeJob>(this.buildRoute(`${this.path}/:id/cancel`, { id }), {});
+  cancel(id: string): Observable<JobRead> {
+    return this.api
+      .cancelJob(id)
+      .pipe(map((r) => r.data!));
   }
 
   remove(id: string): Observable<void> {
-    return this.delete(this.buildRoute(`${this.path}/:id`, { id }));
+    return this.api
+      .deleteJob(id)
+      .pipe(map(() => void 0));
   }
 
   /**
    * Stream de progresso de um job via Server-Sent Events.
    *
-   * Emite atualizações em tempo real enquanto o job está a correr.
+   * Emite atualizacoes em tempo real enquanto o job esta a correr.
    * Completa quando o job termina (completed/failed/cancelled).
    *
    * USO:
@@ -61,14 +56,11 @@ export class JobsService extends BaseApiService {
    *       error: (err) => this.streamError.set(err.message),
    *       complete: () => this.streaming.set(false),
    *     });
-   *
-   * FALLBACK: se SSE falhar (browser antigo, proxy incompatível), o JobDetailComponent
-   * tem um botão "Atualizar" que chama getById() diretamente.
    */
-  streamJobProgress(jobId: string): Observable<ScrapeJob> {
-    const subject = new Subject<ScrapeJob>();
+  streamJobProgress(jobId: string): Observable<JobRead> {
+    const subject = new Subject<JobRead>();
     const abortController = new AbortController();
-    const url = `${environment.apiUrl}${this.path}/${jobId}/stream`;
+    const url = `${environment.apiUrl}${this.basePath}/${jobId}/stream`;
 
     fetchEventSource(url, {
       method: 'GET',
@@ -89,30 +81,26 @@ export class JobsService extends BaseApiService {
         if (!event.data) return;
 
         try {
-          const data = JSON.parse(event.data);
+          const data = JSON.parse(event.data) as JobRead;
 
           if (event.event === 'done') {
-            // Emitir estado final e completar o Observable
-            subject.next(data as ScrapeJob);
+            subject.next(data);
             subject.complete();
             abortController.abort();
             return;
           }
 
           if (event.event === 'error') {
-            subject.error(new Error(data.message ?? 'Erro no stream SSE'));
+            subject.error(new Error((data as unknown as { message?: string }).message ?? 'Erro no stream SSE'));
             abortController.abort();
             return;
           }
 
           if (event.event === 'heartbeat') {
-            // Ignorar heartbeats — são só keepalive
             return;
           }
 
-          // 'progress' e 'status' — emitir atualização parcial do job
-          subject.next(data as ScrapeJob);
-
+          subject.next(data);
         } catch (e) {
           console.warn('[SSE] Erro a parsear evento:', event.data, e);
         }
@@ -120,20 +108,17 @@ export class JobsService extends BaseApiService {
 
       onerror: (err) => {
         subject.error(err);
-        // Retornar para impedir que o fetchEventSource faça retry automático
         throw err;
       },
 
       onclose: () => {
-        // Ligação fechada pelo servidor — completar se ainda não completou
         if (!subject.closed) {
           subject.complete();
         }
       },
     });
 
-    // Quando o Observable é unsubscribed, cancelar a ligação SSE
-    return new Observable<ScrapeJob>((observer) => {
+    return new Observable<JobRead>((observer) => {
       const subscription = subject.subscribe(observer);
       return () => {
         subscription.unsubscribe();

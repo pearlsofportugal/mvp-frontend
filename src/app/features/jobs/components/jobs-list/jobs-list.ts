@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { ScrapeJob } from '../../../../core/models/scrape-job.model';
+import type { JobListRead } from '../../../../core/api/model';
 
 @Component({
   selector: 'app-jobs-list',
@@ -9,12 +9,12 @@ import { ScrapeJob } from '../../../../core/models/scrape-job.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobsListComponent {
-  jobs = input.required<ScrapeJob[]>();
-  view = output<ScrapeJob>();
+  jobs = input.required<JobListRead[]>();
+  view = output<JobListRead>();
   cancel = output<string>();
   delete = output<string>();
 
-  protected onView(job: ScrapeJob): void {
+  protected onView(job: JobListRead): void {
     this.view.emit(job);
   }
 
@@ -26,7 +26,7 @@ export class JobsListComponent {
     this.delete.emit(id);
   }
 
-  protected formatDate(date: string | undefined): string {
+  protected formatDate(date: string | null | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleString('pt-PT');
   }

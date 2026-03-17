@@ -36,18 +36,49 @@
             <span class="meta-label">Selectors</span>
             <span class="meta-value">{{ getSelectorCount(site) }} configured</span>
           </div>
+          @if (site.pagination_type) {
+            <div class="meta-item">
+              <span class="meta-label">Pagination</span>
+              <span class="badge badge-section">{{ site.pagination_type }}</span>
+            </div>
+          }
         </div>
-        
+
+        @if (getAverageConfidence(site); as conf) {
+          <div class="confidence-wrap">
+            <div class="confidence-header">
+              <span class="confidence-label">Selector coverage</span>
+              <span class="confidence-value" [class]="getConfidenceClass(conf)">{{ conf }}%</span>
+            </div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" [class]="getConfidenceClass(conf)" [style.width.%]="conf"></div>
+            </div>
+          </div>
+        }
+
+        <div class="site-footer">
+          <span class="site-updated">{{ formatUpdatedAt(site.updated_at) }}</span>
+        </div>
+
         <div class="site-actions">
-          <button class="btn btn-ghost btn-sm" (click)="viewSelectors(site)" title="View selectors">
-            <span></span> View
-          </button>
           <button class="btn btn-outline btn-sm" (click)="onEdit(site)" title="Edit site">
             <span></span> Edit
           </button>
           @if (site.is_active) {
-            <button class="btn btn-danger btn-sm" (click)="onDelete(site.key)" title="Deactivate site">
-              <span>X</span>
+            @if (pendingDeleteKey() === site.key) {
+              <div class="confirm-delete">
+                <span class="confirm-label">Deactivate?</span>
+                <button class="btn btn-danger btn-sm" (click)="onConfirmDelete(site.key)">Yes</button>
+                <button class="btn btn-ghost btn-sm" (click)="onCancelDelete()">No</button>
+              </div>
+            } @else {
+              <button class="btn btn-danger btn-sm" (click)="onRequestDelete(site.key)" title="Deactivate site">
+                <span>X</span>
+              </button>
+            }
+          } @else {
+            <button class="btn btn-outline btn-sm" (click)="onReactivate(site.key)" title="Reactivate site">
+              Reactivate
             </button>
           }
         </div>

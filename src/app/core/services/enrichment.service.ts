@@ -1,46 +1,44 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import {
+﻿import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { EnrichmentService as GeneratedEnrichmentService } from '../api/generated/enrichment/enrichment.service';
+import type {
   AITextOptimizationRequest,
   AITextOptimizationResponse,
+  AIListingEnrichmentRequest,
+  AIListingEnrichmentResponse,
   EnrichmentPreview,
   EnrichmentStats,
-  AIListingEnrichmentResponse,
-  AIListingEnrichmentRequest,
-} from '../models/enrichment.model';
-import { BaseApiService } from './base-api.service';
+} from '../api/model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class EnrichmentService extends BaseApiService {
-  private readonly path = '/api/v1/enrichment/ai';
+export class EnrichmentService {
+  private readonly api = inject(GeneratedEnrichmentService);
 
   optimizeText(request: AITextOptimizationRequest): Observable<AITextOptimizationResponse> {
-    return this.post<AITextOptimizationResponse>(`${this.path}/optimize`, request);
+    return this.api
+      .optimizeText(request)
+      .pipe(map((r) => r.data!));
   }
 
-  enrichListing(
-    request: AIListingEnrichmentRequest
-  ): Observable<AIListingEnrichmentResponse> {
-    return this.post<AIListingEnrichmentResponse>(`${this.path}/listing`, request);
+  enrichListing(request: AIListingEnrichmentRequest): Observable<AIListingEnrichmentResponse> {
+    return this.api
+      .enrichListing(request)
+      .pipe(map((r) => r.data!));
   }
-
 
   previewEnrichment(listingId: string): Observable<EnrichmentPreview> {
-    return this.get<EnrichmentPreview>(
-      this.buildRoute(`${this.path}/preview/:listingId`, { listingId })
-    );
+    return this.api
+      .previewEnrichment(listingId)
+      .pipe(map((r) => r.data!));
   }
 
-  /**
-   * Obtém estatísticas agregadas de enrichment.
-   * Equivale a GET /ai/stats no backend.
-   */
   getStats(sourcePartner?: string): Observable<EnrichmentStats> {
-    return this.get<EnrichmentStats>(
-      `${this.path}/stats`,
-      sourcePartner ? { source_partner: sourcePartner } : undefined
-    );
+    return this.api
+      .enrichmentStats(
+        sourcePartner ? { source_partner: sourcePartner } : undefined,
+      )
+      .pipe(map((r) => r.data!));
   }
 }

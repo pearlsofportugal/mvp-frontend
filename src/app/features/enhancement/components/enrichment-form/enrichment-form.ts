@@ -11,14 +11,15 @@ import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { EnrichmentService } from '../../../../core/services/enrichment.service';
-import {
+import { EnrichmentResult } from '../../../../core/models/enrichment.model';
+import type {
   AIListingEnrichmentResponse,
   AIListingEnrichmentRequest,
-  AIEnrichmentTargetField,
-  EnrichmentResult,
-} from '../../../../core/models/enrichment.model';
+  AIListingEnrichmentRequestFieldsItem,
+  ListingRead,
+  ListingSearchItem,
+} from '../../../../core/api/model';
 import { RealEstateService } from '../../../../core/services/listings.service';
-import { RealEstate, RealEstateListItem } from '../../../../core/models/listing.model';
 import { of, finalize } from 'rxjs';
 import { ListingSelector } from '../../../listings/components/listing-selector/listing-selector';
 import { DecimalPipe } from '@angular/common';
@@ -71,14 +72,14 @@ export class EnrichmentFormComponent {
   protected readonly generationProgress = signal(0);
   protected readonly generationStepIndex = signal(0);
 
-  protected onListingConfirmed(listing: RealEstateListItem): void {
+  protected onListingConfirmed(listing: ListingSearchItem): void {
     this.selectedListingId.set(listing.id);
     this.directResult.set(null);
     this.error.set(null);
     this.listingSelected.emit(listing.id);
   }
 
-  readonly listingResource = rxResource<RealEstate | null, string | null>({
+  readonly listingResource = rxResource<ListingRead | null, string | null>({
     params: () => this.selectedListingId(),
     stream: ({ params }) => (params ? this.realEstateService.getListingById(params) : of(null)),
   });
@@ -87,13 +88,13 @@ export class EnrichmentFormComponent {
   protected readonly loadingListing = computed(() => this.listingResource.isLoading());
 
   protected readonly changedCount = computed(
-    () => this.directResult()?.results.filter((item) => item.changed).length ?? 0,
+    () => this.directResult()?.results?.filter((item) => item.changed).length ?? 0,
   );
   protected readonly unchangedCount = computed(
-    () => this.directResult()?.results.filter((item) => !item.changed).length ?? 0,
+    () => this.directResult()?.results?.filter((item) => !item.changed).length ?? 0,
   );
   protected readonly hasDirectResults = computed(
-    () => (this.directResult()?.results.length ?? 0) > 0,
+    () => (this.directResult()?.results?.length ?? 0) > 0,
   );
   protected readonly generationStatus = computed(() => {
     const index = this.generationStepIndex();
@@ -116,7 +117,7 @@ export class EnrichmentFormComponent {
     const value = this.form.getRawValue();
     const listingId = this.selectedListingId();
 
-    const fields: AIEnrichmentTargetField[] = [];
+    const fields: AIListingEnrichmentRequestFieldsItem[] = [];
     if (value.target_title) fields.push('title');
     if (value.target_description) fields.push('description');
     if (value.target_meta_description) fields.push('meta_description');
@@ -153,7 +154,7 @@ export class EnrichmentFormComponent {
       .subscribe({
         next: (response) => {
           this.directResult.set(response);
-          const changedCount = response.results.filter((r) => r.changed).length;
+          const changedCount = (response.results ?? []).filter((r) => r.changed).length;
           const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
 
           this.success.emit({

@@ -1,5 +1,18 @@
 import { Routes } from '@angular/router';
 
+export interface NavRoute {
+  path: string;
+  label: string;
+}
+
+export const NAV_ROUTES: NavRoute[] = [
+  { path: '/sites', label: 'Sites' },
+  { path: '/jobs', label: 'Jobs' },
+  { path: '/real-estate', label: 'Real Estate' },
+  { path: '/enhancement', label: 'Enhancement' },
+  { path: '/export', label: 'Export' },
+];
+
 export const routes: Routes = [
   {
     path: '',

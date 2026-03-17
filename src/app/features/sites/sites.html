@@ -1,4 +1,4 @@
-<div class="sites-page">
+<div class="sites-page" [class.has-form]="showForm()">
   <div class="card card-generator">
     <div class="generator-header">
       <div class="generator-title-block">
@@ -9,9 +9,7 @@
         </p>
       </div>
 
-      @if (!showForm()) {
-        <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
-      }
+      <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
     </div>
 
     @if (loading()) {
@@ -19,19 +17,13 @@
         <div class="state-spinner"></div>
         <span>Loading sites...</span>
       </div>
-    } @else if (error()) {
-      <p class="error-message">{{ error() }}</p>
     } @else {
-      <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" />
+      <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (reactivate)="onReactivateSite($event)" />
     }
   </div>
 
   @if (showForm()) {
     <div class="card card-result">
-      <div class="result-header">
-        <h2 class="section-title">Site details</h2>
-        <p class="card-desc">Fill in base information and selectors to create or update a site.</p>
-      </div>
       <app-site-form [site]="editingSite()" (success)="onFormSuccess()" (cancel)="onFormCancel()" />
     </div>
   }
