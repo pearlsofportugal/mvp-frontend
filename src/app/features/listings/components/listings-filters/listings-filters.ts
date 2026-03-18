@@ -2,10 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
   output,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { RealEstateFilters } from '../../../../core/models/listing.model';
@@ -18,21 +17,19 @@ import { RealEstateFilters } from '../../../../core/models/listing.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListingsFiltersComponent {
-  private readonly fb = inject(FormBuilder);
-
   filtersChange = output<RealEstateFilters>();
   viewStats = output<void>();
 
-  filterForm = this.fb.group({
-    source_partner: [''],
-    property_type: [''],
-    district: [''],
-    county: [''],
-    price_min: [null as number | null],
-    price_max: [null as number | null],
-    bedrooms: [null as number | null],
-    area_min: [null as number | null],
-    area_max: [null as number | null],
+  protected readonly filterForm = new FormGroup({
+    source_partner: new FormControl('', { nonNullable: true }),
+    property_type: new FormControl('', { nonNullable: true }),
+    district: new FormControl('', { nonNullable: true }),
+    county: new FormControl('', { nonNullable: true }),
+    price_min: new FormControl<number | null>(null),
+    price_max: new FormControl<number | null>(null),
+    bedrooms: new FormControl<number | null>(null),
+    area_min: new FormControl<number | null>(null),
+    area_max: new FormControl<number | null>(null),
   });
 
   private formValue = toSignal(this.filterForm.valueChanges, {

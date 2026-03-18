@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../core/services/sites.service';
 import type { SiteConfigRead } from '../../core/api/model';
@@ -21,6 +22,7 @@ import { SiteFormComponent } from './components/site-form/site-form';
 })
 export class SitesComponent {
   private readonly sitesService = inject(SitesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // UI state
   protected readonly showForm = signal(false);
@@ -55,7 +57,7 @@ export class SitesComponent {
   }
 
   onDeleteSite(key: string): void {
-    this.sitesService.remove(key).subscribe({
+    this.sitesService.remove(key).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.reloadSites(),
       error: () => {},
     });
@@ -73,7 +75,7 @@ export class SitesComponent {
   }
 
   onReactivateSite(key: string): void {
-    this.sitesService.reactivate(key).subscribe({
+    this.sitesService.reactivate(key).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.reloadSites(),
       error: () => {},
     });

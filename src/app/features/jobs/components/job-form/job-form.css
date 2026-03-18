@@ -1,0 +1,254 @@
+/* ── Step layout ── */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  transition: opacity var(--transition-normal);
+}
+
+.step.step-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.step-num {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.step-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.15rem;
+}
+
+.step-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* Connector between steps */
+.step-connector {
+  width: 1px;
+  height: 1.4rem;
+  background: var(--border);
+  margin: 0 0 0 calc(1.2rem + 0.85rem); /* left padding + half step-num */
+}
+
+/* ── Site context strip ── */
+
+.site-context {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.65rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.context-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.context-value {
+  font-size: 0.75rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── URL input with action button ── */
+
+.url-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.url-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Hints ── */
+
+.field-hint {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  line-height: 1.45;
+  margin-top: 0.2rem;
+}
+
+.field-hint-warn {
+  color: var(--yellow);
+}
+
+/* ── Preview result ── */
+
+.preview-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.preview-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.preview-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+}
+
+.preview-badge-ok {
+  background: var(--green-light);
+  color: var(--green);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.preview-badge-zero {
+  background: var(--red-light);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.preview-warn-text {
+  font-size: 0.74rem;
+  color: var(--yellow);
+}
+
+.preview-urls {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.preview-url-item {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.2rem 0.4rem;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 0.25rem;
+}
+
+.preview-more {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  padding: 0.15rem 0.4rem;
+  font-style: italic;
+}
+
+.preview-error {
+  font-size: 0.78rem;
+  color: var(--red);
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  background: var(--red-light);
+  margin: 0;
+}
+
+/* ── Form error ── */
+
+.form-error {
+  font-size: 0.8rem;
+  color: var(--red);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  background: var(--red-light);
+  margin: 0.6rem 0 0;
+}
+
+/* ── Actions ── */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.btn-launch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 160px;
+  justify-content: center;
+}
+
+/* ── Spinner ── */
+
+.spinner {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: jf-spin 0.7s linear infinite;
+}
+
+.spinner-dark {
+  border-color: rgba(0, 0, 0, 0.2);
+  border-top-color: currentColor;
+}
+
+@keyframes jf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 520px) {
+  .url-input-row {
+    flex-direction: column;
+  }
+}

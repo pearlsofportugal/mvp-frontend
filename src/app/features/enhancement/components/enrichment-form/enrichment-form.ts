@@ -20,8 +20,8 @@ import type {
   ListingSearchItem,
 } from '../../../../core/api/model';
 import { RealEstateService } from '../../../../core/services/listings.service';
-import { of, finalize } from 'rxjs';
-import { ListingSelector } from '../../../listings/components/listing-selector/listing-selector';
+import { of, finalize, timer, Subject, takeUntil } from 'rxjs';
+import { ListingSelectorComponent } from '../../../listings/components/listing-selector/listing-selector';
 import { DecimalPipe } from '@angular/common';
 
 type EnrichmentFormGroup = FormGroup<{
@@ -34,7 +34,7 @@ type EnrichmentFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-enrichment-form',
-  imports: [ReactiveFormsModule, ListingSelector, DecimalPipe
+  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe
   ],
   templateUrl: './enrichment-form.html',
   styleUrl: './enrichment-form.css',
@@ -44,7 +44,7 @@ export class EnrichmentFormComponent {
   private readonly enrichmentService = inject(EnrichmentService);
   private readonly realEstateService = inject(RealEstateService);
   private readonly destroyRef = inject(DestroyRef);
-  private progressTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly progressStop$ = new Subject<void>();
 
   private readonly aiProgressMessages = [
     'A analisar contexto do imóvel...',
@@ -100,10 +100,6 @@ export class EnrichmentFormComponent {
     const index = this.generationStepIndex();
     return this.aiProgressMessages[index] ?? this.aiProgressMessages[0];
   });
-
-  constructor() {
-    this.destroyRef.onDestroy(() => this.stopGenerationProgress());
-  }
 
   private submittedAt: number | null = null;
 
@@ -173,24 +169,23 @@ export class EnrichmentFormComponent {
     this.generationProgress.set(7);
     this.generationStepIndex.set(0);
 
-    this.progressTimer = setInterval(() => {
-      this.generationProgress.update((current) => {
-        const next = Math.min(current + 8, 94);
-        const step = Math.min(
-          Math.floor((next / 100) * this.aiProgressMessages.length),
-          this.aiProgressMessages.length - 1,
-        );
-        this.generationStepIndex.set(step);
-        return next;
+    timer(650, 650)
+      .pipe(takeUntil(this.progressStop$), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.generationProgress.update((current) => {
+          const next = Math.min(current + 8, 94);
+          const step = Math.min(
+            Math.floor((next / 100) * this.aiProgressMessages.length),
+            this.aiProgressMessages.length - 1,
+          );
+          this.generationStepIndex.set(step);
+          return next;
+        });
       });
-    }, 650);
   }
 
   private stopGenerationProgress(): void {
-    if (this.progressTimer) {
-      clearInterval(this.progressTimer);
-      this.progressTimer = null;
-    }
+    this.progressStop$.next();
     this.generationProgress.set(0);
     this.generationStepIndex.set(0);
   }

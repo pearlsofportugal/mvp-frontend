@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ListingSelector } from './listing-selector';
+import { ListingSelectorComponent } from './listing-selector';
 
-describe('ListingSelector', () => {
-  let component: ListingSelector;
-  let fixture: ComponentFixture<ListingSelector>;
+describe('ListingSelectorComponent', () => {
+  let component: ListingSelectorComponent;
+  let fixture: ComponentFixture<ListingSelectorComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListingSelector]
+      imports: [ListingSelectorComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ListingSelector);
+    fixture = TestBed.createComponent(ListingSelectorComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

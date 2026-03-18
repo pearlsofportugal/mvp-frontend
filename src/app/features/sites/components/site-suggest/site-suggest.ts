@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../../../core/services/sites.service';
 import type { SiteConfigSuggestResponse, SelectorCandidate } from '../../../../core/api/model';
@@ -56,6 +58,7 @@ interface CandidateGroup {
 })
 export class SiteSuggestComponent {
   private readonly sitesService = inject(SitesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   url = input.required<string>();
   selectorApplied = output<SelectorApplied>();
@@ -91,7 +94,7 @@ export class SiteSuggestComponent {
     if (!this.canSuggest()) return;
     this.loading.set(true);
     this.result.set(null);
-    this.sitesService.suggest(this.url()).subscribe({
+    this.sitesService.suggest(this.url()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.result.set(r);
         this.loading.set(false);

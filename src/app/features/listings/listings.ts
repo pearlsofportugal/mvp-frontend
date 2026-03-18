@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 
 import { ListingsFiltersComponent } from './components/listings-filters/listings-filters';
@@ -30,6 +31,7 @@ import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead } from 
 })
 export class ListingsComponent {
   private readonly realEstateService = inject(RealEstateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // State
   private readonly selectedListingId = signal<string | null>(null);
@@ -89,12 +91,12 @@ export class ListingsComponent {
   onDeleteRealEstate(id: string): void {
     if (!confirm('Tem a certeza que deseja apagar este real estate?')) return;
 
-    this.realEstateService.deleteListing(id).subscribe({
+    this.realEstateService.deleteListing(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.selectedListingId() === id) this.selectedListingId.set(null);
         this.realEstatesResource.reload();
       },
-      error: (err) => console.error('Error deleting real estate:', err),
+      error: () => {},
     });
   }
 

@@ -2,6 +2,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   PLATFORM_ID,
   computed,
   inject,
@@ -9,7 +10,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { EMPTY, timer } from 'rxjs';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 import { JobsService } from '../../core/services/jobs';
 import { SitesService } from '../../core/services/sites.service';
@@ -29,6 +30,7 @@ export class JobsComponent {
   private readonly jobsService = inject(JobsService);
   private readonly sitesService = inject(SitesService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly pollTick = toSignal(
     isPlatformBrowser(this.platformId) ? timer(0, 30_000) : EMPTY,
@@ -64,14 +66,14 @@ export class JobsComponent {
   }
 
   onCancelJob(id: string): void {
-    this.jobsService.cancel(id).subscribe({
+    this.jobsService.cancel(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.jobsResource.reload(),
       error: () => {},
     });
   }
 
   onViewJob(job: JobListRead): void {
-    this.jobsService.getById(job.id).subscribe({
+    this.jobsService.getById(job.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (full) => this.selectedJob.set(full),
       error: () => {},
     });
@@ -79,7 +81,7 @@ export class JobsComponent {
 
   onDeleteJob(id: string): void {
     if (!confirm('Apagar este job?')) return;
-    this.jobsService.remove(id).subscribe({
+    this.jobsService.remove(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.selectedJob()?.id === id) this.selectedJob.set(null);
         this.jobsResource.reload();

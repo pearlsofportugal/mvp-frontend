@@ -10,7 +10,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import {
   Subject,
   of,
@@ -32,12 +31,12 @@ const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-listing-selector',
-  imports: [SlicePipe, FormsModule],
+  imports: [SlicePipe],
   templateUrl: './listing-selector.html',
   styleUrl: './listing-selector.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListingSelector {
+export class ListingSelectorComponent {
   private readonly realEstateService = inject(RealEstateService);
   private readonly destroyRef = inject(DestroyRef);
 

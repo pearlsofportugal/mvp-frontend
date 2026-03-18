@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   input,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../../../core/services/sites.service';
 import type { SiteConfigPreviewResponse } from '../../../../core/api/model';
@@ -18,6 +20,7 @@ import type { SiteConfigPreviewResponse } from '../../../../core/api/model';
 })
 export class SitePreviewComponent {
   private readonly sitesService = inject(SitesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   url = input.required<string>();
   selector = input.required<string>();
@@ -35,7 +38,7 @@ export class SitePreviewComponent {
     this.loading.set(true);
     this.hasRun.set(true);
     this.result.set(null);
-    this.sitesService.previewSelector(this.url(), this.selector()).subscribe({
+    this.sitesService.previewSelector(this.url(), this.selector()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.result.set(r);
         this.loading.set(false);
