@@ -3,9 +3,10 @@ import {
   Component,
   computed,
   effect,
-  input,
   inject,
+  input,
   signal,
+  untracked,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
@@ -25,9 +26,6 @@ export class EnrichmentPreviewComponent {
 
   readonly listingId = input<string | null>(null);
   private readonly previewListingId = signal<string | null>(null);
-
-
-  private lastSeenListingId: string | null = null;
 
   readonly previewResource = rxResource<EnrichmentPreview | null, string | null>({
     params: () => this.previewListingId(),
@@ -50,18 +48,22 @@ export class EnrichmentPreviewComponent {
   });
 
   constructor() {
-
     effect(() => {
-      const id = this.listingId();
-      if (id === this.lastSeenListingId) return;
-      this.lastSeenListingId = id;
-      this.previewListingId.set(null);
+      const incoming = this.listingId();
+      const current = untracked(() => this.previewListingId());
+      if (current !== null && current !== incoming) {
+        this.previewListingId.set(null);
+      }
     });
   }
 
   protected onRefresh(): void {
     const id = this.listingId();
     if (!id) return;
-    this.previewListingId.set(id);
+    if (this.previewListingId() === id) {
+      this.previewResource.reload();
+    } else {
+      this.previewListingId.set(id);
+    }
   }
 }

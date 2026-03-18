@@ -1,0 +1,77 @@
+<div class="suggest-wrap">
+  <div class="suggest-trigger">
+    <button
+      type="button"
+      class="btn btn-suggest"
+      [disabled]="loading() || !canSuggest()"
+      (click)="onSuggest()"
+      aria-label="Suggest selectors using AI"
+    >
+      @if (loading()) {
+        <span class="spinner" aria-hidden="true"></span>
+        Analysing page…
+      } @else {
+        <span aria-hidden="true">✨</span>
+        Suggest Selectors
+      }
+    </button>
+
+    @if (!canSuggest()) {
+      <span class="suggest-hint">Fill in Base URL first</span>
+    }
+  </div>
+
+  @if (result(); as r) {
+    <div class="suggest-results" role="region" aria-label="Selector suggestions">
+      <div class="suggest-meta">
+        <span class="source-badge" [class.source-jsonld]="r.source === 'json-ld'">
+          {{ r.source === 'json-ld' ? 'JSON-LD' : 'Heuristic' }}
+        </span>
+        <span class="suggest-count">{{ totalCandidates() }} suggestions found</span>
+      </div>
+
+      @if (candidateGroups().length === 0) {
+        <p class="suggest-empty">No selectors could be detected for this URL.</p>
+      } @else {
+        @for (group of candidateGroups(); track group.apiKey) {
+          <div class="suggest-category">
+            <div class="suggest-field">
+              <span class="suggest-field-label">
+                {{ group.label }}
+                @if (!group.field) {
+                  <span class="unmapped-badge" title="No matching form field">unmapped</span>
+                }
+              </span>
+
+              <div class="candidate-list">
+                @for (candidate of group.candidates; track candidate.selector) {
+                  <div class="candidate">
+                    <div class="candidate-main">
+                      <code class="candidate-selector">{{ candidate.selector }}</code>
+                      <span
+                        class="score-badge"
+                        [class]="scoreClass(candidate.score)"
+                        [title]="'Confidence: ' + scorePercent(candidate.score) + '%'"
+                      >{{ scorePercent(candidate.score) }}%</span>
+                    </div>
+                    @if (candidate.sample) {
+                      <span class="candidate-sample" title="Sample value">{{ candidate.sample }}</span>
+                    }
+                    @if (group.field) {
+                      <button
+                        type="button"
+                        class="btn btn-use"
+                        (click)="onApply(group, candidate.selector)"
+                        [attr.aria-label]="'Use selector ' + candidate.selector + ' for ' + group.label"
+                      >Use</button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

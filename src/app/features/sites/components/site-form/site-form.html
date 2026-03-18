@@ -1,12 +1,17 @@
 <div class="form-header">
-  <h2>{{ site() ? 'Edit Site' : 'New Site' }}</h2>
-  <button type="button" class="btn-icon" (click)="toggleHelp()" title="Help">
-    <span>❓</span>
+  <div class="form-header-left">
+    @if (formStage() === 'configure' && !site()) {
+      <button type="button" class="btn-back" (click)="onBackToDetect()">← Back</button>
+    }
+    <h2>{{ site() ? 'Edit Site' : 'New Site' }}</h2>
+  </div>
+  <button type="button" class="btn-icon" (click)="toggleHelp()" title="Help" [attr.aria-expanded]="showHelp()">
+    <span aria-hidden="true">❓</span>
   </button>
 </div>
 
 @if (showHelp()) {
-<div class="help-panel">
+<div class="help-panel" role="note">
   <h4>How to configure CSS selectors</h4>
   <p>CSS selectors identify elements on the page. Examples:</p>
   <ul>
@@ -20,193 +25,350 @@
 </div>
 }
 
-@if (error()) {
-<div class="alert alert-error">{{ error() }}</div>
-}
-
-<div class="tabs">
+@if (formStage() === 'configure') {
+<div class="tabs" role="tablist" aria-label="Form sections">
   <button
     type="button"
+    role="tab"
     class="tab"
     [class.active]="activeTab() === 'basic'"
+    [attr.aria-selected]="activeTab() === 'basic'"
     (click)="setTab('basic')"
   >
     Basic
   </button>
   <button
     type="button"
+    role="tab"
     class="tab"
     [class.active]="activeTab() === 'selectors'"
+    [attr.aria-selected]="activeTab() === 'selectors'"
     (click)="setTab('selectors')"
   >
     Selectors
   </button>
   <button
     type="button"
+    role="tab"
     class="tab"
     [class.active]="activeTab() === 'advanced'"
+    [attr.aria-selected]="activeTab() === 'advanced'"
     (click)="setTab('advanced')"
   >
     Advanced
   </button>
 </div>
+}
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-  @if (activeTab() === 'basic') {
-  <div class="tab-content">
-    <div class="form-section">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="key">
-            Identifier (key) *
-            <span class="hint">Only lowercase letters, numbers, _ and -</span>
-          </label>
-          <input
-            id="key"
-            type="text"
-            formControlName="key"
-            placeholder="pearls"
-            [class.error]="form.controls.key.invalid && form.controls.key.touched"
-          />
-        </div>
 
-        <div class="form-group">
-          <label for="name">Site Name *</label>
-          <input
-            id="name"
-            type="text"
-            formControlName="name"
-            placeholder="Pearls of Portugal"
-            [class.error]="form.controls.name.invalid && form.controls.name.touched"
-          />
-        </div>
-      </div>
+  <!-- ── Detect Stage ─────────────────────────────────────────── -->
+  @if (formStage() === 'detect') {
+  <div class="detect-stage">
+    <p class="detect-lead">
+      Enter the base URL of the site you want to scrape. We'll analyse it and
+      automatically suggest CSS selectors for you.
+    </p>
 
-      <div class="form-group">
-        <label for="base_url">
-          Base URL *
-          <span class="hint">Main site URL (without trailing slash)</span>
-        </label>
+    <div class="form-group">
+      <label for="detect_base_url">
+        Site Base URL
+        <span class="hint">e.g. https://realestate.example.com</span>
+      </label>
+      <div class="detect-url-input">
         <input
-          id="base_url"
+          id="detect_base_url"
           type="url"
           formControlName="base_url"
-          placeholder="https://realestate.pearlsofportugal.com"
+          placeholder="https://realestate.example.com"
           [class.error]="form.controls.base_url.invalid && form.controls.base_url.touched"
+          (keydown.enter)="onDetect()"
         />
-      </div>
-
-      <div class="form-group">
-        <label for="extraction_mode">Extraction Mode</label>
-        <div class="radio-group">
-          <label class="radio-option">
-            <input type="radio" formControlName="extraction_mode" value="direct" />
-            <span class="radio-label">
-              <strong>Direct</strong>
-              <small>CSS selectors point directly to the values</small>
-            </span>
-          </label>
-          <label class="radio-option">
-            <input type="radio" formControlName="extraction_mode" value="section" />
-            <span class="radio-label">
-              <strong>By Section</strong>
-              <small>Data organized in name/value pairs</small>
-            </span>
-          </label>
-        </div>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="suggestLoading() || !canDetect()"
+          (click)="onDetect()"
+          aria-label="Analyse site to auto-detect selectors"
+        >
+          @if (suggestLoading()) {
+            <span class="spinner" aria-hidden="true"></span>
+            Analysing…
+          } @else {
+            ✨ Analyse Site
+          }
+        </button>
       </div>
     </div>
-  </div>
-  }
 
-  @if (activeTab() === 'selectors') {
-  <div class="tab-content selectors-tab">
-    @for (category of selectorCategories; track category.key) {
-      @if (shouldShowCategory(category)) {
-      <div class="selector-section" [class.section-mode]="category.sectionModeOnly">
-        <h3>{{ category.title }}</h3>
-        <p class="section-desc">{{ category.description }}</p>
+    @if (suggestError()) {
+      <p class="detect-error" role="alert">
+        Could not analyse the site. Check the URL or try again.
+      </p>
+    }
 
-        <div class="selector-grid">
-          @for (field of getSelectorsByCategory(category.key); track field.key) {
-          <div class="selector-field">
-            <label [for]="field.key">
-              {{ field.label }}
-              @if (field.required) {
-              <span class="required">*</span>
-              }
-            </label>
-            <input
-              [id]="field.key"
-              type="text"
-              [formControlName]="field.key"
-              [placeholder]="field.placeholder"
-              [class.error]="hasSelectorError(field)"
-            />
-            <span class="field-hint">{{ field.description }}</span>
+    @if (suggestResult(); as r) {
+      <div class="detect-results" role="region" aria-label="Auto-detection results">
+        <div class="detect-results-header">
+          <div class="detect-results-meta">
+            <span class="detect-source-badge" [class.source-jsonld]="r.source === 'json-ld'">
+              {{ r.source === 'json-ld' ? 'JSON-LD' : 'Heuristic' }}
+            </span>
+            <span class="detect-count">
+              <strong>{{ suggestCoverage() }}</strong> fields detected
+            </span>
           </div>
+          <p class="detect-results-hint">
+            Review the detected fields below. Click <strong>Apply &amp; Configure</strong>
+            to pre-fill the form, or skip to configure manually.
+          </p>
+        </div>
+
+        <div class="detect-fields-grid" role="list" aria-label="Detected fields">
+          @for (g of suggestPreviewGroups(); track g.label) {
+            <div class="detect-field-item" role="listitem">
+              <span class="dfi-label">{{ g.label }}</span>
+              @if (g.sample) {
+                <span class="dfi-sample" [title]="g.sample">{{ g.sample }}</span>
+              } @else {
+                <span class="dfi-sample dfi-sample-empty">—</span>
+              }
+              <span class="dfi-score" [class]="confClass(g.score)">{{ g.score }}%</span>
+            </div>
           }
         </div>
+
+        <div class="detect-actions">
+          <button type="button" class="btn btn-primary" (click)="onApplySuggestions()">
+            Apply &amp; Configure →
+          </button>
+          <button type="button" class="btn btn-ghost" (click)="onSkipToManual()">
+            Configure manually
+          </button>
+        </div>
       </div>
-      }
     }
-  </div>
-  }
 
-  @if (activeTab() === 'advanced') {
-  <div class="tab-content">
-    <div class="form-section">
-      <div class="form-group">
-        <label for="link_pattern">
-          Link Pattern (Regex)
-          <span class="hint">Filter ad URLs by pattern</span>
-        </label>
-        <input
-          id="link_pattern"
-          type="text"
-          formControlName="link_pattern"
-          placeholder="/en/property/"
-        />
-        <span class="field-hint">Example: /property/ only accepts URLs containing "/property/"</span>
-      </div>
+    @if (!suggestResult() && !suggestLoading() && !suggestError()) {
+      <button type="button" class="btn btn-ghost btn-sm detect-manual-link" (click)="onSkipToManual()">
+        Skip — configure manually
+      </button>
+    }
 
-      <div class="form-group">
-        <label for="image_filter">
-          Image Filter (Regex)
-          <span class="hint">Filter image URLs by pattern</span>
-        </label>
-        <input
-          id="image_filter"
-          type="text"
-          formControlName="image_filter"
-          placeholder="imodigi\.com/backoffice"
-        />
-        <span class="field-hint">Example: Only accept images from a specific domain</span>
-      </div>
+    <div class="detect-footer-cancel">
+      <button type="button" class="btn btn-ghost btn-sm" (click)="onCancel()">Cancel</button>
     </div>
   </div>
   }
 
-  <div class="form-actions">
-    <button
-      type="button"
-      class="btn btn-ghost"
-      (click)="onCancel()"
-      [disabled]="submitting()"
-    >
-      Cancel
-    </button>
-    <button
-      type="submit"
-      class="btn btn-primary"
-      [disabled]="submitting()"
-    >
-      @if (submitting()) {
-      <span class="spinner"></span>
-      Saving...
-      } @else {
-      {{ site() ? 'Update' : 'Create Site' }}
+  <!-- ── Configure Stage ──────────────────────────────────────── -->
+  @if (formStage() === 'configure') {
+
+    @if (activeTab() === 'basic') {
+    <div class="tab-content" role="tabpanel">
+      <div class="form-section">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="key">
+              Identifier (key) *
+              <span class="hint">Only lowercase letters, numbers, _ and -</span>
+            </label>
+            <input
+              id="key"
+              type="text"
+              formControlName="key"
+              placeholder="pearls"
+              [class.error]="form.controls.key.invalid && form.controls.key.touched"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="name">Site Name *</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="Pearls of Portugal"
+              [class.error]="form.controls.name.invalid && form.controls.name.touched"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="base_url_conf">
+            Base URL *
+            <span class="hint">Main site URL (without trailing slash)</span>
+          </label>
+          <input
+            id="base_url_conf"
+            type="url"
+            formControlName="base_url"
+            placeholder="https://realestate.pearlsofportugal.com"
+            [class.error]="form.controls.base_url.invalid && form.controls.base_url.touched"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="extraction_mode">Extraction Mode</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" formControlName="extraction_mode" value="direct" />
+              <span class="radio-label">
+                <strong>Direct</strong>
+                <small>CSS selectors point directly to the values</small>
+              </span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" formControlName="extraction_mode" value="section" />
+              <span class="radio-label">
+                <strong>By Section</strong>
+                <small>Data organized in name/value pairs</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (activeTab() === 'selectors') {
+    <div class="tab-content selectors-tab" role="tabpanel">
+      <app-site-suggest
+        [url]="form.controls.base_url.value"
+        (selectorApplied)="onSelectorApplied($event)"
+      />
+
+      <div class="preview-url-bar">
+        <div class="form-group">
+          <label for="preview_url">
+            Live Preview URL
+            <span class="hint">Paste a property page URL to test each selector live</span>
+          </label>
+          <input
+            id="preview_url"
+            type="url"
+            [value]="previewUrl()"
+            (input)="setPreviewUrl($event)"
+            placeholder="https://example.com/property/123"
+          />
+        </div>
+      </div>
+
+      @for (category of selectorCategories; track category.key) {
+        @if (shouldShowCategory(category)) {
+        <div class="selector-section" [class.section-mode]="category.sectionModeOnly">
+          <h3>{{ category.title }}</h3>
+          <p class="section-desc">{{ category.description }}</p>
+
+          <div class="selector-grid">
+            @for (field of getSelectorsByCategory(category.key); track field.key) {
+            <div class="selector-field">
+              <label [for]="field.key">
+                {{ field.label }}
+                @if (field.required) {
+                <span class="required">*</span>
+                }
+                @if (getFieldConfidence(field.key); as conf) {
+                <span class="field-conf-badge" [class]="confClass(conf)">{{ conf }}%</span>
+                }
+              </label>
+              <input
+                [id]="field.key"
+                type="text"
+                [formControlName]="field.key"
+                [placeholder]="field.placeholder"
+                [class.error]="hasSelectorError(field)"
+              />
+              @if (previewUrl()) {
+                <app-site-preview [url]="previewUrl()" [selector]="getFieldValue(field.key)" />
+              }
+              <span class="field-hint">{{ field.description }}</span>
+            </div>
+            }
+          </div>
+        </div>
+        }
       }
-    </button>
-  </div>
+    </div>
+    }
+
+    @if (activeTab() === 'advanced') {
+    <div class="tab-content" role="tabpanel">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="link_pattern">
+            Link Pattern (Regex)
+            <span class="hint">Filter listing URLs by pattern</span>
+          </label>
+          <input
+            id="link_pattern"
+            type="text"
+            formControlName="link_pattern"
+            placeholder="/en/property/"
+          />
+          <span class="field-hint">Example: /property/ only accepts URLs containing "/property/"</span>
+        </div>
+
+        <div class="form-group">
+          <label for="image_filter">
+            Image Filter (Regex)
+            <span class="hint">Filter image URLs by pattern</span>
+          </label>
+          <input
+            id="image_filter"
+            type="text"
+            formControlName="image_filter"
+            placeholder="imodigi\.com/backoffice"
+          />
+          <span class="field-hint">Example: Only accept images from a specific domain</span>
+        </div>
+
+        <div class="form-group">
+          <label for="pagination_type">
+            Pagination Type
+            <span class="hint">How the scraper navigates between result pages</span>
+          </label>
+          <select id="pagination_type" formControlName="pagination_type">
+            <option value="">Not set</option>
+            <option value="html_next">HTML next button (selector-based)</option>
+            <option value="query_param">Query parameter (?page=N)</option>
+            <option value="incremental_path">Incremental path (/page/N)</option>
+          </select>
+        </div>
+
+        @if (showPaginationParam()) {
+          <div class="form-group">
+            <label for="pagination_param">
+              Pagination Parameter
+              <span class="hint">Query parameter name for the page number</span>
+            </label>
+            <input
+              id="pagination_param"
+              type="text"
+              formControlName="pagination_param"
+              placeholder="page"
+            />
+            <span class="field-hint">Example: for ?page=2, enter "page"</span>
+          </div>
+        }
+      </div>
+    </div>
+    }
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" (click)="onCancel()" [disabled]="submitting()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+        @if (submitting()) {
+        <span class="spinner" aria-hidden="true"></span>
+        Saving...
+        } @else {
+        {{ site() ? 'Update' : 'Create Site' }}
+        }
+      </button>
+    </div>
+
+  }
+
 </form>

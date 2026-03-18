@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ScrapeJob } from '../../../../core/models/scrape-job.model';
+import type { JobRead } from '../../../../core/api/model';
 import { JobsService } from '../../../../core/services/jobs';
 
 const TERMINAL_STATUSES = new Set(['completed', 'failed', 'cancelled']);
@@ -40,13 +40,13 @@ export class JobDetailComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   /** Job inicial passado pelo componente pai (pode ser snapshot desatualizado) */
-  readonly job = input.required<ScrapeJob>();
+  readonly job = input.required<JobRead>();
   readonly close = output<void>();
   /** Emitido quando o utilizador clica "Atualizar" (fallback para SSE) */
   readonly refresh = output<void>();
 
   /** Job em tempo real — atualizado pelo stream SSE enquanto está a correr */
-  protected readonly liveJob = signal<ScrapeJob | null>(null);
+  protected readonly liveJob = signal<JobRead | null>(null);
   protected readonly streaming = signal(false);
   protected readonly streamError = signal<string | null>(null);
 

@@ -1,57 +1,52 @@
-import { Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import {
-  RealEstate,
-  RealEstateListItem,
-  RealEstateFilters,
-  RealEstateStats,
-  ListingSearchResponse,
-} from '../models/listing.model';
-import { BaseApiService } from './base-api.service';
-import { PaginatedData } from '../models/api-response.model';
+import { RealEstateFilters } from '../models/listing.model';
+import { ListingsService as GeneratedListingsService } from '../api/generated/listings/listings.service';
+import type {
+  ListingListRead,
+  ListingRead,
+  ListingStats,
+  ListingSearchItem,
+  Meta,
+  ListListingsParams,
+  ApiResponsePaginatedResponse,
+} from '../api/model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class RealEstateService extends BaseApiService {
-  private readonly path = '/api/v1/listings';
+export class RealEstateService {
+  private readonly api = inject(GeneratedListingsService);
 
-  getListings(filters: RealEstateFilters): Observable<PaginatedData<RealEstateListItem>> {
-    // getPaginated já faz o map — sem pipe extra necessário
-    return this.getPaginated<RealEstateListItem>(this.path, this.normalizeFilters(filters));
+  getListings(filters: RealEstateFilters): Observable<ApiResponsePaginatedResponse> {
+    return this.api.listListings(this.normalizeFilters(filters));
   }
-  private normalizeFilters(filters: RealEstateFilters): Record<string, any> {
-    const normalized = { ...filters };
 
-    // Converte `bedrooms` exato para min/max se não vierem definidos
-    if (
-      normalized.bedrooms !== undefined &&
-      normalized.bedrooms !== null &&
-      normalized.bedrooms_min === undefined &&
-      normalized.bedrooms_max === undefined
-    ) {
-      normalized.bedrooms_min = normalized.bedrooms;
-      normalized.bedrooms_max = normalized.bedrooms;
-    }
-    delete normalized.bedrooms;
+  getListingById(id: string): Observable<ListingRead> {
+    return this.api
+      .getListing(id)
+      .pipe(map((r) => r.data!));
+  }
 
-    return normalized;
-  }
-  getListingById(id: string): Observable<RealEstate> {
-    return this.get<RealEstate>(this.buildRoute(`${this.path}/:id`, { id }));
-  }
-  getListingStats(sourcePartner?: string): Observable<RealEstateStats> {
-    return this.get<RealEstateStats>(`${this.path}/stats`, sourcePartner ? { source_partner: sourcePartner } : undefined);
+  getListingStats(sourcePartner?: string): Observable<ListingStats> {
+    return this.api
+      .listingStats(
+        sourcePartner ? { source_partner: sourcePartner } : undefined,
+      )
+      .pipe(map((r) => r.data!));
   }
 
   deleteListing(id: string): Observable<void> {
-    return this.delete(this.buildRoute(`${this.path}/:id`, { id }));
-  }
-  searchListings(query: string, limit = 20): Observable<RealEstateListItem[]> {
-    return this.getPaginated<RealEstateListItem>(this.path, { search: query, page_size: limit })
-      .pipe(map(data => data.items));
+    return this.api
+      .deleteListing(id)
+      .pipe(map(() => void 0));
   }
 
+  searchListings(query: string, limit = 20): Observable<ListingListRead[]> {
+    return this.api
+      .listListings({ search: query, page_size: limit })
+      .pipe(map((r) => r.data?.items ?? []));
+  }
 
   searchForSelector(
     query: string,
@@ -60,22 +55,39 @@ export class RealEstateService extends BaseApiService {
       is_enriched?: boolean;
       page?: number;
       page_size?: number;
-    } = {}
-  ): Observable<ListingSearchResponse> {
-    const params: Record<string, any> = {
-      q: query,
-      page: options.page ?? 1,
-      page_size: options.page_size ?? 20,
-    };
-
-    if (options.source_partner) params['source_partner'] = options.source_partner;
-    if (options.is_enriched !== undefined) params['is_enriched'] = options.is_enriched;
-
-    return this.get<ListingSearchResponse>(`${this.path}/search`, params);
+    } = {},
+  ): Observable<{ items: ListingSearchItem[] } & Meta> {
+    return this.api
+      .searchListings({
+        q: query,
+        page: options.page ?? 1,
+        page_size: options.page_size ?? 20,
+        source_partner: options.source_partner,
+        is_enriched: options.is_enriched,
+      })
+      .pipe(
+        map((r) => ({
+          items: r.data?.items ?? [],
+          page: r.meta?.page,
+          page_size: r.meta?.page_size,
+          total: r.meta?.total,
+          pages: r.meta?.pages,
+        })),
+      );
   }
 
+  private normalizeFilters(filters: RealEstateFilters): ListListingsParams {
+    const normalized: ListListingsParams = { ...filters } as ListListingsParams;
 
-
-
-
+    if (
+      filters.bedrooms !== undefined &&
+      filters.bedrooms !== null &&
+      filters.bedrooms_min === undefined &&
+      filters.bedrooms_max === undefined
+    ) {
+      normalized.bedrooms_min = filters.bedrooms;
+      normalized.bedrooms_max = filters.bedrooms;
+    }
+    return normalized;
+  }
 }

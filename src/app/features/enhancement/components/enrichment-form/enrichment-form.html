@@ -2,28 +2,7 @@
 
   <!-- ── PROPERTY SELECTOR ────────────────────────────────────── -->
   <div class="form-group full-width">
-    @defer (on interaction(selectorTrigger)) {
-    <app-listing-selector [openOnInit]="true" [(selectedId)]="selectedListingId"
-      (listingConfirmed)="onListingConfirmed($event)" />
-    } @placeholder {
-    <div class="selector-field" #selectorTrigger>
-      <span class="field-label">Property</span>
-      <button type="button" class="selector-trigger">
-        <svg class="trigger-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <rect x="3" y="3" width="7" height="7" />
-          <rect x="14" y="3" width="7" height="7" />
-          <rect x="14" y="14" width="7" height="7" />
-          <rect x="3" y="14" width="7" height="7" />
-        </svg>
-        <span class="trigger-text trigger-placeholder">Select property...</span>
-        <svg class="trigger-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2.5">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-    </div>
-    }
+    <app-listing-selector [(selectedId)]="selectedListingId" (listingConfirmed)="onListingConfirmed($event)" />
   </div>
 
   <!-- ── SELECTED LISTING INFO ─────────────────────────────────── -->

@@ -32,9 +32,8 @@ export class ListingsStatsComponent {
   stats = computed(() => this.statsResource.value());
   isLoading = computed(() => this.statsResource.isLoading());
 
-  formatPrice(amount?: number): string {
+  formatPrice(amount?: number | null): string {
     if (amount == null) return '-';
-    console.log(this.stats())
 
     return new Intl.NumberFormat('pt-PT', {
       style: 'currency',

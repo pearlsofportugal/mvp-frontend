@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
-import {  RealEstateListItem } from '../../../../core/models/listing.model';
+import type { ListingListRead } from '../../../../core/api/model';
 
 @Component({
   selector: 'app-listings-table',
@@ -9,11 +9,11 @@ import {  RealEstateListItem } from '../../../../core/models/listing.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListingsTableComponent {
-  realEstates = input.required<RealEstateListItem[]>();
-  viewRealEstate = output<RealEstateListItem>();
+  realEstates = input.required<ListingListRead[]>();
+  viewRealEstate = output<ListingListRead>();
   deleteRealEstate = output<string>();
 
-  onView(listing: RealEstateListItem): void {
+  onView(listing: ListingListRead): void {
     this.viewRealEstate.emit(listing);
   }
 
@@ -21,12 +21,14 @@ export class ListingsTableComponent {
     this.deleteRealEstate.emit(id);
   }
 
-  formatPrice(amount?: number, currency?: string): string {
+  formatPrice(amount?: string | number | null, currency?: string | null): string {
     if (amount == null) return '-';
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(num)) return '-';
     return new Intl.NumberFormat('pt-PT', {
       style: 'currency',
       currency: currency || 'EUR',
-    }).format(amount);
+    }).format(num);
   }
 
   formatDate(date?: string): string {

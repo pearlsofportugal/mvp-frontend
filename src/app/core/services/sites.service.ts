@@ -1,30 +1,63 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { SiteConfig } from '../models/site-config.model';
-import { BaseApiService } from './base-api.service';
+﻿import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { SitesService as GeneratedSitesService } from '../api/generated/sites/sites.service';
+import type {
+  SiteConfigRead,
+  SiteConfigCreate,
+  SiteConfigUpdate,
+  SiteConfigSuggestResponse,
+  SiteConfigPreviewResponse,
+} from '../api/model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SitesService extends BaseApiService {
-  private readonly path = '/api/v1/sites';
+export class SitesService {
+  private readonly api = inject(GeneratedSitesService);
 
-  list(): Observable<SiteConfig[]> {
-    return this.get<SiteConfig[]>(this.path);
-  }
-  getByKey(key: string): Observable<SiteConfig> {
-    return this.get<SiteConfig>(`${this.path}/${key}`);
-  }
-
-  create(payload: Partial<SiteConfig>): Observable<SiteConfig> {
-    return this.post<SiteConfig>(this.path, payload);
+  list(): Observable<SiteConfigRead[]> {
+    return this.api
+      .listSites()
+      .pipe(map((r) => r.data ?? []));
   }
 
-  update(key: string, payload: Partial<SiteConfig>): Observable<SiteConfig> {
-    return this.patch<SiteConfig>(`${this.path}/${key}`, payload);
+  getByKey(key: string): Observable<SiteConfigRead> {
+    return this.api
+      .getSite(key)
+      .pipe(map((r) => r.data!));
   }
 
-  remove(key: string, permanent = false): Observable<null> {
-    return this.delete<null>(`${this.path}/${key}`, { permanent });
+  create(payload: SiteConfigCreate): Observable<SiteConfigRead> {
+    return this.api
+      .createSite(payload)
+      .pipe(map((r) => r.data!));
+  }
+
+  update(key: string, payload: SiteConfigUpdate): Observable<SiteConfigRead> {
+    return this.api
+      .updateSite(key, payload)
+      .pipe(map((r) => r.data!));
+  }
+
+  remove(key: string, permanent = false): Observable<void> {
+    return this.api
+      .deleteSite(key, { permanent })
+      .pipe(map(() => void 0));
+  }
+
+  suggest(url: string): Observable<SiteConfigSuggestResponse> {
+    return this.api
+      .suggestSiteSelectors({ url })
+      .pipe(map((r) => r.data!));
+  }
+
+  previewSelector(url: string, selector: string): Observable<SiteConfigPreviewResponse> {
+    return this.api
+      .previewSiteSelector({ url, selector })
+      .pipe(map((r) => r.data!));
+  }
+
+  reactivate(key: string): Observable<SiteConfigRead> {
+    return this.api.reactivateSite(key).pipe(map((r) => r.data!));
   }
 }

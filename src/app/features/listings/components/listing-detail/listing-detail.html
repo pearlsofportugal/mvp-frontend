@@ -177,20 +177,15 @@
 }
 
 <!-- SEO -->
-@if (realEstate().page_title || realEstate().meta_description) {
+@if (realEstate().meta_description) {
   <h3 class="mt">🔍 SEO</h3>
   <dl class="detail-grid">
-    @if (realEstate().page_title) {
-      <dt>Page Title</dt>
-      <dd>{{ realEstate().page_title }}</dd>
-    }
-    @if (realEstate().meta_description) {
-      <dt>Meta Description</dt>
-      <dd>{{ realEstate().meta_description }}</dd>
-    }
+    <dt>Meta Description</dt>
+    <dd>{{ realEstate().meta_description }}</dd>
   </dl>
 }
 
+<!-- Headers: field not in API schema
 @if (realEstate().headers && realEstate().headers!.length > 0) {
   <h3 class="mt">📑 Headers</h3>
   <div style="margin-top: 0.5rem">
@@ -199,6 +194,7 @@
     }
   </div>
 }
+-->
 
 <!-- Media -->
 @if (realEstate().media_assets && realEstate().media_assets!.length > 0) {
@@ -237,11 +233,12 @@
   </div>
 }
 
-<!-- Raw Payload -->
+<!-- Raw Payload: field not in API schema
 @if (realEstate().raw_payload) {
   <h3 class="mt">Raw Payload</h3>
   <div class="json-view">{{ stringifyJSON(realEstate().raw_payload) }}</div>
 }
+-->
 
 <!-- Timestamps -->
 <h3 class="mt">Dates</h3>

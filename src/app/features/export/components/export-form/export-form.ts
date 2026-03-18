@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   ExportService,
   ExportFilters,
@@ -21,9 +21,8 @@ type ExportFormGroup = FormGroup<{
 })
 export class ExportFormComponent {
   private readonly exportService = inject(ExportService);
-  private readonly fb = inject(FormBuilder);
 
-form: ExportFormGroup = new FormGroup({
+  protected readonly form: ExportFormGroup = new FormGroup({
   district: new FormControl('', { nonNullable: true }),
   county: new FormControl('', { nonNullable: true }),
   property_type: new FormControl('', { nonNullable: true }),
