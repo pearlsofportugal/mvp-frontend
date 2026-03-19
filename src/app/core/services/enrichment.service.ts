@@ -6,6 +6,8 @@ import type {
   AITextOptimizationResponse,
   AIListingEnrichmentRequest,
   AIListingEnrichmentResponse,
+  BulkEnrichmentRequest,
+  BulkEnrichmentResponse,
   EnrichmentPreview,
   EnrichmentStats,
 } from '../api/model';
@@ -39,6 +41,12 @@ export class EnrichmentService {
       .enrichmentStats(
         sourcePartner ? { source_partner: sourcePartner } : undefined,
       )
+      .pipe(map((r) => r.data!));
+  }
+
+  bulkEnrichListings(request: BulkEnrichmentRequest): Observable<BulkEnrichmentResponse> {
+    return this.api
+      .bulkEnrichListings(request)
       .pipe(map((r) => r.data!));
   }
 }

@@ -57,11 +57,15 @@ export interface ListingRead {
   raw_description?: string | null;
   /** Cleaned / normalised description. */
   description?: string | null;
+  /** AI-enriched SEO title. */
+  enriched_title?: string | null;
   /** AI-enriched description. */
   enriched_description?: string | null;
+  /** AI-enriched meta description. */
+  enriched_meta_description?: string | null;
   /** AI quality score (0–100). */
   description_quality_score?: number | null;
-  /** SEO meta description. */
+  /** SEO meta description (scraped). */
   meta_description?: string | null;
   id: string;
   partner_id?: string | null;

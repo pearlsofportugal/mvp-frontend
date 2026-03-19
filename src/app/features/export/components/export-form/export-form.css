@@ -33,6 +33,16 @@ input:focus {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
+.export-preview-count {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.export-preview-count strong {
+  color: var(--accent);
+}
+
 .btn-group {
   display: flex;
   gap: 0.5rem;

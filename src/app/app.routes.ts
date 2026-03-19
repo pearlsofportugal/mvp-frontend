@@ -21,21 +21,25 @@ export const routes: Routes = [
   },
   {
     path: 'sites',
+    title: 'Sites — MVP Scraper',
     loadComponent: () =>
       import('./features/sites/sites').then((m) => m.SitesComponent),
   },
   {
     path: 'jobs',
+    title: 'Jobs — MVP Scraper',
     loadComponent: () =>
       import('./features/jobs/jobs').then((m) => m.JobsComponent),
   },
   {
     path: 'real-estate',
+    title: 'Real Estate — MVP Scraper',
     loadComponent: () =>
       import('./features/listings/listings').then((m) => m.ListingsComponent),
   },
   {
     path: 'enhancement',
+    title: 'Enhancement — MVP Scraper',
     loadComponent: () =>
       import('./features/enhancement/enhancement').then(
         (m) => m.EnhancementComponent
@@ -43,6 +47,7 @@ export const routes: Routes = [
   },
   {
     path: 'export',
+    title: 'Export — MVP Scraper',
     loadComponent: () =>
       import('./features/export/export').then((m) => m.ExportComponent),
   },

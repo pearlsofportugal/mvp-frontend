@@ -3,8 +3,8 @@ import { map, Observable } from 'rxjs';
 import { RealEstateFilters } from '../models/listing.model';
 import { ListingsService as GeneratedListingsService } from '../api/generated/listings/listings.service';
 import type {
+  ListingDetailRead,
   ListingListRead,
-  ListingRead,
   ListingStats,
   ListingSearchItem,
   Meta,
@@ -22,7 +22,7 @@ export class RealEstateService {
     return this.api.listListings(this.normalizeFilters(filters));
   }
 
-  getListingById(id: string): Observable<ListingRead> {
+  getListingById(id: string): Observable<ListingDetailRead> {
     return this.api
       .getListing(id)
       .pipe(map((r) => r.data!));

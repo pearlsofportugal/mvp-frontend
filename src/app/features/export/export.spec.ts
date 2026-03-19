@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Export } from './export';
+import { ExportComponent } from './export';
 
 describe('Export', () => {
-  let component: Export;
-  let fixture: ComponentFixture<Export>;
+  let component: ExportComponent;
+  let fixture: ComponentFixture<ExportComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Export]
+      imports: [ExportComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Export);
+    fixture = TestBed.createComponent(ExportComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

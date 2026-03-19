@@ -43,7 +43,9 @@ export interface ListingUpdate {
   advertiser?: string | null;
   contacts?: string | null;
   description?: string | null;
+  enriched_title?: string | null;
   enriched_description?: string | null;
+  enriched_meta_description?: string | null;
   description_quality_score?: number | null;
   meta_description?: string | null;
 }

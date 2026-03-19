@@ -41,13 +41,22 @@ export class ListingSelectorComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly openOnInit = input(false);
+  readonly multiMode = input(false);
 
   // ── Inputs / Outputs ──────────────────────────────────────────
   readonly selectedId = model<string | null>(null);
   readonly listingConfirmed = output<ListingSearchItem>();
+  readonly listingsConfirmed = output<ListingSearchItem[]>();
 
   // ── Modal state ───────────────────────────────────────────────
   protected readonly isOpen = signal(false);
+
+  // ── Multi-select ─────────────────────────────────────────────
+  protected readonly selectedItemIds = signal<string[]>([]);
+  protected readonly selectedItemsList = computed(() =>
+    this.searchResults().filter((l) => this.selectedItemIds().includes(l.id)),
+  );
+  protected readonly selectedCount = computed(() => this.selectedItemIds().length);
 
   // ── Search ────────────────────────────────────────────────────
   protected readonly searchQuery = signal('');
@@ -244,6 +253,9 @@ export class ListingSelectorComponent {
   // ── Modal ─────────────────────────────────────────────────────
   protected open(): void {
     this.isOpen.set(true);
+    if (this.multiMode()) {
+      this.selectedItemIds.set([]);
+    }
     this.loadInitial();
   }
 
@@ -253,6 +265,13 @@ export class ListingSelectorComponent {
   }
 
   protected confirm(): void {
+    if (this.multiMode()) {
+      const items = this.selectedItemsList();
+      if (items.length === 0) return;
+      this.isOpen.set(false);
+      this.listingsConfirmed.emit(items);
+      return;
+    }
     const listing = this.pendingListing();
     if (!listing) return;
     this.confirmedListing.set(listing);
@@ -273,7 +292,17 @@ export class ListingSelectorComponent {
   }
 
   protected selectPending(listing: ListingSearchItem): void {
+    if (this.multiMode()) {
+      this.selectedItemIds.update((ids) =>
+        ids.includes(listing.id) ? ids.filter((id) => id !== listing.id) : [...ids, listing.id],
+      );
+      return;
+    }
     this.pendingId.set(this.pendingId() === listing.id ? null : listing.id);
+  }
+
+  protected isItemSelected(id: string): boolean {
+    return this.selectedItemIds().includes(id);
   }
 
   protected setFilter(filter: FilterOption): void {

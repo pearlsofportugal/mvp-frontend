@@ -24,6 +24,9 @@
           <option [value]="site.key">{{ site.name }} · {{ site.key }}</option>
         }
       </select>
+      @if (form.controls.site_key.invalid && form.controls.site_key.touched) {
+        <span class="field-error" role="alert">Seleciona um site.</span>
+      }
     </div>
 
     @if (selectedSite(); as s) {
@@ -59,6 +62,12 @@
           aria-required="true"
           aria-describedby="start_url_hint"
         />
+        @if (form.controls.start_url.invalid && form.controls.start_url.touched) {
+          <span class="field-error" role="alert">
+            @if (form.controls.start_url.errors?.['required']) { URL obrigatório. }
+            @else { URL inválido — deve começar com https:// }
+          </span>
+        }
         <button
           type="button"
           class="btn btn-secondary"

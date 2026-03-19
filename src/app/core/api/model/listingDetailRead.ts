@@ -46,7 +46,6 @@ export interface ListingDetailRead {
   advertiser?: string | null;
   contacts?: string | null;
   description?: string | null;
-  enriched_description?: string | null;
   description_quality_score?: number | null;
   meta_description?: string | null;
   created_at: string;

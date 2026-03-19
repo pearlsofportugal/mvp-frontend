@@ -18,10 +18,11 @@ import type { JobListRead, JobRead, SiteConfigRead } from '../../core/api/model'
 import { JobFormComponent } from './components/job-form/job-form';
 import { JobsListComponent } from './components/jobs-list/jobs-list';
 import { JobDetailComponent } from './components/job-detail/job-detail';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-jobs',
-  imports: [JobFormComponent, JobsListComponent, JobDetailComponent],
+  imports: [JobFormComponent, JobsListComponent, JobDetailComponent, ConfirmDialogComponent],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,8 @@ export class JobsComponent {
   });
 
   protected readonly selectedJob = signal<JobRead | null>(null);
+  protected readonly confirmingDeleteJobId = signal<string | null>(null);
+  protected readonly confirmingCancelJobId = signal<string | null>(null);
 
   protected readonly jobs = computed<JobListRead[]>(
     () => this.jobsResource.value() ?? [],
@@ -66,6 +69,13 @@ export class JobsComponent {
   }
 
   onCancelJob(id: string): void {
+    this.confirmingCancelJobId.set(id);
+  }
+
+  onConfirmCancelJob(): void {
+    const id = this.confirmingCancelJobId();
+    if (!id) return;
+    this.confirmingCancelJobId.set(null);
     this.jobsService.cancel(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.jobsResource.reload(),
       error: () => {},
@@ -80,7 +90,13 @@ export class JobsComponent {
   }
 
   onDeleteJob(id: string): void {
-    if (!confirm('Apagar este job?')) return;
+    this.confirmingDeleteJobId.set(id);
+  }
+
+  onConfirmDeleteJob(): void {
+    const id = this.confirmingDeleteJobId();
+    if (!id) return;
+    this.confirmingDeleteJobId.set(null);
     this.jobsService.remove(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.selectedJob()?.id === id) this.selectedJob.set(null);

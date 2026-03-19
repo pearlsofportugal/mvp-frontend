@@ -12,17 +12,29 @@
 
       <thead>
         <tr>
-          <th>Title</th>
+          <th class="th-sortable" [class.th-sorted]="isSortActive('title')" (click)="onSort('title')">
+            Title <span class="sort-indicator">{{ getSortIndicator('title') }}</span>
+          </th>
           <th>Source</th>
           <th>Type</th>
           <th>Typology</th>
-          <th>Price</th>
-          <th>District</th>
+          <th class="th-sortable" [class.th-sorted]="isSortActive('price')" (click)="onSort('price')">
+            Price <span class="sort-indicator">{{ getSortIndicator('price') }}</span>
+          </th>
+          <th class="th-sortable" [class.th-sorted]="isSortActive('district')" (click)="onSort('district')">
+            District <span class="sort-indicator">{{ getSortIndicator('district') }}</span>
+          </th>
           <th>County</th>
-          <th>Area</th>
-          <th>Bedrooms</th>
+          <th class="th-sortable" [class.th-sorted]="isSortActive('area')" (click)="onSort('area')">
+            Area <span class="sort-indicator">{{ getSortIndicator('area') }}</span>
+          </th>
+          <th class="th-sortable" [class.th-sorted]="isSortActive('bedrooms')" (click)="onSort('bedrooms')">
+            Bedrooms <span class="sort-indicator">{{ getSortIndicator('bedrooms') }}</span>
+          </th>
           <th>Bathrooms</th>
-          <th>Date</th>
+          <th class="th-sortable" [class.th-sorted]="isSortActive('created_at')" (click)="onSort('created_at')">
+            Date <span class="sort-indicator">{{ getSortIndicator('created_at') }}</span>
+          </th>
           <th></th>
         </tr>
       </thead>

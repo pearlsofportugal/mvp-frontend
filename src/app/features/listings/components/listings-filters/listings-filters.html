@@ -3,7 +3,9 @@
     <label>Source Partner</label>
     <select formControlName="source_partner">
       <option value="">All</option>
-      <option value="pearls">pearls</option>
+      @for (site of sites(); track site.key) {
+        <option [value]="site.key">{{ site.name || site.key }}</option>
+      }
     </select>
   </div>
 

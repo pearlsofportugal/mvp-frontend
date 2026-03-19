@@ -28,7 +28,7 @@
     @for (entry of sourceEntries(); track entry[0]) {
     <div class="source-item">
       <strong>{{ entry[0] }}</strong>
-      <span>{{ entry[1].enriched }}/{{ entry[1].total }}</span>
+      <span>{{ entry[1].enriched_count }}/{{ entry[1].total }}</span>
       <span class="percentage">{{ formatSourcePercentage(entry) }}%</span>
     </div>
     }

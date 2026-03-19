@@ -2,6 +2,7 @@
 	<div class="card">
 		<h2>Filters</h2>
 		<app-listings-filters
+			[sites]="activeSites()"
 			(filtersChange)="onFiltersChange($event)"
 			(viewStats)="onViewStatsRequest()"
 		/>
@@ -15,7 +16,7 @@
 					✕ Close
 				</button>
 			</div>
-			<app-listings-stats [sourcePartner]="currentFilters().source_partner" />
+			<app-listings-stats [sourcePartner]="userFilters().source_partner" />
 		</div>
 	}
 
@@ -48,8 +49,11 @@
 		} @else {
 			<app-listings-table
 				[realEstates]="realEstates()"
+				[sortField]="sortField()"
+				[sortOrder]="sortOrder()"
 				(viewRealEstate)="onViewRealEstate($event)"
 				(deleteRealEstate)="onDeleteRealEstate($event)"
+				(sort)="onSort($event.field, $event.order)"
 			/>
 		}
 	</div>
@@ -67,5 +71,16 @@
 				(delete)="onDeleteRealEstate($event)"
 			/>
 		</div>
+	}
+
+	@if (confirmingDeleteListingId()) {
+		<app-confirm-dialog
+			message="Apagar este anúncio permanentemente?"
+			confirmLabel="Apagar"
+			cancelLabel="Cancelar"
+			[danger]="true"
+			(confirmed)="onConfirmDeleteListing()"
+			(cancelled)="confirmingDeleteListingId.set(null)"
+		/>
 	}
 </div>
