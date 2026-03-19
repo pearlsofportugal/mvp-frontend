@@ -24,9 +24,9 @@ export class EnrichmentStatsComponent {
     return percentage.toFixed(1);
   });
 
-  protected formatSourcePercentage(entry: [string, { total: number; enriched: number }]) {
+  protected formatSourcePercentage(entry: [string, { total: number; enriched_count: number }]) {
     const [, data] = entry;
     if (data.total === 0) return '0.0';
-    return ((data.enriched / data.total) * 100).toFixed(1);
+    return ((data.enriched_count / data.total) * 100).toFixed(1);
   }
 }

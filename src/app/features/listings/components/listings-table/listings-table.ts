@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import type { ListingListRead } from '../../../../core/api/model';
+
+type SortField = 'title' | 'price' | 'area' | 'bedrooms' | 'district' | 'created_at';
 
 @Component({
   selector: 'app-listings-table',
@@ -10,8 +12,11 @@ import type { ListingListRead } from '../../../../core/api/model';
 })
 export class ListingsTableComponent {
   realEstates = input.required<ListingListRead[]>();
+  sortField = input<string | null>(null);
+  sortOrder = input<'asc' | 'desc'>('asc');
   viewRealEstate = output<ListingListRead>();
   deleteRealEstate = output<string>();
+  sort = output<{ field: SortField; order: 'asc' | 'desc' }>();
 
   onView(listing: ListingListRead): void {
     this.viewRealEstate.emit(listing);
@@ -19,6 +24,22 @@ export class ListingsTableComponent {
 
   onDelete(id: string): void {
     this.deleteRealEstate.emit(id);
+  }
+
+  onSort(field: SortField): void {
+    const currentField = this.sortField();
+    const currentOrder = this.sortOrder();
+    const newOrder = currentField === field && currentOrder === 'asc' ? 'desc' : 'asc';
+    this.sort.emit({ field, order: newOrder });
+  }
+
+  getSortIndicator(field: SortField): string {
+    if (this.sortField() !== field) return '↕';
+    return this.sortOrder() === 'asc' ? '↑' : '↓';
+  }
+
+  isSortActive(field: SortField): boolean {
+    return this.sortField() === field;
   }
 
   formatPrice(amount?: string | number | null, currency?: string | null): string {

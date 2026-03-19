@@ -24,3 +24,24 @@
 	<app-job-detail [job]="selectedJob()!" (close)="onCloseDetail()" />
 </div>
 }
+
+@if (confirmingCancelJobId()) {
+  <app-confirm-dialog
+    message="Cancelar este job?"
+    confirmLabel="Sim, cancelar"
+    cancelLabel="Não"
+    (confirmed)="onConfirmCancelJob()"
+    (cancelled)="confirmingCancelJobId.set(null)"
+  />
+}
+
+@if (confirmingDeleteJobId()) {
+  <app-confirm-dialog
+    message="Apagar este job permanentemente?"
+    confirmLabel="Apagar"
+    cancelLabel="Cancelar"
+    [danger]="true"
+    (confirmed)="onConfirmDeleteJob()"
+    (cancelled)="confirmingDeleteJobId.set(null)"
+  />
+}

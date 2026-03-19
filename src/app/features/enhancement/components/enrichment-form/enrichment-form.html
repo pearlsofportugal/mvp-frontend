@@ -2,18 +2,20 @@
 
   <!-- ── PROPERTY SELECTOR ────────────────────────────────────── -->
   <div class="form-group full-width">
-    <app-listing-selector [(selectedId)]="selectedListingId" (listingConfirmed)="onListingConfirmed($event)" />
+    <app-listing-selector [multiMode]="true" (listingsConfirmed)="onListingsConfirmed($event)" />
   </div>
 
   <!-- ── SELECTED LISTING INFO ─────────────────────────────────── -->
-  @if (loadingListing()) {
+  @if (selectedCount() > 1) {
+  <div class="listing-info" role="status" aria-live="polite">
+    <div class="listing-info-title">{{ selectedCount() }} properties selected for enrichment</div>
+  </div>
+  } @else if (loadingListing()) {
   <div class="listing-info listing-info--loading">
     <div class="listing-info-spinner"></div>
     <span>Loading property...</span>
   </div>
-  }
-
-  @if (selectedListing(); as listing) {
+  } @else if (selectedListing(); as listing) {
   <div class="listing-info" role="status" aria-live="polite">
     <div class="listing-info-title">{{ listing.title || '—' }}</div>
     <div class="listing-info-meta">
@@ -116,12 +118,20 @@
     <button type="submit" class="btn-generate" [disabled]="loading()" [attr.aria-busy]="loading()">
       @if (loading()) {
       <span class="btn-generate-spinner"></span>
-      Generating...
+      @if ((batchProgress()?.total ?? 1) > 1) {
+        Processing {{ batchProgress()?.done ?? 0 }}/{{ batchProgress()?.total }}...
+      } @else {
+        Generating...
+      }
       } @else {
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
       </svg>
-      Generate with AI
+      @if (selectedCount() > 1) {
+        Generate for {{ selectedCount() }} properties
+      } @else {
+        Generate with AI
+      }
       }
     </button>
   </div>

@@ -16,8 +16,8 @@ export interface EnrichmentSourceStats {
    */
   total: number;
   /**
-   * Listings with enriched descriptions.
+   * Listings with at least one AI-enriched field.
    * @minimum 0
    */
-  enriched: number;
+  enriched_count: number;
 }

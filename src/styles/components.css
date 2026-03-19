@@ -114,6 +114,13 @@ textarea {
   transform: scale(1.05);
 }
 
+.field-error {
+  display: block;
+  color: var(--red);
+  font-size: 0.72rem;
+  margin-top: 0.2rem;
+}
+
 @media (max-width: 768px) {
   .form-grid {
     grid-template-columns: 1fr;

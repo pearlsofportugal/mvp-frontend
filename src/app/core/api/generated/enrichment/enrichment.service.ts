@@ -14,8 +14,10 @@ import type {
   AITextOptimizationRequest,
   ApiResponseAIListingEnrichmentResponse,
   ApiResponseAITextOptimizationResponse,
+  ApiResponseBulkEnrichmentResponse,
   ApiResponseEnrichmentPreview,
   ApiResponseEnrichmentStats,
+  BulkEnrichmentRequest,
   EnrichmentStatsParams,
 } from '../../model';
 
@@ -59,7 +61,7 @@ export class EnrichmentService {
     );
   }
   /**
-   * Preview AI-generated description for a listing without persisting changes.
+   * Preview AI-generated SEO content for a listing without persisting changes.
    * @summary Preview Enrichment
    */
   previewEnrichment<TData = ApiResponseEnrichmentPreview>(listingId: string) {
@@ -109,6 +111,27 @@ export class EnrichmentService {
             string | number | boolean | Array<string | number | boolean>
           >;
         })(),
+      },
+      this.http,
+    );
+  }
+  /**
+ * Enrich multiple listings in one call.
+
+When ``listing_ids`` is provided, only those listings are processed.
+Otherwise, all unenriched listings (optionally filtered by ``source_partner``)
+are queued up to ``limit``.
+ * @summary Bulk Enrich
+ */
+  bulkEnrichListings<TData = ApiResponseBulkEnrichmentResponse>(
+    bulkEnrichmentRequest: BulkEnrichmentRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/enrichment/ai/bulk`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: bulkEnrichmentRequest,
       },
       this.http,
     );

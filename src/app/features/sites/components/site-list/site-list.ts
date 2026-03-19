@@ -10,6 +10,7 @@ import type { SiteConfigRead } from '../../../../core/api/model';
 })
 export class SiteListComponent {
   sites = input.required<SiteConfigRead[]>();
+  addSite = output<void>();
   edit = output<SiteConfigRead>();
   delete = output<string>();
   reactivate = output<string>();

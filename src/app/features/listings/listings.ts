@@ -14,8 +14,10 @@ import { ListingsTableComponent } from './components/listings-table/listings-tab
 import { ListingDetailComponent } from './components/listing-detail/listing-detail';
 import { ListingsStatsComponent } from './components/listings-stats/listings-stats';
 import { RealEstateService } from '../../core/services/listings.service';
+import { SitesService } from '../../core/services/sites.service';
 import { RealEstateFilters } from '../../core/models/listing.model';
-import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead } from '../../core/api/model';
+import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead, SiteConfigRead } from '../../core/api/model';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-listings',
@@ -24,6 +26,7 @@ import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead } from 
     ListingsTableComponent,
     ListingDetailComponent,
     ListingsStatsComponent,
+    ConfirmDialogComponent,
   ],
   templateUrl: './listings.html',
   styleUrl: './listings.css',
@@ -31,14 +34,22 @@ import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead } from 
 })
 export class ListingsComponent {
   private readonly realEstateService = inject(RealEstateService);
+  private readonly sitesService = inject(SitesService);
   private readonly destroyRef = inject(DestroyRef);
 
   // State
   private readonly selectedListingId = signal<string | null>(null);
   protected readonly showStats = signal(false);
-  protected readonly currentFilters = signal<RealEstateFilters>({
-    page: 1,
-    page_size: 20,
+  protected readonly confirmingDeleteListingId = signal<string | null>(null);
+  protected readonly userFilters = signal<RealEstateFilters>({ page: 1, page_size: 20 });
+  protected readonly sortField = signal<string | null>(null);
+  protected readonly sortOrder = signal<'asc' | 'desc'>('asc');
+
+  // Effective filters = user filters + sort
+  private readonly currentFilters = computed<RealEstateFilters>(() => {
+    const f = this.userFilters();
+    const sf = this.sortField();
+    return sf ? { ...f, sort_by: sf, sort_order: this.sortOrder() } : f;
   });
 
   // Resources (automatic lifecycle � no manual subscribe for reads)
@@ -46,7 +57,10 @@ export class ListingsComponent {
     params: () => this.currentFilters(),
     stream: ({ params }) => this.realEstateService.getListings(params),
   });
-
+  readonly sitesResource = rxResource<SiteConfigRead[], number>({
+    params: () => 0,
+    stream: () => this.sitesService.list(),
+  });
   readonly detailResource = rxResource<ListingRead | null, string | null>({
     params: () => this.selectedListingId(),
     stream: ({ params }) =>
@@ -59,6 +73,9 @@ export class ListingsComponent {
   protected readonly paginationData = computed(() => this.realEstatesResource.value());
   protected readonly selectedRealEstate = computed(() => this.detailResource.value() ?? null);
   protected readonly isLoadingDetail = computed(() => this.detailResource.isLoading());
+  protected readonly activeSites = computed<SiteConfigRead[]>(
+    () => (this.sitesResource.value() ?? []).filter((s) => s.is_active),
+  );
 
   // Pagination derived
   protected readonly totalListings = computed(() => this.paginationData()?.meta?.total ?? 0);
@@ -69,7 +86,13 @@ export class ListingsComponent {
 
   // Filter actions
   onFiltersChange(filters: RealEstateFilters): void {
-    this.currentFilters.set({ ...filters, page: 1, page_size: 20 });
+    this.userFilters.set({ ...filters, page: 1, page_size: 20 });
+  }
+
+  onSort(field: string, order: 'asc' | 'desc'): void {
+    this.sortField.set(field);
+    this.sortOrder.set(order);
+    this.userFilters.update((f) => ({ ...f, page: 1 }));
   }
 
   // Pagination actions
@@ -89,8 +112,13 @@ export class ListingsComponent {
   }
 
   onDeleteRealEstate(id: string): void {
-    if (!confirm('Tem a certeza que deseja apagar este real estate?')) return;
+    this.confirmingDeleteListingId.set(id);
+  }
 
+  onConfirmDeleteListing(): void {
+    const id = this.confirmingDeleteListingId();
+    if (!id) return;
+    this.confirmingDeleteListingId.set(null);
     this.realEstateService.deleteListing(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.selectedListingId() === id) this.selectedListingId.set(null);
@@ -114,6 +142,6 @@ export class ListingsComponent {
   }
 
   private updatePage(page: number): void {
-    this.currentFilters.update((filters) => ({ ...filters, page }));
+    this.userFilters.update((filters) => ({ ...filters, page }));
   }
 }

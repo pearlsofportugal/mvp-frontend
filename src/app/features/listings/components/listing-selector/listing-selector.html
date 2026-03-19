@@ -2,10 +2,22 @@
 <div class="selector-field">
     <span class="field-label">Property</span>
 
-    <button type="button" class="selector-trigger" [class.has-value]="!!confirmedListing()" (click)="open()"
+    <button type="button" class="selector-trigger" [class.has-value]="multiMode() ? selectedCount() > 0 : !!confirmedListing()" (click)="open()"
         [attr.aria-expanded]="isOpen()" aria-haspopup="dialog">
 
-        @if (confirmedListing(); as l) {
+        @if (multiMode()) {
+          @if (selectedCount() > 0) {
+            <span class="trigger-text">
+              <span class="trigger-title">{{ selectedCount() }} {{ selectedCount() === 1 ? 'property' : 'properties' }} selected</span>
+            </span>
+          } @else {
+            <svg class="trigger-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+            </svg>
+            <span class="trigger-text trigger-placeholder">Select properties...</span>
+          }
+        } @else if (confirmedListing(); as l) {
         <!-- Thumbnail or initial avatar -->
         @if (l.thumbnail_url) {
         <img class="trigger-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
@@ -148,8 +160,10 @@
             } @else {
 
             @for (listing of displayList(); track listing.id; let i = $index) {
-            <button type="button" class="listing-card" [class.selected]="pendingId() === listing.id"
-                [style.animation-delay]="i * 20 + 'ms'" role="option" [attr.aria-selected]="pendingId() === listing.id"
+            <button type="button" class="listing-card"
+                [class.selected]="multiMode() ? isItemSelected(listing.id) : pendingId() === listing.id"
+                [style.animation-delay]="i * 20 + 'ms'" role="option"
+                [attr.aria-selected]="multiMode() ? isItemSelected(listing.id) : pendingId() === listing.id"
                 (click)="selectPending(listing)">
 
                 <!-- Photo / placeholder -->
@@ -227,6 +241,20 @@
 
         <!-- MODAL FOOTER -->
         <div class="modal-footer">
+            @if (multiMode()) {
+            <span class="footer-empty">
+              {{ selectedCount() === 0 ? 'No properties selected' : selectedCount() + ' selected' }}
+            </span>
+            <div class="footer-btns">
+                <button class="btn btn-ghost" type="button" (click)="close()">Cancel</button>
+                <button class="btn btn-primary" type="button" [disabled]="selectedCount() === 0" (click)="confirm()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Confirm ({{ selectedCount() }})
+                </button>
+            </div>
+            } @else {
             @if (pendingListing(); as l) {
             <div class="footer-preview">
                 @if (l.thumbnail_url) {
@@ -257,6 +285,7 @@
                     Confirm
                 </button>
             </div>
+            }
         </div>
 
     </div>

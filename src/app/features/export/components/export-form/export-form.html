@@ -56,6 +56,12 @@
     </div>
   </div>
 
+  @if (previewCount(); as r) {
+    <p class="export-preview-count">
+      <strong>{{ r.meta?.total ?? 0 }}</strong> listing{{ (r.meta?.total ?? 0) !== 1 ? 's' : '' }} correspondem aos filtros
+    </p>
+  }
+
   <div class="btn-group">
     <button
       type="button"

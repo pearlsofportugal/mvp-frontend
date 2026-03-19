@@ -84,6 +84,12 @@
           [class.error]="form.controls.base_url.invalid && form.controls.base_url.touched"
           (keydown.enter)="onDetect()"
         />
+        @if (form.controls.base_url.invalid && form.controls.base_url.touched) {
+          <span class="field-error" role="alert">
+            @if (form.controls.base_url.errors?.['required']) { URL obrigatório. }
+            @else { URL inválido — deve começar com http:// ou https:// }
+          </span>
+        }
         <button
           type="button"
           class="btn btn-primary"
@@ -180,6 +186,12 @@
               placeholder="pearls"
               [class.error]="form.controls.key.invalid && form.controls.key.touched"
             />
+            @if (form.controls.key.invalid && form.controls.key.touched) {
+              <span class="field-error" role="alert">
+                @if (form.controls.key.errors?.['required']) { Campo obrigatório. }
+                @else { Apenas letras minúsculas, números, _ e - são permitidos. }
+              </span>
+            }
           </div>
 
           <div class="form-group">
@@ -191,6 +203,9 @@
               placeholder="Pearls of Portugal"
               [class.error]="form.controls.name.invalid && form.controls.name.touched"
             />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <span class="field-error" role="alert">Nome obrigatório.</span>
+            }
           </div>
         </div>
 
@@ -206,6 +221,12 @@
             placeholder="https://realestate.pearlsofportugal.com"
             [class.error]="form.controls.base_url.invalid && form.controls.base_url.touched"
           />
+          @if (form.controls.base_url.invalid && form.controls.base_url.touched) {
+            <span class="field-error" role="alert">
+              @if (form.controls.base_url.errors?.['required']) { URL obrigatório. }
+              @else { URL inválido — deve começar com http:// ou https:// }
+            </span>
+          }
         </div>
 
         <div class="form-group">

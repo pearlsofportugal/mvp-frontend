@@ -2,12 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  input,
   output,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { RealEstateFilters } from '../../../../core/models/listing.model';
+import type { SiteConfigRead } from '../../../../core/api/model';
 
 @Component({
   selector: 'app-listings-filters',
@@ -17,6 +19,7 @@ import { RealEstateFilters } from '../../../../core/models/listing.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListingsFiltersComponent {
+  sites = input<SiteConfigRead[]>([]);
   filtersChange = output<RealEstateFilters>();
   viewStats = output<void>();
 

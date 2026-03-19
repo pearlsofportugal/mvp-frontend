@@ -42,7 +42,7 @@ export interface EnrichmentStats {
   enriched_count: number;
   not_enriched_count: number;
   enrichment_percentage: number;
-  by_source?: Record<string, { total: number; enriched: number }>;
+  by_source?: Record<string, { total: number; enriched_count: number }>;
 }
 
 

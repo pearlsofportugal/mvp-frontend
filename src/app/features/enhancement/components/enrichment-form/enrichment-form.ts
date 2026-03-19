@@ -16,7 +16,8 @@ import type {
   AIListingEnrichmentResponse,
   AIListingEnrichmentRequest,
   AIListingEnrichmentRequestFieldsItem,
-  ListingRead,
+  BulkEnrichmentRequestFieldsItem,
+  ListingDetailRead,
   ListingSearchItem,
 } from '../../../../core/api/model';
 import { RealEstateService } from '../../../../core/services/listings.service';
@@ -67,25 +68,31 @@ export class EnrichmentFormComponent {
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly selectedListingId = signal<string | null>(null);
+  protected readonly selectedListings = signal<ListingSearchItem[]>([]);
+  protected readonly selectedListingId = computed(() => this.selectedListings()[0]?.id ?? null);
+  protected readonly batchProgress = signal<{ done: number; total: number } | null>(null);
   protected readonly directResult = signal<AIListingEnrichmentResponse | null>(null);
   protected readonly generationProgress = signal(0);
   protected readonly generationStepIndex = signal(0);
 
-  protected onListingConfirmed(listing: ListingSearchItem): void {
-    this.selectedListingId.set(listing.id);
+  protected onListingsConfirmed(listings: ListingSearchItem[]): void {
+    this.selectedListings.set(listings);
     this.directResult.set(null);
     this.error.set(null);
-    this.listingSelected.emit(listing.id);
+    this.batchProgress.set(null);
+    if (listings.length > 0) {
+      this.listingSelected.emit(listings[0].id);
+    }
   }
 
-  readonly listingResource = rxResource<ListingRead | null, string | null>({
+  readonly listingResource = rxResource<ListingDetailRead | null, string | null>({
     params: () => this.selectedListingId(),
     stream: ({ params }) => (params ? this.realEstateService.getListingById(params) : of(null)),
   });
 
-  protected readonly selectedListing = computed(() => this.listingResource.value() ?? null);
+  protected readonly selectedListing = computed<ListingDetailRead | null>(() => this.listingResource.value() ?? null);
   protected readonly loadingListing = computed(() => this.listingResource.isLoading());
+  protected readonly selectedCount = computed(() => this.selectedListings().length);
 
   protected readonly changedCount = computed(
     () => this.directResult()?.results?.filter((item) => item.changed).length ?? 0,
@@ -109,19 +116,20 @@ export class EnrichmentFormComponent {
 
     this.error.set(null);
     this.directResult.set(null);
+    this.batchProgress.set(null);
 
     const value = this.form.getRawValue();
-    const listingId = this.selectedListingId();
+    const listings = this.selectedListings();
+
+    if (listings.length === 0) {
+      this.error.set('Seleciona primeiro um ou mais listings da lista de pesquisa.');
+      return;
+    }
 
     const fields: AIListingEnrichmentRequestFieldsItem[] = [];
     if (value.target_title) fields.push('title');
     if (value.target_description) fields.push('description');
     if (value.target_meta_description) fields.push('meta_description');
-
-    if (!listingId) {
-      this.error.set('Seleciona primeiro um listing da lista de pesquisa.');
-      return;
-    }
 
     if (fields.length === 0) {
       this.error.set('Seleciona pelo menos um atributo para enriquecer.');
@@ -129,39 +137,66 @@ export class EnrichmentFormComponent {
     }
 
     this.loading.set(true);
-    this.startGenerationProgress();
+    this.batchProgress.set({ done: 0, total: listings.length });
+    if (listings.length === 1) this.startGenerationProgress();
 
-    const request: AIListingEnrichmentRequest = {
-      listing_id: listingId,
-      fields,
-      apply: value.apply_changes,
-      force: value.force_regeneration,
-    };
-
-    this.enrichmentService
-      .enrichListing(request)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.stopGenerationProgress();
-          this.loading.set(false);
-        }),
-      )
-      .subscribe({
-        next: (response) => {
-          this.directResult.set(response);
-          const changedCount = (response.results ?? []).filter((r) => r.changed).length;
-          const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
-
-          this.success.emit({
-            total_processed: 1,
-            total_enriched: changedCount,
-            total_errors: 0,
-            duration_seconds: duration,
-          });
-        },
-        error: (err: unknown) => this.error.set(extractErrorMessage(err)),
-      });
+    if (listings.length === 1) {
+      // Single listing — use enrichListing to get diff preview
+      this.enrichmentService
+        .enrichListing({
+          listing_id: listings[0].id,
+          fields,
+          apply: value.apply_changes,
+          force: value.force_regeneration,
+        } satisfies AIListingEnrichmentRequest)
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => {
+            this.stopGenerationProgress();
+            this.loading.set(false);
+          }),
+        )
+        .subscribe({
+          next: (response) => {
+            this.directResult.set(response);
+            this.batchProgress.set({ done: 1, total: 1 });
+            const changedCount = (response.results ?? []).filter((r) => r.changed).length;
+            const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
+            this.success.emit({
+              total_processed: 1,
+              total_enriched: changedCount,
+              total_errors: 0,
+              duration_seconds: duration,
+            });
+          },
+          error: (err: unknown) => this.error.set(extractErrorMessage(err)),
+        });
+    } else {
+      // Multiple listings — use the bulk endpoint
+      this.enrichmentService
+        .bulkEnrichListings({
+          listing_ids: listings.map((l) => l.id),
+          fields: fields as BulkEnrichmentRequestFieldsItem[],
+          force: value.force_regeneration,
+        })
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => this.loading.set(false)),
+        )
+        .subscribe({
+          next: (response) => {
+            const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
+            this.batchProgress.set({ done: response.enriched + response.skipped + response.failed, total: listings.length });
+            this.success.emit({
+              total_processed: response.total_requested,
+              total_enriched: response.enriched,
+              total_errors: response.failed,
+              duration_seconds: duration,
+            });
+          },
+          error: (err: unknown) => this.error.set(extractErrorMessage(err)),
+        });
+    }
   }
 
   private startGenerationProgress(): void {
