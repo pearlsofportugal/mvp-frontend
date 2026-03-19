@@ -29,7 +29,6 @@ type EnrichmentFormGroup = FormGroup<{
   target_title: FormControl<boolean>;
   target_description: FormControl<boolean>;
   target_meta_description: FormControl<boolean>;
-  apply_changes: FormControl<boolean>;
   force_regeneration: FormControl<boolean>;
 }>;
 
@@ -62,12 +61,12 @@ export class EnrichmentFormComponent {
     target_title: new FormControl(false, { nonNullable: true }),
     target_description: new FormControl(true, { nonNullable: true }),
     target_meta_description: new FormControl(false, { nonNullable: true }),
-    apply_changes: new FormControl(true, { nonNullable: true }),
     force_regeneration: new FormControl(false, { nonNullable: true }),
   });
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly applyingResult = signal(false);
   protected readonly selectedListings = signal<ListingSearchItem[]>([]);
   protected readonly selectedListingId = computed(() => this.selectedListings()[0]?.id ?? null);
   protected readonly batchProgress = signal<{ done: number; total: number } | null>(null);
@@ -146,7 +145,7 @@ export class EnrichmentFormComponent {
         .enrichListing({
           listing_id: listings[0].id,
           fields,
-          apply: value.apply_changes,
+          apply: false,
           force: value.force_regeneration,
         } satisfies AIListingEnrichmentRequest)
         .pipe(
@@ -197,6 +196,27 @@ export class EnrichmentFormComponent {
           error: (err: unknown) => this.error.set(extractErrorMessage(err)),
         });
     }
+  }
+
+  protected onApplyResult(): void {
+    if (this.applyingResult()) return;
+    const listing = this.selectedListings()[0];
+    const result = this.directResult();
+    if (!listing || !result) return;
+
+    const fields = (result.results ?? []).map((r) => r.field) as AIListingEnrichmentRequestFieldsItem[];
+
+    this.applyingResult.set(true);
+    this.enrichmentService
+      .enrichListing({ listing_id: listing.id, fields, apply: true, force: false })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingResult.set(false)),
+      )
+      .subscribe({
+        next: (response) => this.directResult.set(response),
+        error: (err: unknown) => this.error.set(extractErrorMessage(err)),
+      });
   }
 
   private startGenerationProgress(): void {
