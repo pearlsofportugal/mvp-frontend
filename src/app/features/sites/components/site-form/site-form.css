@@ -51,14 +51,14 @@
 }
 
 .btn-icon:hover {
-  border-color: var(--border-hi);
+  border-color: var(--border-light);
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
 }
 
 .help-panel {
-  background: color-mix(in srgb, var(--bg-card) 82%, var(--accent));
-  border: 1px solid color-mix(in srgb, var(--border) 65%, var(--accent));
+  background: var(--accent-light);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -90,8 +90,8 @@
 }
 
 .help-panel .tip {
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid var(--green);
+  background: var(--green-light);
   border-radius: 0.5rem;
   padding: 0.6rem 0.75rem;
   margin-top: 0.85rem;
@@ -102,7 +102,7 @@
   display: flex;
   gap: 0.25rem;
   margin-bottom: 1rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface2);
   padding: 0.25rem;
   border-radius: 0.625rem;
   border: 1px solid var(--border);
@@ -123,11 +123,11 @@
 
 .tab:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface3);
 }
 
 .tab.active {
-  background: color-mix(in srgb, var(--accent) 85%, #7c3aed);
+  background: var(--accent);
   color: #fff;
 }
 
@@ -183,7 +183,7 @@ label .hint {
 input:not([type=radio]),
 select,
 textarea {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   color: var(--text);
@@ -198,13 +198,13 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 input.error,
 textarea.error {
   border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.14);
+  box-shadow: 0 0 0 3px var(--red-light);
 }
 
 input::placeholder {
@@ -225,11 +225,15 @@ input::placeholder {
   align-items: flex-start;
   gap: 0.7rem;
   padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: inherit;
+  color: var(--text);
 }
 
 .radio-option:hover {
@@ -238,7 +242,7 @@ input::placeholder {
 
 .radio-option:has(input:checked) {
   border-color: var(--accent);
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--accent-light);
 }
 
 .radio-option input[type='radio'] {
@@ -264,7 +268,7 @@ input::placeholder {
 }
 
 .selector-section {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1rem;
@@ -272,8 +276,8 @@ input::placeholder {
 }
 
 .selector-section.section-mode {
-  border-color: color-mix(in srgb, var(--border) 55%, var(--accent));
-  background: color-mix(in srgb, var(--bg-card) 94%, var(--accent));
+  border-color: var(--border);
+  background: var(--accent-light);
 }
 
 .selector-section h3 {
@@ -328,7 +332,7 @@ input::placeholder {
 .preview-url-bar {
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.6rem;
 }
@@ -400,7 +404,7 @@ input::placeholder {
 /* ── Test tab ── */
 
 .test-section {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1rem;
@@ -437,15 +441,16 @@ input::placeholder {
   font-weight: 500;
   white-space: nowrap;
   border-radius: 0.5rem;
-  border: 1px solid var(--accent);
-  background: color-mix(in srgb, var(--bg-card) 80%, var(--accent));
+  border: 1px solid var(--border);
+  background: var(--surface);
   color: var(--accent);
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
 }
 
 .btn-test:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--bg-card) 65%, var(--accent));
+  background: var(--accent-light);
+  border-color: var(--accent);
 }
 
 .btn-test:disabled {
@@ -555,7 +560,7 @@ input::placeholder {
 
 .coverage-bar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface3);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -594,8 +599,8 @@ input::placeholder {
 .critical-badge {
   font-size: 0.66rem;
   padding: 0.15rem 0.45rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: var(--red-light);
+  border: 1px solid var(--red);
   border-radius: 9999px;
   color: var(--red);
   font-family: var(--font-mono, monospace);
@@ -618,7 +623,7 @@ input::placeholder {
 .fields-table th {
   text-align: left;
   padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface2);
   border-bottom: 1px solid var(--border);
   color: var(--text-dim);
   font-weight: 600;
@@ -629,7 +634,7 @@ input::placeholder {
 
 .fields-table td {
   padding: 0.45rem 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
 
@@ -660,9 +665,9 @@ input::placeholder {
   font-weight: 600;
 }
 
-.status-ok { background: rgba(16, 185, 129, 0.12); color: var(--green); }
-.status-empty { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-.status-error { background: rgba(239, 68, 68, 0.12); color: var(--red); }
+.status-ok { background: var(--green-light); color: var(--green); }
+.status-empty { background: var(--yellow-light); color: var(--yellow); }
+.status-error { background: var(--red-light); color: var(--red); }
 
 .field-reason {
   display: block;
@@ -701,16 +706,16 @@ input::placeholder {
   color: var(--red);
   margin: 0;
   padding: 0.6rem 0.75rem;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid var(--red);
   border-radius: 0.5rem;
-  background: rgba(239, 68, 68, 0.06);
+  background: var(--red-light);
 }
 
 .detect-results {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1rem;
@@ -735,15 +740,15 @@ input::placeholder {
   letter-spacing: 0.08em;
   padding: 0.2rem 0.55rem;
   border-radius: 9999px;
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--yellow-light);
+  color: var(--yellow);
+  border: 1px solid transparent;
 }
 
 .detect-source-badge.source-jsonld {
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--accent-light);
   color: var(--accent);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: transparent;
 }
 
 .detect-count {

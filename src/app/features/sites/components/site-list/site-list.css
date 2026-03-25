@@ -4,7 +4,7 @@
   color: var(--text-dim);
   border: 1px dashed var(--border);
   border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--bg-card) 92%, var(--accent));
+  background: var(--surface2);
 }
 
 .empty h3 {
@@ -33,8 +33,7 @@
 }
 
 .site-card:hover {
-  border-color: var(--border-hi);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  border-color: var(--border-light);
 }
 
 .site-card.inactive {
@@ -60,8 +59,8 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent);
-  background: color-mix(in srgb, var(--bg-card) 80%, var(--accent));
-  border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent));
+  background: var(--accent-light);
+  border: 1px solid var(--border);
   padding: 0.15rem 0.45rem;
   border-radius: 9999px;
   width: fit-content;
@@ -79,7 +78,7 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.65rem 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   margin-bottom: 0.85rem;
@@ -144,12 +143,12 @@
 }
 
 .badge-section {
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--accent-light);
   color: var(--accent);
 }
 
 .badge-direct {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--green-light);
   color: var(--green);
 }
 
@@ -178,7 +177,7 @@
 
 .confidence-bar {
   height: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface3);
   border-radius: 9999px;
   overflow: hidden;
 }

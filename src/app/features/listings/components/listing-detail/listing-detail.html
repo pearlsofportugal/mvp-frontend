@@ -1,256 +1,191 @@
-<!-- Identification -->
-<dl class="detail-grid">
-  <dt>ID</dt>
-  <dd class="mono">{{ realEstate().id }}</dd>
-
-  <dt>Title</dt>
-  <dd>{{ realEstate().title || '-' }}</dd>
-
-  <dt>Source</dt>
-  <dd>{{ realEstate().source_partner }}</dd>
-
-  <dt>Partner ID</dt>
-  <dd>{{ realEstate().partner_id || '-' }}</dd>
-
-  <dt>Listing Type</dt>
-  <dd>{{ realEstate().listing_type || '-' }}</dd>
-
-  <dt>URL</dt>
-  <dd>
-    @if (realEstate().source_url) {
-      <a
-        [href]="realEstate().source_url"
-        target="_blank"
-        style="color: var(--accent); word-break: break-all"
-      >
-        {{ realEstate().source_url }}
-      </a>
-    } @else {
-      -
-    }
-  </dd>
-</dl>
-
-<!-- Property -->
-<h3 class="mt">🏠 Property</h3>
-<dl class="detail-grid">
-  <dt>Type</dt>
-  <dd>{{ realEstate().property_type || '-' }}</dd>
-
-  <dt>Typology</dt>
-  <dd>{{ realEstate().typology || '-' }}</dd>
-
-  <dt>Bedrooms</dt>
-  <dd>{{ realEstate().bedrooms ?? '-' }}</dd>
-
-  <dt>Bathrooms</dt>
-  <dd>{{ realEstate().bathrooms ?? '-' }}</dd>
-
-  <dt>Floor</dt>
-  <dd>{{ realEstate().floor ?? '-' }}</dd>
-
-  <dt>Construction Year</dt>
-  <dd>{{ realEstate().construction_year ?? '-' }}</dd>
-
-  <dt>Energy Certificate</dt>
-  <dd>{{ realEstate().energy_certificate || '-' }}</dd>
-</dl>
-
-<!-- Financial -->
-<h3 class="mt">💰 Financial</h3>
-<dl class="detail-grid">
-  <dt>Price</dt>
-  <dd>{{ formatPrice(realEstate().price_amount, realEstate().price_currency) }}</dd>
-
-  <dt>Price/m²</dt>
-  <dd>
+<!-- ── HERO ─────────────────────────────────────────────────── -->
+<div class="detail-hero">
+  <div class="hero-left">
+    <p class="hero-title">{{ realEstate().title || 'Unnamed listing' }}</p>
+    <div class="hero-meta">
+      @if (realEstate().district) { <span class="hero-location">{{ realEstate().district }}@if (realEstate().county) {, {{ realEstate().county }}}</span> }
+      @if (realEstate().source_url) {
+        <a [href]="realEstate().source_url" target="_blank" rel="noopener" class="hero-source-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          View source
+        </a>
+      }
+    </div>
+    <div class="hero-badges">
+      @if (realEstate().listing_type) { <span class="hbadge hbadge--sale">{{ realEstate().listing_type }}</span> }
+      @if (realEstate().property_type) { <span class="hbadge hbadge--type">{{ realEstate().property_type }}</span> }
+      @if (realEstate().typology) { <span class="hbadge hbadge--typology">{{ realEstate().typology }}</span> }
+      @if (realEstate().is_enriched) { <span class="hbadge hbadge--ai">✦ AI enhanced</span> }
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-price">{{ formatPrice(realEstate().price_amount, realEstate().price_currency) }}</div>
     @if (realEstate().price_per_m2) {
-      {{ realEstate().price_per_m2 | number:'1.0-2' }} €/m²
-    } @else {
-      -
+      <div class="hero-price-m2">{{ realEstate().price_per_m2 | number:'1.0-0' }} €/m²</div>
     }
-  </dd>
-</dl>
+  </div>
+</div>
 
-<!-- Areas -->
-<h3 class="mt">📐 Areas</h3>
-<dl class="detail-grid">
-  <dt>Usable Area</dt>
-  <dd>
+<!-- ── STATS ROW ──────────────────────────────────────────────── -->
+@if (realEstate().bedrooms != null || realEstate().bathrooms != null || realEstate().area_useful_m2 || realEstate().area_gross_m2 || realEstate().floor) {
+  <div class="stats-row">
+    @if (realEstate().bedrooms != null) {
+      <div class="stat-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>{{ realEstate().bedrooms }} bed</span>
+      </div>
+    }
+    @if (realEstate().bathrooms != null) {
+      <div class="stat-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 6l2 2-2 2M9 6V4a2 2 0 014 0m4 10H4a2 2 0 000 4h16a2 2 0 000-4z"/>
+        </svg>
+        <span>{{ realEstate().bathrooms }} bath</span>
+      </div>
+    }
     @if (realEstate().area_useful_m2) {
-      {{ realEstate().area_useful_m2 }} m²
-    } @else {
-      -
+      <div class="stat-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+        </svg>
+        <span>{{ realEstate().area_useful_m2 }} m² useful</span>
+      </div>
     }
-  </dd>
-
-  <dt>Gross Area</dt>
-  <dd>
     @if (realEstate().area_gross_m2) {
-      {{ realEstate().area_gross_m2 }} m²
-    } @else {
-      -
+      <div class="stat-pill">
+        <span>{{ realEstate().area_gross_m2 }} m² gross</span>
+      </div>
     }
-  </dd>
+    @if (realEstate().floor) {
+      <div class="stat-pill">
+        <span>Floor {{ realEstate().floor }}</span>
+      </div>
+    }
+    @if (realEstate().construction_year) {
+      <div class="stat-pill">
+        <span>Built {{ realEstate().construction_year }}</span>
+      </div>
+    }
+    @if (realEstate().energy_certificate) {
+      <div class="stat-pill stat-pill--energy">
+        <span>{{ realEstate().energy_certificate }}</span>
+      </div>
+    }
+  </div>
+}
 
-  <dt>Land Area</dt>
-  <dd>
-    @if (realEstate().area_land_m2) {
-      {{ realEstate().area_land_m2 }} m²
-    } @else {
-      -
+<!-- ── FEATURES ───────────────────────────────────────────────── -->
+@if (realEstate().has_garage != null || realEstate().has_elevator != null || realEstate().has_balcony != null || realEstate().has_air_conditioning != null || realEstate().has_pool != null) {
+  <div class="features-row">
+    @for (f of featureList(); track f.key) {
+      <span class="feature-chip" [class.feature-chip--on]="f.value === true" [class.feature-chip--off]="f.value === false">
+        {{ f.label }}
+      </span>
     }
-  </dd>
-</dl>
+  </div>
+}
+
+<!-- ── SECTIONS ───────────────────────────────────────────────── -->
+
+<!-- Identification -->
+<div class="detail-section">
+  <div class="section-label">Identification</div>
+  <div class="kv-grid">
+    <div class="kv-row"><span class="kv-key">Source</span><span class="kv-val">{{ realEstate().source_partner }}</span></div>
+    <div class="kv-row"><span class="kv-key">id</span><span class="kv-val mono">{{ realEstate().id }}</span></div>
+    @if (realEstate().partner_id) {
+      <div class="kv-row"><span class="kv-key">Partner ID</span><span class="kv-val mono">{{ realEstate().partner_id }}</span></div>
+    }
+  </div>
+</div>
 
 <!-- Location -->
-<h3 class="mt">📍 Location</h3>
-<dl class="detail-grid">
-  <dt>District</dt>
-  <dd>{{ realEstate().district || '-' }}</dd>
-
-  <dt>County</dt>
-  <dd>{{ realEstate().county || '-' }}</dd>
-
-  <dt>Parish</dt>
-  <dd>{{ realEstate().parish || '-' }}</dd>
-
-  @if (realEstate().full_address) {
-    <dt>Address</dt>
-    <dd>{{ realEstate().full_address }}</dd>
-  }
-
-  @if (realEstate().latitude && realEstate().longitude) {
-    <dt>Coordinates</dt>
-    <dd>{{ realEstate().latitude }}, {{ realEstate().longitude }}</dd>
-  }
-</dl>
-
-<!-- Features -->
-<h3 class="mt">🏷️ Features</h3>
-<dl class="detail-grid">
-  <dt>Garage</dt>
-  <dd>{{ formatBoolean(realEstate().has_garage) }}</dd>
-
-  <dt>Elevator</dt>
-  <dd>{{ formatBoolean(realEstate().has_elevator) }}</dd>
-
-  <dt>Balcony</dt>
-  <dd>{{ formatBoolean(realEstate().has_balcony) }}</dd>
-
-  <dt>Air Conditioning</dt>
-  <dd>{{ formatBoolean(realEstate().has_air_conditioning) }}</dd>
-
-  <dt>Pool</dt>
-  <dd>{{ formatBoolean(realEstate().has_pool) }}</dd>
-</dl>
+@if (realEstate().district || realEstate().county || realEstate().parish || realEstate().full_address || realEstate().latitude) {
+  <div class="detail-section">
+    <div class="section-label">Location</div>
+    <div class="kv-grid">
+      @if (realEstate().district) { <div class="kv-row"><span class="kv-key">District</span><span class="kv-val">{{ realEstate().district }}</span></div> }
+      @if (realEstate().county) { <div class="kv-row"><span class="kv-key">County</span><span class="kv-val">{{ realEstate().county }}</span></div> }
+      @if (realEstate().parish) { <div class="kv-row"><span class="kv-key">Parish</span><span class="kv-val">{{ realEstate().parish }}</span></div> }
+      @if (realEstate().full_address) { <div class="kv-row kv-row--full"><span class="kv-key">Address</span><span class="kv-val">{{ realEstate().full_address }}</span></div> }
+      @if (realEstate().latitude && realEstate().longitude) {
+        <div class="kv-row"><span class="kv-key">Coordinates</span><span class="kv-val mono">{{ realEstate().latitude }}, {{ realEstate().longitude }}</span></div>
+      }
+    </div>
+  </div>
+}
 
 <!-- Contact -->
 @if (realEstate().advertiser || realEstate().contacts) {
-  <h3 class="mt">Contact</h3>
-  <dl class="detail-grid">
-    @if (realEstate().advertiser) {
-      <dt>Advertiser</dt>
-      <dd>{{ realEstate().advertiser }}</dd>
-    }
-    @if (realEstate().contacts) {
-      <dt>Contacts</dt>
-      <dd>{{ realEstate().contacts }}</dd>
-    }
-  </dl>
+  <div class="detail-section">
+    <div class="section-label">Contact</div>
+    <div class="kv-grid">
+      @if (realEstate().advertiser) { <div class="kv-row"><span class="kv-key">Advertiser</span><span class="kv-val">{{ realEstate().advertiser }}</span></div> }
+      @if (realEstate().contacts) { <div class="kv-row"><span class="kv-key">Contacts</span><span class="kv-val">{{ realEstate().contacts }}</span></div> }
+    </div>
+  </div>
 }
 
 <!-- Description -->
-@if (realEstate().raw_description) {
-  <h3 class="mt">Original Description</h3>
-  <div class="json-view">{{ realEstate().raw_description }}</div>
-}
-
 @if (realEstate().description) {
-  <h3 class="mt">Description</h3>
-  <div class="json-view">{{ realEstate().description }}</div>
-}
-
-@if (realEstate().enriched_description) {
-  <h3 class="mt">Enhanced Description</h3>
-  <div class="json-view">{{ realEstate().enriched_description }}</div>
+  <div class="detail-section">
+    <div class="section-label">Description</div>
+    <p class="detail-text">{{ realEstate().description }}</p>
+  </div>
 }
 
 <!-- SEO -->
 @if (realEstate().meta_description) {
-  <h3 class="mt">🔍 SEO</h3>
-  <dl class="detail-grid">
-    <dt>Meta Description</dt>
-    <dd>{{ realEstate().meta_description }}</dd>
-  </dl>
-}
-
-<!-- Headers: field not in API schema
-@if (realEstate().headers && realEstate().headers!.length > 0) {
-  <h3 class="mt">📑 Headers</h3>
-  <div style="margin-top: 0.5rem">
-    @for (h of realEstate().headers!; track $index) {
-      <div><strong>{{ h.level }}:</strong> {{ h.text }}</div>
-    }
+  <div class="detail-section">
+    <div class="section-label">SEO</div>
+    <div class="kv-grid">
+      <div class="kv-row kv-row--full"><span class="kv-key">Meta Description</span><span class="kv-val">{{ realEstate().meta_description }}</span></div>
+    </div>
   </div>
 }
--->
 
 <!-- Media -->
 @if (realEstate().media_assets && realEstate().media_assets!.length > 0) {
-  <h3 class="mt">📷 Media ({{ realEstate().media_assets!.length }})</h3>
-  <div class="media-grid">
-    @for (media of realEstate().media_assets; track media.id) {
-      <img
-        [src]="media.url"
-        [alt]="media.alt_text || media.type || ''"
-        (error)="onImageError($event)"
-      />
-    }
+  <div class="detail-section">
+    <div class="section-label">Media ({{ realEstate().media_assets!.length }})</div>
+    <div class="media-grid">
+      @for (media of realEstate().media_assets; track media.id) {
+        <img [src]="media.url" [alt]="media.alt_text || media.type || ''" (error)="onImageError($event)" />
+      }
+    </div>
   </div>
 }
 
 <!-- Price History -->
 @if (realEstate().price_history && realEstate().price_history!.length > 0) {
-  <h3 class="mt">Price History</h3>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Price</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (entry of realEstate().price_history; track entry.id) {
-          <tr>
-            <td>{{ formatPrice(entry.price_amount, entry.price_currency) }}</td>
-            <td>{{ formatDate(entry.recorded_at) }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <div class="detail-section">
+    <div class="section-label">Price History</div>
+    <div class="price-history">
+      @for (entry of realEstate().price_history; track entry.id) {
+        <div class="price-entry">
+          <span class="price-entry-val">{{ formatPrice(entry.price_amount, entry.price_currency) }}</span>
+          <span class="price-entry-date">{{ formatDate(entry.recorded_at) }}</span>
+        </div>
+      }
+    </div>
   </div>
 }
 
-<!-- Raw Payload: field not in API schema
-@if (realEstate().raw_payload) {
-  <h3 class="mt">Raw Payload</h3>
-  <div class="json-view">{{ stringifyJSON(realEstate().raw_payload) }}</div>
-}
--->
-
 <!-- Timestamps -->
-<h3 class="mt">Dates</h3>
-<dl class="detail-grid">
-  <dt>Created</dt>
-  <dd>{{ formatDate(realEstate().created_at) }}</dd>
-
-  <dt>Updated</dt>
-  <dd>{{ formatDate(realEstate().updated_at) }}</dd>
-</dl>
+<div class="detail-section">
+  <div class="section-label">Dates</div>
+  <div class="kv-grid">
+    <div class="kv-row"><span class="kv-key">Created</span><span class="kv-val mono">{{ formatDate(realEstate().created_at) }}</span></div>
+    <div class="kv-row"><span class="kv-key">Updated</span><span class="kv-val mono">{{ formatDate(realEstate().updated_at) }}</span></div>
+  </div>
+</div>
 
 <!-- Actions -->
-<div class="btn-group">
-  <button class="btn btn-danger btn-sm" (click)="onDelete()">Delete</button>
+<div class="detail-actions">
+  <button class="btn btn-danger btn-sm" (click)="onDelete()">Delete listing</button>
 </div>

@@ -27,7 +27,7 @@
 .btn-test:hover:not(:disabled) {
   border-color: var(--green);
   color: var(--green);
-  background: rgba(16, 185, 129, 0.06);
+  background: var(--green-light);
 }
 
 .btn-test:disabled {
@@ -40,7 +40,7 @@
   display: inline-block;
   width: 0.65rem;
   height: 0.65rem;
-  border: 1.5px solid rgba(16, 185, 129, 0.25);
+  border: 1.5px solid var(--green-light);
   border-top-color: var(--green);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -63,16 +63,16 @@
   font-weight: 600;
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--green-light);
   color: var(--green);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid var(--green);
   white-space: nowrap;
 }
 
 .match-count.zero {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--red-light);
   color: var(--red);
-  border-color: rgba(239, 68, 68, 0.22);
+  border-color: var(--red);
 }
 
 .sample-list {
@@ -87,7 +87,7 @@
 .sample-item {
   font-size: 0.7rem;
   color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.3rem;
   padding: 0.1rem 0.4rem;

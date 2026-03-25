@@ -1,18 +1,305 @@
+/* ── HERO ─────────────────────────────────────────────────────── */
+.detail-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.hero-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.hero-location {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hero-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: opacity 0.15s;
+}
+
+.hero-source-link:hover { opacity: 0.75; }
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.hbadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hbadge--sale  { background: var(--accent-light); color: var(--accent); border-color: var(--accent-light); }
+.hbadge--type  { background: var(--surface3); color: var(--text-dim); }
+.hbadge--typology { background: var(--surface2); color: var(--text-dim); }
+.hbadge--ai    { background: var(--green-light); color: var(--green); border-color: var(--green-light); }
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.hero-price {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.hero-price-m2 {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ── STATS ROW ───────────────────────────────────────────────── */
+.stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+}
+
+.stat-pill--energy {
+  color: var(--green);
+  background: var(--green-light);
+  border-color: var(--green-light);
+  font-weight: 700;
+}
+
+/* ── FEATURES ────────────────────────────────────────────────── */
+.features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.feature-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: var(--surface2);
+}
+
+.feature-chip--on {
+  color: var(--green);
+  background: var(--green-light);
+  border-color: var(--green-light);
+}
+
+.feature-chip--off {
+  color: var(--text-dim);
+  background: var(--surface2);
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* ── SECTIONS ────────────────────────────────────────────────── */
+.detail-section {
+  margin-bottom: 0.25rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.detail-section--ai {
+  background: var(--green-light);
+  border-color: var(--green-light);
+}
+
+.section-label {
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 0.6rem;
+}
+
+/* ── KEY-VALUE ───────────────────────────────────────────────── */
+.kv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+}
+
+.kv-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.kv-row--full {
+  grid-column: 1 / -1;
+}
+
+.kv-key {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+
+.kv-val {
+  font-size: 0.8rem;
+  color: var(--text);
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.mono {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+}
+
+/* ── LONG TEXT ───────────────────────────────────────────────── */
+.detail-text {
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+/* ── MEDIA ───────────────────────────────────────────────────── */
 .media-grid {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 .media-grid img {
-  width: 120px;
-  height: 80px;
+  width: 100px;
+  height: 68px;
   object-fit: cover;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
 
-.media-grid img.error {
-  display: none;
+.media-grid img.error { display: none; }
+
+/* ── PRICE HISTORY ───────────────────────────────────────────── */
+.price-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.price-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+}
+
+.price-entry-val { font-weight: 600; color: var(--text); }
+.price-entry-date { color: var(--text-dim); font-size: 0.72rem; }
+
+/* ── ACTIONS ─────────────────────────────────────────────────── */
+.detail-actions {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .detail-hero {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hero-right {
+    align-items: flex-start;
+  }
+
+  .hero-price {
+    font-size: 1.1rem;
+  }
+
+  .kv-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kv-row--full {
+    grid-column: 1;
+  }
+
+  .media-grid img {
+    width: 80px;
+    height: 54px;
+  }
 }

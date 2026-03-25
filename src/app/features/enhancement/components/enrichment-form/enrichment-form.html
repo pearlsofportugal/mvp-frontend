@@ -83,15 +83,6 @@
 
   <div class="behaviour-row">
     <div class="tooltip-wrap tooltip-wrap--inline"
-      data-tooltip="Saves the AI-generated content directly to the property. If off, you get a preview only — nothing is changed.">
-      <label class="toggle-option">
-        <input type="checkbox" formControlName="apply_changes" />
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        <span class="toggle-label">Apply changes</span>
-      </label>
-    </div>
-
-    <div class="tooltip-wrap tooltip-wrap--inline"
       data-tooltip="Forces the AI to generate new content even if this field was already enhanced before. Previous content will be replaced.">
       <label class="toggle-option">
         <input type="checkbox" formControlName="force_regeneration" />
@@ -191,11 +182,41 @@
         </div>
         <div class="diff-col diff-col--after">
           <span class="diff-col-label">After</span>
-          <p class="diff-col-text">{{ item.enriched || '—' }}</p>
+          @if (directResult()!.applied || !item.changed) {
+          <p class="diff-col-text">{{ (editedValues()[item.field] ?? item.enriched) || '—' }}</p>
+          } @else {
+          <textarea class="diff-col-edit" appAutoResize [value]="editedValues()[item.field] ?? (item.enriched ?? '')"
+            (input)="onEditField(item.field, $any($event.target).value)"
+            [attr.aria-label]="'Edit ' + item.field"></textarea>
+          }
         </div>
       </div>
     </div>
     }
+
+    <!-- Apply footer -->
+    <div class="diff-result-footer">
+      @if (directResult()!.applied) {
+      <span class="diff-applied-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Applied
+      </span>
+      } @else if (changedCount() > 0) {
+      <button type="button" class="btn btn-success btn-sm" [disabled]="applyingResult()" (click)="onApplyResult()">
+        @if (applyingResult()) {
+        <span class="diff-apply-spinner"></span>
+        Applying...
+        } @else {
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Apply changes
+        }
+      </button>
+      }
+    </div>
 
   </div>
   }

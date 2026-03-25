@@ -17,9 +17,9 @@ export interface ApiResponseListingStats {
   /** Pagination metadata for list responses. */
   meta?: Meta | null;
   /** Optional human-readable message. */
-  message?: string;
+  message?: string | null;
   /** Error details; present when success=False. */
-  errors?: ErrorDetail[];
+  errors?: ErrorDetail[] | null;
   /** Correlation ID for distributed tracing. */
-  trace_id?: string;
+  trace_id?: string | null;
 }

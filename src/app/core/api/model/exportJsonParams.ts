@@ -9,9 +9,22 @@
 export type ExportJsonParams = {
   district?: string | null;
   county?: string | null;
+  parish?: string | null;
   property_type?: string | null;
+  typology?: string | null;
+  listing_type?: string | null;
   source_partner?: string | null;
   scrape_job_id?: string | null;
   price_min?: number | string | null;
   price_max?: number | string | null;
+  area_min?: number | null;
+  area_max?: number | null;
+  bedrooms_min?: number | null;
+  bedrooms_max?: number | null;
+  has_garage?: boolean | null;
+  has_pool?: boolean | null;
+  has_elevator?: boolean | null;
+  created_after?: string | null;
+  created_before?: string | null;
+  search?: string | null;
 };

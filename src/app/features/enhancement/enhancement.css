@@ -7,10 +7,7 @@
 }
 
 /* ── GENERATOR CARD ─────────────────────────────────────────── */
-.card-generator {
-	background: linear-gradient(135deg, var(--bg-card) 0%, color-mix(in srgb, var(--bg-card) 85%, var(--accent)) 100%);
-	border-color: color-mix(in srgb, var(--border) 60%, var(--accent));
-}
+
 
 .generator-header {
 	display: flex;
@@ -58,8 +55,8 @@
 	font-family: var(--font-mono, monospace);
 	font-size: 0.68rem;
 	color: var(--green);
-	background: rgba(16, 185, 129, 0.08);
-	border: 1px solid rgba(16, 185, 129, 0.2);
+	background: var(--green-light);
+	border: 1px solid var(--green);
 	border-radius: 9999px;
 	padding: 0.3rem 0.75rem;
 	white-space: nowrap;
@@ -67,10 +64,7 @@
 }
 
 /* ── RESULT CARD ────────────────────────────────────────────── */
-.card-result {
-	border-color: color-mix(in srgb, var(--border) 50%, var(--green));
-	background: color-mix(in srgb, var(--bg-card) 95%, var(--green));
-}
+
 
 .result-header {
 	display: flex;
@@ -140,9 +134,9 @@
 }
 
 .btn-icon:hover:not(:disabled) {
-	border-color: var(--border-hi);
+	border-color: var(--border-light);
 	color: var(--text);
-	background: rgba(255, 255, 255, 0.04);
+	background: var(--surface2);
 }
 
 .btn-icon:disabled {
@@ -192,8 +186,8 @@
 }
 
 .error-message {
-	background: rgba(239, 68, 68, 0.08);
-	border: 1px solid rgba(239, 68, 68, 0.25);
+	background: var(--red-light);
+	border: 1px solid var(--red);
 	color: var(--red);
 	padding: 0.75rem;
 	border-radius: 0.5rem;

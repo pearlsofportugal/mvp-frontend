@@ -14,6 +14,7 @@ import type { ListingStatsByTypology } from './listingStatsByTypology';
  * Aggregated listing statistics.
  */
 export interface ListingStats {
+  /** @minimum 0 */
   total_listings?: number;
   avg_price?: number | null;
   min_price?: number | null;

@@ -1,75 +1,77 @@
-<div class="listings-layout">
-	<div class="card">
-		<h2>Filters</h2>
-		<app-listings-filters
-			[sites]="activeSites()"
-			(filtersChange)="onFiltersChange($event)"
-			(viewStats)="onViewStatsRequest()"
-		/>
+<div class="listings-page">
+
+	<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+	<div class="page-header">
+		<div class="page-header-start">
+			<h1 class="page-title">Real Estate</h1>
+			@if (!isLoadingListings()) {
+				<span class="page-meta">{{ totalListings() }} listings · page {{ currentPage() }} / {{ totalPages() }}</span>
+			}
+		</div>
+		<div class="page-header-end">
+			<button
+				class="btn btn-outline btn-sm"
+				(click)="onPrevPage()"
+				[disabled]="!hasPrevPage() || isLoadingListings()"
+			>← Prev</button>
+			<button
+				class="btn btn-outline btn-sm"
+				(click)="onNextPage()"
+				[disabled]="!hasNextPage() || isLoadingListings()"
+			>Next →</button>
+		</div>
 	</div>
 
-	@if (showStats()) {
-		<div class="card">
-			<div class="flex-between">
-				<h2>Statistics</h2>
-				<button class="btn btn-outline btn-sm" (click)="onCloseStats()">
-					✕ Close
-				</button>
-			</div>
-			<app-listings-stats [sourcePartner]="userFilters().source_partner" />
+	<!-- ── INLINE FILTER BAR ───────────────────────────────────── -->
+	<app-listings-filters
+		[sites]="activeSites()"
+		(filtersChange)="onFiltersChange($event)"
+	/>
+
+	<!-- ── TABLE ───────────────────────────────────────────────── -->
+	@if (isLoadingListings()) {
+		<div class="table-loading">
+			<div class="loading-spinner"></div>
+			<span>Loading listings...</span>
 		</div>
+	} @else {
+		<app-listings-table
+			[realEstates]="realEstates()"
+			[sortField]="sortField()"
+			[sortOrder]="sortOrder()"
+			(viewRealEstate)="onViewRealEstate($event)"
+			(editRealEstate)="onEditRealEstate($event)"
+			(deleteRealEstate)="onDeleteRealEstate($event)"
+			(sort)="onSort($event.field, $event.order)"
+		/>
 	}
 
-	<div class="card">
-		<div class="flex-between">
-			<h2>Real Estate ({{ totalListings() }})</h2>
-			<div class="btn-group">
-				<button
-					class="btn btn-outline btn-sm"
-					(click)="onPrevPage()"
-					[disabled]="!hasPrevPage() || isLoadingListings()"
-				>
-					← Previous
-				</button>
-				<button
-					class="btn btn-outline btn-sm"
-					(click)="onNextPage()"
-					[disabled]="!hasNextPage() || isLoadingListings()"
-				>
-					Next →
-				</button>
-			</div>
-		</div>
-
-		@if (isLoadingListings()) {
-			<div class="empty">
-				<div class="icon"></div>
-				<p>Loading...</p>
-			</div>
-		} @else {
-			<app-listings-table
-				[realEstates]="realEstates()"
-				[sortField]="sortField()"
-				[sortOrder]="sortOrder()"
-				(viewRealEstate)="onViewRealEstate($event)"
-				(deleteRealEstate)="onDeleteRealEstate($event)"
-				(sort)="onSort($event.field, $event.order)"
-			/>
-		}
-	</div>
-
+	<!-- ── DETAIL DIALOG ───────────────────────────────────────── -->
 	@if (selectedRealEstate()) {
-		<div class="card">
-			<div class="flex-between">
-				<h2>Real Estate Detail</h2>
-				<button class="btn btn-outline btn-sm" (click)="onCloseDetail()">
-					✕ Close
-				</button>
+		<div class="detail-dialog-backdrop" (click)="onCloseDetail()">
+			<div class="detail-dialog" (click)="$event.stopPropagation()">
+				<div class="detail-dialog-header">
+					<h2>Listing Detail</h2>
+					<button class="btn btn-ghost btn-sm" (click)="onCloseDetail()" title="Close">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+							<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</div>
+				<div class="detail-dialog-body">
+					@if (isLoadingDetail()) {
+						<div class="table-loading">
+							<div class="loading-spinner"></div>
+							<span>Loading detail...</span>
+						</div>
+					} @else {
+						<app-listing-detail
+							[realEstate]="selectedRealEstate()!"
+							(delete)="onDeleteRealEstate($event)"
+						/>
+					}
+				</div>
 			</div>
-			<app-listing-detail
-				[realEstate]="selectedRealEstate()!"
-				(delete)="onDeleteRealEstate($event)"
-			/>
 		</div>
 	}
 
@@ -82,5 +84,28 @@
 			(confirmed)="onConfirmDeleteListing()"
 			(cancelled)="confirmingDeleteListingId.set(null)"
 		/>
+	}
+
+	<!-- ── EDIT DIALOG ─────────────────────────────────────────── -->
+	@if (editingRealEstate()) {
+		<div class="detail-dialog-backdrop" (click)="onCloseEdit()">
+			<div class="detail-dialog detail-dialog--wide" (click)="$event.stopPropagation()">
+				<div class="detail-dialog-header">
+					<h2>Edit Listing</h2>
+					<button class="btn btn-ghost btn-sm" (click)="onCloseEdit()" title="Close">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+							<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</div>
+				<div class="detail-dialog-body">
+					<app-listing-edit
+						[listing]="editingRealEstate()!"
+						(saved)="onEditSaved($event)"
+						(cancel)="onCloseEdit()"
+					/>
+				</div>
+			</div>
+		</div>
 	}
 </div>

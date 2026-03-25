@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { JobConfig } from './jobConfig';
+import type { JobLogEntry } from './jobLogEntry';
 import type { JobProgress } from './jobProgress';
-import type { JobReadLogs } from './jobReadLogs';
 import type { JobReadStatus } from './jobReadStatus';
-import type { JobReadUrls } from './jobReadUrls';
+import type { JobUrlState } from './jobUrlState';
 
 /**
  * Full scrape job detail response.
@@ -23,10 +23,10 @@ export interface JobRead {
   status: JobReadStatus;
   progress?: JobProgress | null;
   config?: JobConfig | null;
-  /** Structured log entries keyed by step or timestamp. */
-  logs?: JobReadLogs;
-  /** Discovered and visited URL sets. */
-  urls?: JobReadUrls;
+  /** Structured log entries produced during scraping. */
+  logs?: JobLogEntry[] | null;
+  /** Discovered and visited URL state. */
+  urls?: JobUrlState | null;
   /** Terminal error message when status='failed'. */
   error_message?: string | null;
   started_at?: string | null;

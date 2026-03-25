@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HealthService } from '../../core/services/health.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer, switchMap } from 'rxjs';
 import { NAV_ROUTES } from '../../app.routes';
@@ -14,6 +15,7 @@ import { NAV_ROUTES } from '../../app.routes';
 })
 export class HeaderComponent {
   private readonly healthService = inject(HealthService);
+  protected readonly themeService = inject(ThemeService);
   protected readonly isHealthy = signal(false);
   protected readonly healthText = computed(() => (this.isHealthy() ? 'Online' : 'Offline'));
 
@@ -23,7 +25,7 @@ export class HeaderComponent {
     timer(0, 30_000)
       .pipe(
         switchMap(() => this.healthService.checkHealth()),
-        takeUntilDestroyed(), 
+        takeUntilDestroyed(),
       )
       .subscribe({
         next: (status) => this.isHealthy.set(status?.status === 'healthy'),

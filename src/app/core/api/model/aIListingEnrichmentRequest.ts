@@ -5,6 +5,7 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
+import type { AIListingEnrichmentRequestEnrichedValues } from './aIListingEnrichmentRequestEnrichedValues';
 import type { AIListingEnrichmentRequestFieldsItem } from './aIListingEnrichmentRequestFieldsItem';
 
 /**
@@ -17,8 +18,10 @@ export interface AIListingEnrichmentRequest {
   fields?: AIListingEnrichmentRequestFieldsItem[];
   /** Custom SEO keywords. If empty, keywords are inferred from the listing. */
   keywords?: string[];
-  /** When True, persists AI results to the database; otherwise returns a preview. */
+  /** When True, persists enriched_values to the database. AI is never called in this mode — enriched_values must be supplied. */
   apply?: boolean;
-  /** When True, regenerates output even if target fields already have values. */
+  /** Only meaningful when apply=False. When True, calls the AI even if target fields already have enriched values. */
   force?: boolean;
+  /** Pre-computed enriched values to persist. Required when apply=True. Keys must be valid AIEnrichmentTargetField names. */
+  enriched_values?: AIListingEnrichmentRequestEnrichedValues;
 }

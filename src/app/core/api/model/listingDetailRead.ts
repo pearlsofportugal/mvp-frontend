@@ -9,34 +9,46 @@ import type { MediaAssetRead } from './mediaAssetRead';
 import type { PriceHistoryRead } from './priceHistoryRead';
 
 /**
- * Public listing detail response without internal raw scraped text.
+ * Full listing detail response (GET /listings/{id}, POST /listings, PATCH /listings/{id}).
+
+Inherits all fields from ListingBase. Scraper-internal and AI enriched
+fields are excluded from serialisation; enriched values are transparently
+substituted into the canonical title/description/meta_description fields.
  */
 export interface ListingDetailRead {
-  id: string;
-  partner_id?: string | null;
-  source_partner: string;
-  source_url?: string | null;
-  scrape_job_id?: string | null;
+  /** Listing transaction type. */
   listing_type?: 'sale' | 'rent' | null;
+  /** Property type (e.g. 'apartment', 'house'). */
   property_type?: string | null;
+  /** Portuguese typology code (e.g. 'T2', 'T3+1'). */
   typology?: string | null;
+  /** Listing headline. */
   title?: string | null;
   bedrooms?: number | null;
   bathrooms?: number | null;
+  /** Floor label (e.g. '3', 'R/C', 'último'). */
   floor?: string | null;
+  /** Year of construction. */
   construction_year?: number | null;
+  /** Energy certificate rating. */
   energy_certificate?: string | null;
   price_amount?: string | null;
+  /** ISO 4217 currency code. */
   price_currency?: string | null;
   price_per_m2?: string | null;
+  /** Useful / habitable area in m². */
   area_useful_m2?: number | null;
+  /** Gross area in m². */
   area_gross_m2?: number | null;
+  /** Land / plot area in m². */
   area_land_m2?: number | null;
   district?: string | null;
   county?: string | null;
   parish?: string | null;
   full_address?: string | null;
+  /** WGS-84 latitude. */
   latitude?: number | null;
+  /** WGS-84 longitude. */
   longitude?: number | null;
   has_garage?: boolean | null;
   has_elevator?: boolean | null;
@@ -45,11 +57,21 @@ export interface ListingDetailRead {
   has_pool?: boolean | null;
   advertiser?: string | null;
   contacts?: string | null;
+  /** Cleaned / normalised description. */
   description?: string | null;
+  /** AI quality score (0–100). */
   description_quality_score?: number | null;
+  /** SEO meta description (scraped). */
   meta_description?: string | null;
+  id: string;
+  partner_id?: string | null;
+  source_partner: string;
+  source_url?: string | null;
+  scrape_job_id?: string | null;
   created_at: string;
   updated_at: string;
   media_assets?: MediaAssetRead[];
   price_history?: PriceHistoryRead[];
+  /** True when any AI-enriched field (title, description, or meta_description) is present. */
+  is_enriched?: boolean;
 }
