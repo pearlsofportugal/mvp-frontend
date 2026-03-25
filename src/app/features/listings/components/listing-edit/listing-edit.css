@@ -113,3 +113,29 @@
   padding-top: 0.25rem;
   border-top: 1px solid var(--border);
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .edit-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field--full {
+    grid-column: 1;
+  }
+
+  .edit-actions {
+    flex-direction: column-reverse;
+  }
+
+  .edit-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

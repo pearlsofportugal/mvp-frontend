@@ -187,26 +187,53 @@
   .header {
     padding: 0.75rem 1rem;
   }
-  
+
   .logo-subtitle {
     display: none;
   }
-  
-  .nav {
-    padding: 0 1rem;
-    overflow-x: auto;
+
+  .status-indicator {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.75rem;
   }
-  
+
+  .nav {
+    padding: 0 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar { display: none; }
+
   .nav-items {
     gap: 0;
   }
-  
+
   .nav-link {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.875rem;
     font-size: 0.8125rem;
   }
-  
+
   .nav-label {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-icon {
+    font-size: 1.4rem;
+  }
+
+  .logo-title {
+    font-size: 0.95rem;
+  }
+
+  .status-text {
+    display: none;
+  }
+
+  .status-indicator {
+    padding: 0.4rem 0.5rem;
   }
 }
