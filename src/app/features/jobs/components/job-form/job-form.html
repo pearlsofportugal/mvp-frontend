@@ -1,12 +1,11 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-  <!-- ── Step 1: Site ─────────────────────────────────────────── -->
   <div class="step">
     <div class="step-header">
       <span class="step-num" aria-hidden="true">1</span>
       <div>
-        <p class="step-title">Selecionar Site</p>
-        <p class="step-desc">Escolhe a configuração de site a utilizar</p>
+        <p class="step-title">Select site</p>
+        <p class="step-desc">Choose the site configuration to use.</p>
       </div>
     </div>
 
@@ -19,13 +18,13 @@
         [class.error]="form.controls.site_key.invalid && form.controls.site_key.touched"
         aria-required="true"
       >
-        <option value="" disabled>— selecionar site —</option>
+        <option value="" disabled>— select site —</option>
         @for (site of sites(); track site.id) {
           <option [value]="site.key">{{ site.name }} · {{ site.key }}</option>
         }
       </select>
       @if (form.controls.site_key.invalid && form.controls.site_key.touched) {
-        <span class="field-error" role="alert">Seleciona um site.</span>
+        <span class="field-error" role="alert">Please select a website.</span>
       }
     </div>
 
@@ -39,24 +38,23 @@
 
   <div class="step-connector" aria-hidden="true"></div>
 
-  <!-- ── Step 2: Listings URL ─────────────────────────────────── -->
   <div class="step" [class.step-disabled]="!selectedSite()">
     <div class="step-header">
       <span class="step-num" aria-hidden="true">2</span>
       <div>
-        <p class="step-title">Página de Anúncios</p>
-        <p class="step-desc">URL onde a listagem de anúncios está disponível</p>
+        <p class="step-title">Listings Page</p>
+        <p class="step-desc">URL where the ad listings are available</p>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="start_url">URL dos anúncios *</label>
+      <label for="start_url">Listings URL *</label>
       <div class="url-input-row">
         <input
           id="start_url"
           formControlName="start_url"
           type="url"
-          placeholder="https://example.com/imoveis"
+          placeholder="https://example.com/properties"
           [class.error]="form.controls.start_url.invalid && form.controls.start_url.touched"
           (input)="onStartUrlChange()"
           aria-required="true"
@@ -64,8 +62,8 @@
         />
         @if (form.controls.start_url.invalid && form.controls.start_url.touched) {
           <span class="field-error" role="alert">
-            @if (form.controls.start_url.errors?.['required']) { URL obrigatório. }
-            @else { URL inválido — deve começar com https:// }
+            @if (form.controls.start_url.errors?.['required']) { URL is required. }
+            @else { Invalid URL — must start with https:// }
           </span>
         }
         <button
@@ -73,54 +71,54 @@
           class="btn btn-secondary"
           [disabled]="!canPreview()"
           (click)="onPreviewListings()"
-          aria-label="Pré-visualizar quantos anúncios existem nesta página"
+          aria-label="Preview how many ads exist on this page"
         >
           @if (previewLoading()) {
             <span class="spinner" aria-hidden="true"></span>
-            A verificar…
+            Checking…
           } @else {
-            🔍 Verificar anúncios
+            Verify ads
           }
         </button>
       </div>
       <span id="start_url_hint" class="field-hint">
-        O scraper irá analisar esta página, contar os anúncios e aceder a cada um individualmente.
+        The scraper will analyze this page, count the ads, and access each one individually.
       </span>
 
       @if (!listingLinkSelector() && selectedSite()) {
         <p class="field-hint field-hint-warn" role="status">
-          ⚠️ Este site não tem <strong>listing_link_selector</strong> configurado — configura-o primeiro
-          para activar a pré-visualização.
+          This site does not have a <strong>listing_link_selector</strong> configured — configure it first 
+          to enable preview.
         </p>
       }
     </div>
 
     @if (previewError()) {
       <p class="preview-error" role="alert">
-        Não foi possível analisar a página. Verifica o URL e tenta novamente.
+        Could not analyze the page. Check the URL and try again.
       </p>
     }
 
     @if (previewResult(); as r) {
-      <div class="preview-result" role="region" aria-live="polite" aria-label="Resultado da pré-visualização">
+      <div class="preview-result" role="region" aria-live="polite" aria-label="Preview result">
         <div class="preview-meta">
           @if (r.matches > 0) {
             <span class="preview-badge preview-badge-ok">
-              {{ r.matches }} anúncio{{ r.matches === 1 ? '' : 's' }} encontrado{{ r.matches === 1 ? '' : 's' }}
+              {{ r.matches }} ad{{ r.matches === 1 ? '' : 's' }} found
             </span>
           } @else {
-            <span class="preview-badge preview-badge-zero">Nenhum anúncio encontrado</span>
-            <span class="preview-warn-text">Verifica o <strong>listing_link_selector</strong></span>
+            <span class="preview-badge preview-badge-zero">No ads found</span>
+            <span class="preview-warn-text">Check the <strong>listing_link_selector</strong></span>
           }
         </div>
 
         @if (r.preview && r.preview.length > 0) {
-          <ul class="preview-urls" aria-label="Exemplos de URLs de anúncios encontrados">
+          <ul class="preview-urls" aria-label="Examples of found ad URLs">
             @for (url of r.preview.slice(0, 4); track url) {
               <li class="preview-url-item" [title]="url">{{ url }}</li>
             }
             @if (r.matches > 4) {
-              <li class="preview-more">+ {{ r.matches - 4 }} mais</li>
+              <li class="preview-more">+ {{ r.matches - 4 }} more</li>
             }
           </ul>
         }
@@ -130,18 +128,17 @@
 
   <div class="step-connector" aria-hidden="true"></div>
 
-  <!-- ── Step 3: Settings ──────────────────────────────────────── -->
   <div class="step" [class.step-disabled]="!selectedSite()">
     <div class="step-header">
       <span class="step-num" aria-hidden="true">3</span>
       <div>
-        <p class="step-title">Configurações</p>
-        <p class="step-desc">Limites e parâmetros do scraping</p>
+        <p class="step-title">Settings</p>
+        <p class="step-desc">Scraping limits and parameters</p>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="max_pages">Máximo de páginas</label>
+      <label for="max_pages">Maximum pages</label>
       <input
         id="max_pages"
         formControlName="max_pages"
@@ -151,7 +148,7 @@
         aria-describedby="max_pages_hint"
       />
       <span id="max_pages_hint" class="field-hint">
-        Número máximo de páginas de listagem a percorrer (paginação).
+        Maximum number of listing pages to crawl (pagination).
       </span>
     </div>
   </div>
@@ -165,13 +162,13 @@
       type="submit"
       class="btn btn-primary btn-launch"
       [disabled]="submitting() || form.invalid"
-      aria-label="Iniciar scraping"
+      aria-label="Start scraping"
     >
       @if (submitting()) {
         <span class="spinner spinner-dark" aria-hidden="true"></span>
-        A lançar…
+        Launching…
       } @else {
-        ▶ Lançar Scraping
+        Launch Scraping
       }
     </button>
   </div>

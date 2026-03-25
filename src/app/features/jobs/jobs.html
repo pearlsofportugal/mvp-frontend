@@ -27,9 +27,9 @@
 
 @if (confirmingCancelJobId()) {
   <app-confirm-dialog
-    message="Cancelar este job?"
-    confirmLabel="Sim, cancelar"
-    cancelLabel="Não"
+    message="Cancel this job?"
+    confirmLabel="Yes, cancel"
+    cancelLabel="No"
     (confirmed)="onConfirmCancelJob()"
     (cancelled)="confirmingCancelJobId.set(null)"
   />
@@ -37,9 +37,9 @@
 
 @if (confirmingDeleteJobId()) {
   <app-confirm-dialog
-    message="Apagar este job permanentemente?"
-    confirmLabel="Apagar"
-    cancelLabel="Cancelar"
+    message="Delete this job permanently?"
+    confirmLabel="Delete"
+    cancelLabel="Cancel"
     [danger]="true"
     (confirmed)="onConfirmDeleteJob()"
     (cancelled)="confirmingDeleteJobId.set(null)"
