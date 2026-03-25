@@ -56,8 +56,4 @@ export class SitesService {
       .previewSiteSelector({ url, selector })
       .pipe(map((r) => r.data!));
   }
-
-  reactivate(key: string): Observable<SiteConfigRead> {
-    return this.api.reactivateSite(key).pipe(map((r) => r.data!));
-  }
 }

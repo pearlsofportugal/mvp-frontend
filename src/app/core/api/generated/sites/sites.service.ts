@@ -194,14 +194,4 @@ Use permanent=true to permanently delete the record.
       this.http,
     );
   }
-  /**
-   * Reactivate a deactivated site configuration.
-   * @summary Reactivate Site
-   */
-  reactivateSite<TData = ApiResponseSiteConfigRead>(key: string) {
-    return customFetch<TData>(
-      { url: `/api/v1/sites/${key}/reactivate`, method: 'POST' },
-      this.http,
-    );
-  }
 }

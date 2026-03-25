@@ -12,4 +12,9 @@ import type { DuplicateEntry } from './duplicateEntry';
  */
 export interface DuplicatesResponse {
   duplicates?: DuplicateEntry[];
+  /**
+   * Total number of URL groups with duplicates.
+   * @minimum 0
+   */
+  total?: number;
 }

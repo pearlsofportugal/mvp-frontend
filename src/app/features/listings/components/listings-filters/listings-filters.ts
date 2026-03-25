@@ -21,7 +21,6 @@ import type { SiteConfigRead } from '../../../../core/api/model';
 export class ListingsFiltersComponent {
   sites = input<SiteConfigRead[]>([]);
   filtersChange = output<RealEstateFilters>();
-  viewStats = output<void>();
 
   protected readonly filterForm = new FormGroup({
     source_partner: new FormControl('', { nonNullable: true }),
@@ -50,7 +49,8 @@ export class ListingsFiltersComponent {
     this.filtersChange.emit(this.filters());
   }
 
-  onViewStats(): void {
-    this.viewStats.emit();
+  onClearFilters(): void {
+    this.filterForm.reset();
+    this.filtersChange.emit({});
   }
 }

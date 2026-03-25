@@ -7,6 +7,7 @@ import type {
   ListingListRead,
   ListingStats,
   ListingSearchItem,
+  ListingUpdate,
   Meta,
   ListListingsParams,
   ApiResponsePaginatedResponse,
@@ -40,6 +41,12 @@ export class RealEstateService {
     return this.api
       .deleteListing(id)
       .pipe(map(() => void 0));
+  }
+
+  updateListing(id: string, payload: ListingUpdate): Observable<ListingDetailRead> {
+    return this.api
+      .updateListing(id, payload)
+      .pipe(map((r) => r.data!));
   }
 
   searchListings(query: string, limit = 20): Observable<ListingListRead[]> {

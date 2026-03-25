@@ -1,56 +1,39 @@
-<form [formGroup]="filterForm" class="form-grid">
-  <div class="form-group">
-    <label>Source Partner</label>
-    <select formControlName="source_partner">
-      <option value="">All</option>
+<div class="filter-bar" [formGroup]="filterForm">
+
+  <div class="filter-group">
+    <select class="filter-select" formControlName="source_partner">
+      <option value="">All sources</option>
       @for (site of sites(); track site.key) {
         <option [value]="site.key">{{ site.name || site.key }}</option>
       }
     </select>
   </div>
 
-  <div class="form-group">
-    <label>Property Type</label>
-    <input formControlName="property_type" placeholder="apartment" />
+  <div class="filter-group">
+    <input class="filter-input" formControlName="property_type" placeholder="Type…" />
   </div>
 
-  <div class="form-group">
-    <label>District</label>
-    <input formControlName="district" placeholder="Lisboa" />
+  <div class="filter-group">
+    <input class="filter-input" formControlName="district" placeholder="District…" />
   </div>
 
-  <div class="form-group">
-    <label>County</label>
-    <input formControlName="county" placeholder="Cascais" />
+  <div class="filter-group">
+    <input class="filter-input" formControlName="county" placeholder="County…" />
   </div>
 
-  <div class="form-group">
-    <label>Minimum Price</label>
-    <input formControlName="price_min" type="number" placeholder="0" />
+  <div class="filter-group filter-group--range">
+    <input class="filter-input filter-input--short" formControlName="price_min" type="number" placeholder="Min €" />
+    <span class="filter-range-sep">–</span>
+    <input class="filter-input filter-input--short" formControlName="price_max" type="number" placeholder="Max €" />
   </div>
 
-  <div class="form-group">
-    <label>Maximum Price</label>
-    <input formControlName="price_max" type="number" placeholder="500000" />
+  <div class="filter-group">
+    <input class="filter-input filter-input--short" formControlName="bedrooms" type="number" placeholder="Beds" />
   </div>
 
-  <div class="form-group">
-    <label>Bedrooms</label>
-    <input formControlName="bedrooms" type="number" placeholder="" />
+  <div class="filter-actions">
+    <button class="btn btn-primary btn-sm" type="button" (click)="onSearch()">Search</button>
+    <button class="btn btn-ghost btn-sm" type="button" (click)="onClearFilters()">Clear</button>
   </div>
 
-  <div class="form-group">
-    <label>Minimum Area (m²)</label>
-    <input formControlName="area_min" type="number" placeholder="0" />
-  </div>
-
-  <div class="form-group">
-    <label>Maximum Area (m²)</label>
-    <input formControlName="area_max" type="number" placeholder="500" />
-  </div>
-</form>
-
-<div class="btn-group">
-  <button class="btn btn-primary" (click)="onSearch()">Search</button>
-  <button class="btn btn-outline" (click)="onViewStats()">Statistics</button>
 </div>

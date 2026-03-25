@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
-import type { ListingRead } from '../../../../core/api/model';
+import type { ListingDetailRead } from '../../../../core/api/model';
 
 @Component({
   selector: 'app-listing-detail',
@@ -11,7 +11,7 @@ import type { ListingRead } from '../../../../core/api/model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListingDetailComponent {
-  realEstate = input.required<ListingRead>();
+  realEstate = input.required<ListingDetailRead>();
   delete = output<string>();
 
   onDelete(): void {

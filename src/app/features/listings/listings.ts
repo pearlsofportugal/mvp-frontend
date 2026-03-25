@@ -12,11 +12,11 @@ import { of } from 'rxjs';
 import { ListingsFiltersComponent } from './components/listings-filters/listings-filters';
 import { ListingsTableComponent } from './components/listings-table/listings-table';
 import { ListingDetailComponent } from './components/listing-detail/listing-detail';
-import { ListingsStatsComponent } from './components/listings-stats/listings-stats';
+import { ListingEditComponent } from './components/listing-edit/listing-edit';
 import { RealEstateService } from '../../core/services/listings.service';
 import { SitesService } from '../../core/services/sites.service';
 import { RealEstateFilters } from '../../core/models/listing.model';
-import type { ApiResponsePaginatedResponse, ListingListRead, ListingRead, SiteConfigRead } from '../../core/api/model';
+import type { ApiResponsePaginatedResponse, ListingListRead, ListingDetailRead, SiteConfigRead } from '../../core/api/model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
@@ -25,7 +25,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
     ListingsFiltersComponent,
     ListingsTableComponent,
     ListingDetailComponent,
-    ListingsStatsComponent,
+    ListingEditComponent,
     ConfirmDialogComponent,
   ],
   templateUrl: './listings.html',
@@ -39,8 +39,8 @@ export class ListingsComponent {
 
   // State
   private readonly selectedListingId = signal<string | null>(null);
-  protected readonly showStats = signal(false);
   protected readonly confirmingDeleteListingId = signal<string | null>(null);
+  protected readonly editingListingId = signal<string | null>(null);
   protected readonly userFilters = signal<RealEstateFilters>({ page: 1, page_size: 20 });
   protected readonly sortField = signal<string | null>(null);
   protected readonly sortOrder = signal<'asc' | 'desc'>('asc');
@@ -61,8 +61,8 @@ export class ListingsComponent {
     params: () => 0,
     stream: () => this.sitesService.list(),
   });
-  readonly detailResource = rxResource<ListingRead | null, string | null>({
-    params: () => this.selectedListingId(),
+  readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
+    params: () => this.selectedListingId() ?? this.editingListingId(),
     stream: ({ params }) =>
       params ? this.realEstateService.getListingById(params) : of(null),
   });
@@ -71,7 +71,12 @@ export class ListingsComponent {
   protected readonly realEstates = computed(() => this.realEstatesResource.value()?.data?.items ?? []);
   protected readonly isLoadingListings = computed(() => this.realEstatesResource.isLoading());
   protected readonly paginationData = computed(() => this.realEstatesResource.value());
-  protected readonly selectedRealEstate = computed(() => this.detailResource.value() ?? null);
+  protected readonly selectedRealEstate = computed(() =>
+    this.selectedListingId() ? (this.detailResource.value() ?? null) : null
+  );
+  protected readonly editingRealEstate = computed(() =>
+    this.editingListingId() ? (this.detailResource.value() ?? null) : null
+  );
   protected readonly isLoadingDetail = computed(() => this.detailResource.isLoading());
   protected readonly activeSites = computed<SiteConfigRead[]>(
     () => (this.sitesResource.value() ?? []).filter((s) => s.is_active),
@@ -110,7 +115,10 @@ export class ListingsComponent {
   onViewRealEstate(realEstate: ListingListRead): void {
     this.selectedListingId.set(realEstate.id);
   }
-
+  onEditRealEstate(realEstate: ListingListRead): void {
+    this.selectedListingId.set(null);
+    this.editingListingId.set(realEstate.id);
+  }
   onDeleteRealEstate(id: string): void {
     this.confirmingDeleteListingId.set(id);
   }
@@ -133,12 +141,13 @@ export class ListingsComponent {
     this.selectedListingId.set(null);
   }
 
-  onViewStatsRequest(): void {
-    this.showStats.set(true);
+  onEditSaved(updated: ListingDetailRead): void {
+    this.editingListingId.set(null);
+    this.realEstatesResource.reload();
   }
 
-  onCloseStats(): void {
-    this.showStats.set(false);
+  onCloseEdit(): void {
+    this.editingListingId.set(null);
   }
 
   private updatePage(page: number): void {

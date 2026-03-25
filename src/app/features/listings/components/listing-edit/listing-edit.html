@@ -1,0 +1,151 @@
+<form class="edit-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+  <!-- Section: Basic -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Basic Info</h3>
+    <div class="edit-grid">
+      <div class="form-field form-field--full">
+        <label>Title</label>
+        <input type="text" formControlName="title" placeholder="Listing title" />
+      </div>
+      <div class="form-field">
+        <label>Listing Type</label>
+        <select formControlName="listing_type">
+          <option [ngValue]="null">—</option>
+          <option value="sale">Sale</option>
+          <option value="rent">Rent</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Property Type</label>
+        <input type="text" formControlName="property_type" placeholder="e.g. Apartment" />
+      </div>
+      <div class="form-field">
+        <label>Typology</label>
+        <input type="text" formControlName="typology" placeholder="e.g. T2" />
+      </div>
+      <div class="form-field">
+        <label>Advertiser</label>
+        <input type="text" formControlName="advertiser" placeholder="Agency or person" />
+      </div>
+      <div class="form-field">
+        <label>Contacts</label>
+        <input type="text" formControlName="contacts" placeholder="Phone / email" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Details -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Details</h3>
+    <div class="edit-grid">
+      <div class="form-field">
+        <label>Bedrooms</label>
+        <input type="number" formControlName="bedrooms" min="0" />
+      </div>
+      <div class="form-field">
+        <label>Bathrooms</label>
+        <input type="number" formControlName="bathrooms" min="0" />
+      </div>
+      <div class="form-field">
+        <label>Floor</label>
+        <input type="text" formControlName="floor" placeholder="e.g. 3" />
+      </div>
+      <div class="form-field">
+        <label>Construction Year</label>
+        <input type="number" formControlName="construction_year" />
+      </div>
+      <div class="form-field">
+        <label>Energy Certificate</label>
+        <input type="text" formControlName="energy_certificate" placeholder="e.g. A+" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Price -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Price</h3>
+    <div class="edit-grid">
+      <div class="form-field">
+        <label>Amount</label>
+        <input type="number" formControlName="price_amount" min="0" />
+      </div>
+      <div class="form-field">
+        <label>Currency</label>
+        <input type="text" formControlName="price_currency" placeholder="EUR" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Area -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Area (m²)</h3>
+    <div class="edit-grid">
+      <div class="form-field">
+        <label>Useful</label>
+        <input type="number" formControlName="area_useful_m2" min="0" />
+      </div>
+      <div class="form-field">
+        <label>Gross</label>
+        <input type="number" formControlName="area_gross_m2" min="0" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Location -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Location</h3>
+    <div class="edit-grid">
+      <div class="form-field">
+        <label>District</label>
+        <input type="text" formControlName="district" />
+      </div>
+      <div class="form-field">
+        <label>County</label>
+        <input type="text" formControlName="county" />
+      </div>
+      <div class="form-field">
+        <label>Parish</label>
+        <input type="text" formControlName="parish" />
+      </div>
+      <div class="form-field form-field--full">
+        <label>Full Address</label>
+        <input type="text" formControlName="full_address" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Features -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Features</h3>
+    <div class="features-grid">
+      @for (feat of featureFields; track feat.key) {
+        <label class="feature-toggle">
+          <select [formControlName]="feat.key">
+            <option [ngValue]="null">—</option>
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
+          </select>
+          {{ feat.label }}
+        </label>
+      }
+    </div>
+  </div>
+
+  <!-- Section: Description -->
+  <div class="edit-section">
+    <h3 class="edit-section-title">Description</h3>
+    <div class="form-field form-field--full">
+      <textarea formControlName="description" rows="4" placeholder="Original description…"></textarea>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="edit-actions">
+    <button type="button" class="btn btn-ghost" (click)="onCancel()">Cancel</button>
+    <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+      @if (submitting()) { Saving… } @else { Save changes }
+    </button>
+  </div>
+
+</form>

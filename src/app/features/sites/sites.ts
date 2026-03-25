@@ -9,7 +9,7 @@ import {
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../core/services/sites.service';
-import type { SiteConfigRead } from '../../core/api/model';
+import type { SiteConfigRead, SiteConfigCreate } from '../../core/api/model';
 import { SiteListComponent } from './components/site-list/site-list';
 import { SiteFormComponent } from './components/site-form/site-form';
 
@@ -75,7 +75,9 @@ export class SitesComponent {
   }
 
   onReactivateSite(key: string): void {
-    this.sitesService.reactivate(key).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    const site = this.sites().find(s => s.key === key);
+    if (!site) return;
+    this.sitesService.create(site as unknown as SiteConfigCreate).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.reloadSites(),
       error: () => {},
     });

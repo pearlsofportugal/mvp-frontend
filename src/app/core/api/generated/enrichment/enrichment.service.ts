@@ -15,7 +15,6 @@ import type {
   ApiResponseAIListingEnrichmentResponse,
   ApiResponseAITextOptimizationResponse,
   ApiResponseBulkEnrichmentResponse,
-  ApiResponseEnrichmentPreview,
   ApiResponseEnrichmentStats,
   BulkEnrichmentRequest,
   EnrichmentStatsParams,
@@ -57,16 +56,6 @@ export class EnrichmentService {
         headers: { 'Content-Type': 'application/json' },
         data: aIListingEnrichmentRequest,
       },
-      this.http,
-    );
-  }
-  /**
-   * Preview AI-generated SEO content for a listing without persisting changes.
-   * @summary Preview Enrichment
-   */
-  previewEnrichment<TData = ApiResponseEnrichmentPreview>(listingId: string) {
-    return customFetch<TData>(
-      { url: `/api/v1/enrichment/ai/preview/${listingId}`, method: 'GET' },
       this.http,
     );
   }

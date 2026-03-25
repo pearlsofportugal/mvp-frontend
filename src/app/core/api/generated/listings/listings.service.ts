@@ -12,7 +12,6 @@ import { Injectable, inject } from '@angular/core';
 import type {
   ApiResponseDuplicatesResponse,
   ApiResponseListingDetailRead,
-  ApiResponseListingRead,
   ApiResponseListingSearchResponse,
   ApiResponseListingStats,
   ApiResponseNoneType,
@@ -79,7 +78,7 @@ export class ListingsService {
    * Create a new listing manually.
    * @summary Create Listing
    */
-  createListing<TData = ApiResponseListingRead>(listingCreate: ListingCreate) {
+  createListing<TData = ApiResponseListingDetailRead>(listingCreate: ListingCreate) {
     return customFetch<TData>(
       {
         url: `/api/v1/listings`,
@@ -238,7 +237,10 @@ Returns thumbnail_url (first media asset) and is_enriched flag.
    * Partially update a listing.
    * @summary Update Listing
    */
-  updateListing<TData = ApiResponseListingRead>(listingId: string, listingUpdate: ListingUpdate) {
+  updateListing<TData = ApiResponseListingDetailRead>(
+    listingId: string,
+    listingUpdate: ListingUpdate,
+  ) {
     return customFetch<TData>(
       {
         url: `/api/v1/listings/${listingId}`,

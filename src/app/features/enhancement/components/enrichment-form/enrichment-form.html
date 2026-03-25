@@ -182,7 +182,13 @@
         </div>
         <div class="diff-col diff-col--after">
           <span class="diff-col-label">After</span>
-          <p class="diff-col-text">{{ item.enriched || '—' }}</p>
+          @if (directResult()!.applied || !item.changed) {
+          <p class="diff-col-text">{{ (editedValues()[item.field] ?? item.enriched) || '—' }}</p>
+          } @else {
+          <textarea class="diff-col-edit" appAutoResize [value]="editedValues()[item.field] ?? (item.enriched ?? '')"
+            (input)="onEditField(item.field, $any($event.target).value)"
+            [attr.aria-label]="'Edit ' + item.field"></textarea>
+          }
         </div>
       </div>
     </div>

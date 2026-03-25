@@ -71,7 +71,7 @@ form {
   align-items: center;
   gap: 0.6rem;
   padding: 0.4rem 0.65rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
@@ -127,7 +127,7 @@ form {
   padding: 0.8rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--surface2);
 }
 
 .preview-meta {
@@ -147,13 +147,13 @@ form {
 .preview-badge-ok {
   background: var(--green-light);
   color: var(--green);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  border: 1px solid var(--green);
 }
 
 .preview-badge-zero {
   background: var(--red-light);
   color: var(--red);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid var(--red);
 }
 
 .preview-warn-text {
@@ -175,7 +175,7 @@ form {
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0.2rem 0.4rem;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--surface3);
   border-radius: 0.25rem;
 }
 
@@ -190,7 +190,7 @@ form {
   font-size: 0.78rem;
   color: var(--red);
   padding: 0.55rem 0.7rem;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  border: 1px solid var(--red);
   border-radius: var(--radius-sm);
   background: var(--red-light);
   margin: 0;
@@ -202,7 +202,7 @@ form {
   font-size: 0.8rem;
   color: var(--red);
   padding: 0.6rem 0.75rem;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  border: 1px solid var(--red);
   border-radius: var(--radius-sm);
   background: var(--red-light);
   margin: 0.6rem 0 0;
@@ -232,6 +232,8 @@ form {
   height: 0.85rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
+  border-radius: 50%;
+  animation: jf-spin 0.7s linear infinite;
   border-radius: 50%;
   animation: jf-spin 0.7s linear infinite;
 }

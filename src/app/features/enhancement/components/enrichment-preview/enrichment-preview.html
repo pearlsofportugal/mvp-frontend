@@ -48,7 +48,7 @@
     <div class="preview-col-head">
       <span class="preview-col-label">Original</span>
     </div>
-    <p class="preview-col-text">{{ p.original_description || 'No original description.' }}</p>
+    <p class="preview-col-text">{{ previewOriginalDescription() || 'No original description.' }}</p>
   </div>
 
   <div class="preview-col preview-col--enriched">
@@ -56,7 +56,7 @@
       <span class="preview-col-label">AI suggestion</span>
       <span class="preview-model-badge">{{ p.model_used }}</span>
     </div>
-    <p class="preview-col-text">{{ p.enriched_description || 'No suggestion generated.' }}</p>
+    <p class="preview-col-text">{{ previewEnrichedDescription() || 'No suggestion generated.' }}</p>
   </div>
 </div>
 }

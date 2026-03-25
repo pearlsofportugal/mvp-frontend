@@ -24,6 +24,7 @@ import { RealEstateService } from '../../../../core/services/listings.service';
 import { of, finalize, timer, Subject, takeUntil } from 'rxjs';
 import { ListingSelectorComponent } from '../../../listings/components/listing-selector/listing-selector';
 import { DecimalPipe } from '@angular/common';
+import { AutoResizeTextareaDirective } from '../../../../shared/directives/auto-resize-textarea.directive';
 
 type EnrichmentFormGroup = FormGroup<{
   target_title: FormControl<boolean>;
@@ -34,7 +35,7 @@ type EnrichmentFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-enrichment-form',
-  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe
+  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe, AutoResizeTextareaDirective
   ],
   templateUrl: './enrichment-form.html',
   styleUrl: './enrichment-form.css',
@@ -67,6 +68,7 @@ export class EnrichmentFormComponent {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly applyingResult = signal(false);
+  protected readonly editedValues = signal<Partial<Record<string, string>>>({});
   protected readonly selectedListings = signal<ListingSearchItem[]>([]);
   protected readonly selectedListingId = computed(() => this.selectedListings()[0]?.id ?? null);
   protected readonly batchProgress = signal<{ done: number; total: number } | null>(null);
@@ -77,6 +79,7 @@ export class EnrichmentFormComponent {
   protected onListingsConfirmed(listings: ListingSearchItem[]): void {
     this.selectedListings.set(listings);
     this.directResult.set(null);
+    this.editedValues.set({});
     this.error.set(null);
     this.batchProgress.set(null);
     if (listings.length > 0) {
@@ -115,6 +118,7 @@ export class EnrichmentFormComponent {
 
     this.error.set(null);
     this.directResult.set(null);
+    this.editedValues.set({});
     this.batchProgress.set(null);
 
     const value = this.form.getRawValue();
@@ -159,6 +163,12 @@ export class EnrichmentFormComponent {
           next: (response) => {
             this.directResult.set(response);
             this.batchProgress.set({ done: 1, total: 1 });
+            // Pre-populate edited values with AI output so the user can tweak before applying
+            const edited: Record<string, string> = {};
+            for (const r of response.results ?? []) {
+              if (r.changed && r.enriched != null) edited[r.field] = r.enriched;
+            }
+            this.editedValues.set(edited);
             const changedCount = (response.results ?? []).filter((r) => r.changed).length;
             const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
             this.success.emit({
@@ -198,17 +208,21 @@ export class EnrichmentFormComponent {
     }
   }
 
+  protected onEditField(field: string, value: string): void {
+    this.editedValues.update((v) => ({ ...v, [field]: value }));
+  }
+
   protected onApplyResult(): void {
     if (this.applyingResult()) return;
     const listing = this.selectedListings()[0];
-    const result = this.directResult();
-    if (!listing || !result) return;
-
-    const fields = (result.results ?? []).map((r) => r.field) as AIListingEnrichmentRequestFieldsItem[];
+    if (!listing) return;
 
     this.applyingResult.set(true);
+    const enrichedValues = Object.fromEntries(
+      Object.entries(this.editedValues()).filter((e): e is [string, string] => e[1] != null),
+    );
     this.enrichmentService
-      .enrichListing({ listing_id: listing.id, fields, apply: true, force: false })
+      .applyListingEnrichment(listing.id, enrichedValues)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.applyingResult.set(false)),

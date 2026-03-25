@@ -7,6 +7,6 @@
  */
 
 /**
- * Structured log entries keyed by step or timestamp.
+ * Per-field confidence scores (0.0–1.0).
  */
-export type JobReadLogs = { [key: string]: unknown } | null;
+export type SiteConfigUpdateConfidenceScores = { [key: string]: number } | null;

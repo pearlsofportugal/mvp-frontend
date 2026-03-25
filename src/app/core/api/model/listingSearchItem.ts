@@ -9,8 +9,8 @@
 /**
  * Lightweight listing representation for the selector UI.
 
-Extends the base list fields with ``thumbnail_url`` (first media asset,
-position=0) and ``is_enriched`` (derived from enriched_description presence).
+Extends the base list fields with ``thumbnail_url`` (first media asset at
+position=0) and ``is_enriched`` (True when any AI-enriched field is present).
  */
 export interface ListingSearchItem {
   id: string;
@@ -31,6 +31,6 @@ export interface ListingSearchItem {
   price_currency?: string | null;
   /** URL of the first media asset (position=0), if available. */
   thumbnail_url?: string | null;
-  /** True when enriched_description is present and non-empty. */
+  /** True when any of enriched_title, enriched_description, or enriched_meta_description is present. */
   is_enriched?: boolean;
 }

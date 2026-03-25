@@ -1,3 +1,39 @@
+<!-- Hero -->
+<div class="detail-hero">
+  <div class="detail-hero-main">
+    <p class="detail-hero-title">{{ realEstate().title || 'Unnamed listing' }}</p>
+    <div class="detail-hero-badges">
+      @if (realEstate().listing_type) {
+        <span class="badge badge-list">{{ realEstate().listing_type }}</span>
+      }
+      @if (realEstate().property_type) {
+        <span class="badge badge-type">{{ realEstate().property_type }}</span>
+      }
+      @if (realEstate().typology) {
+        <span class="badge badge-typology">{{ realEstate().typology }}</span>
+      }
+      @if (realEstate().is_enriched) {
+        <span class="badge badge-completed">&#10022; AI enhanced</span>
+      }
+    </div>
+  </div>
+  <div class="detail-hero-price">
+    {{ formatPrice(realEstate().price_amount, realEstate().price_currency) }}
+  </div>
+</div>
+
+@if (realEstate().district || realEstate().county || realEstate().source_url) {
+  <div class="detail-hero-sub">
+    @if (realEstate().district) { <span>{{ realEstate().district }}</span> }
+    @if (realEstate().county) { <span>{{ realEstate().county }}</span> }
+    @if (realEstate().source_url) {
+      <a [href]="realEstate().source_url" target="_blank" rel="noopener" class="detail-source-link">View source ↗</a>
+    }
+  </div>
+}
+
+<hr class="detail-divider" />
+
 <!-- Identification -->
 <dl class="detail-grid">
   <dt>ID</dt>
@@ -161,19 +197,9 @@
 }
 
 <!-- Description -->
-@if (realEstate().raw_description) {
-  <h3 class="mt">Original Description</h3>
-  <div class="json-view">{{ realEstate().raw_description }}</div>
-}
-
 @if (realEstate().description) {
   <h3 class="mt">Description</h3>
   <div class="json-view">{{ realEstate().description }}</div>
-}
-
-@if (realEstate().enriched_description) {
-  <h3 class="mt">Enhanced Description</h3>
-  <div class="json-view">{{ realEstate().enriched_description }}</div>
 }
 
 <!-- SEO -->

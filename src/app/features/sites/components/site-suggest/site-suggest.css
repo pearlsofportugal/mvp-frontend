@@ -17,15 +17,15 @@
   font-size: 0.82rem;
   font-weight: 500;
   border-radius: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--border) 60%, var(--accent));
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--accent));
+  border: 1px solid var(--border);
+  background: var(--accent-light);
   color: var(--accent);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, opacity 0.15s;
 }
 
 .btn-suggest:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--bg-card) 70%, var(--accent));
+  background: var(--accent-light);
   border-color: var(--accent);
 }
 
@@ -44,7 +44,7 @@
   display: inline-block;
   width: 0.85rem;
   height: 0.85rem;
-  border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border: 2px solid var(--accent-light);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -67,7 +67,7 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.65rem 0.9rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface2);
   border-bottom: 1px solid var(--border);
 }
 
@@ -76,7 +76,7 @@
   font-weight: 600;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface3);
   color: var(--text-dim);
   border: 1px solid var(--border);
   text-transform: uppercase;
@@ -84,8 +84,8 @@
 }
 
 .source-badge.source-jsonld {
-  background: color-mix(in srgb, var(--bg-card) 80%, var(--accent));
-  border-color: color-mix(in srgb, var(--border) 50%, var(--accent));
+  background: var(--accent-light);
+  border-color: var(--border);
   color: var(--accent);
 }
 
@@ -143,9 +143,9 @@
   font-weight: 600;
   padding: 0.1rem 0.35rem;
   border-radius: 999px;
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: var(--yellow-light);
+  color: var(--yellow);
+  border: 1px solid var(--yellow);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   vertical-align: middle;
@@ -164,7 +164,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.55rem;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.4rem;
 }
@@ -195,21 +195,21 @@
 }
 
 .score-badge.score-high {
-  background: rgba(16, 185, 129, 0.15);
+  background: var(--green-light);
   color: var(--green);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid var(--green);
 }
 
 .score-badge.score-mid {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--yellow-light);
+  color: var(--yellow);
+  border: 1px solid var(--yellow);
 }
 
 .score-badge.score-low {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--red-light);
   color: var(--red);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  border: 1px solid var(--red);
 }
 
 .candidate-sample {
@@ -240,5 +240,5 @@
 .btn-use:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--accent));
+  background: var(--accent-light);
 }
