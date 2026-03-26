@@ -1,15 +1,3 @@
-<div class="form-header">
-  <div class="form-header-left">
-    @if (formStage() === 'configure' && !site()) {
-      <button type="button" class="btn-back" (click)="onBackToDetect()">← Back</button>
-    }
-    <h2>{{ site() ? 'Edit Site' : 'New Site' }}</h2>
-  </div>
-  <button type="button" class="btn-icon" (click)="toggleHelp()" title="Help" [attr.aria-expanded]="showHelp()">
-    <span aria-hidden="true">❓</span>
-  </button>
-</div>
-
 @if (showHelp()) {
 <div class="help-panel" role="note">
   <h4>How to configure CSS selectors</h4>
@@ -26,36 +14,44 @@
 }
 
 @if (formStage() === 'configure') {
-<div class="tabs" role="tablist" aria-label="Form sections">
-  <button
-    type="button"
-    role="tab"
-    class="tab"
-    [class.active]="activeTab() === 'basic'"
-    [attr.aria-selected]="activeTab() === 'basic'"
-    (click)="setTab('basic')"
-  >
-    Basic
-  </button>
-  <button
-    type="button"
-    role="tab"
-    class="tab"
-    [class.active]="activeTab() === 'selectors'"
-    [attr.aria-selected]="activeTab() === 'selectors'"
-    (click)="setTab('selectors')"
-  >
-    Selectors
-  </button>
-  <button
-    type="button"
-    role="tab"
-    class="tab"
-    [class.active]="activeTab() === 'advanced'"
-    [attr.aria-selected]="activeTab() === 'advanced'"
-    (click)="setTab('advanced')"
-  >
-    Advanced
+<div class="form-tabs-row">
+  @if (!site()) {
+    <button type="button" class="btn-back" (click)="onBackToDetect()">← Back</button>
+  }
+  <div class="tabs" role="tablist" aria-label="Form sections">
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.active]="activeTab() === 'basic'"
+      [attr.aria-selected]="activeTab() === 'basic'"
+      (click)="setTab('basic')"
+    >
+      Basic
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.active]="activeTab() === 'selectors'"
+      [attr.aria-selected]="activeTab() === 'selectors'"
+      (click)="setTab('selectors')"
+    >
+      Selectors
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.active]="activeTab() === 'advanced'"
+      [attr.aria-selected]="activeTab() === 'advanced'"
+      (click)="setTab('advanced')"
+    >
+      Advanced
+    </button>
+  </div>
+  <button type="button" class="btn-icon" (click)="toggleHelp()" title="Help" [attr.aria-expanded]="showHelp()">
+    <span aria-hidden="true">❓</span>
   </button>
 </div>
 }

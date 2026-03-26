@@ -1,6 +1,9 @@
 @if (sites().length === 0) {
   <div class="empty">
-    <div class="icon"></div>
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 8v4M12 16h.01"/>
+    </svg>
     <h3>No sites configured</h3>
     <p>Add your first site to start scraping.</p>
     <button class="btn btn-primary btn-sm" (click)="addSite.emit()">+ Add Site</button>

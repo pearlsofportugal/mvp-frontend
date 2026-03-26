@@ -95,7 +95,13 @@ src/
 │   │   └── header/
 │   │
 │   └── shared/
-│       ├── components/toast-container/
+│       ├── components/
+│       │   ├── dialog/           # AppDialogComponent — modal nativo reutilizável
+│       │   ├── confirm-dialog/   # ConfirmDialogComponent — confirmação inline
+│       │   ├── select-dropdown/  # SelectDropdownComponent — dropdown custom (CVA)
+│       │   └── toast-container/  # ToastContainerComponent — singleton, usado em app.html
+│       ├── directives/
+│       │   └── auto-resize-textarea.directive.ts
 │       └── pipes/
 │
 └── environments/
@@ -106,6 +112,91 @@ src/
 ### Estratégia de organização
 
 Híbrida: **feature-first** em `features/`, **por tipo** em `core/`. Cada feature tem um componente container (página) e subcomponentes em `components/`.
+
+---
+
+## 2b. Componentes Partilhados (`shared/`)
+
+Antes de criar um novo componente, verificar se algum destes já cobre o caso de uso:
+
+### `AppDialogComponent` — `shared/components/dialog/dialog.ts`
+Modal nativo com `<dialog>` + `showModal()`. Gere abertura/fecho via sinal, backdrop blur, ESC key, botão ✕.
+
+```typescript
+import { AppDialogComponent } from '../../shared/components/dialog/dialog';
+
+// No decorator
+imports: [AppDialogComponent]
+
+// No template
+<app-dialog [open]="showDialog()" title="New Site" size="lg" (closed)="showDialog.set(false)">
+  <!-- conteúdo projectado via ng-content -->
+</app-dialog>
+```
+
+**Inputs:**
+| Input | Tipo | Default | Descrição |
+|---|---|---|---|
+| `open` | `boolean` | — | **required** — abre/fecha o dialog |
+| `title` | `string` | `''` | Título no cabeçalho (se vazio, cabeçalho omitido) |
+| `size` | `'sm'\|'md'\|'lg'` | `'md'` | Largura: 480px / 700px / 960px |
+
+**Outputs:** `closed` — emitido ao clicar ✕, backdrop, ou pressionar ESC.
+
+**Content slots:**
+- `<ng-content />` — corpo principal
+- `<ng-content select="[dialog-footer]" />` — footer opcional fora do padding
+
+---
+
+### `ConfirmDialogComponent` — `shared/components/confirm-dialog/confirm-dialog.ts`
+Caixa de confirmação inline (overlay fixo). Usar para ações destrutivas.
+
+```typescript
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+
+// No template
+@if (pendingDeleteId()) {
+  <app-confirm-dialog
+    message="Delete this item?"
+    confirmLabel="Delete"
+    [danger]="true"
+    (confirmed)="onConfirmDelete()"
+    (cancelled)="pendingDeleteId.set(null)"
+  />
+}
+```
+
+**Inputs:** `message` (required), `confirmLabel` (default `'Confirmar'`), `cancelLabel` (default `'Cancelar'`), `danger` (aplica `btn-danger` ao botão de confirmação).
+
+---
+
+### `SelectDropdownComponent` — `shared/components/select-dropdown/select-dropdown.ts`
+Dropdown custom que implementa `ControlValueAccessor` — usar em vez de `<select>` nativo para consistência visual.
+
+```typescript
+import { SelectDropdownComponent, SelectOption } from '../../shared/components/select-dropdown/select-dropdown';
+
+// Opções
+protected readonly siteOptions = computed<SelectOption[]>(() =>
+  this.sites().map(s => ({ value: s.key, label: s.name }))
+);
+
+// No template (dentro de ReactiveFormsModule)
+<app-select-dropdown formControlName="site_key" [options]="siteOptions()" placeholder="Select a site…" />
+```
+
+**Inputs:** `options: SelectOption[]`, `placeholder: string`.
+Integra nativamente com `FormControl` via CVA.
+
+---
+
+### `AutoResizeTextareaDirective` — `shared/directives/auto-resize-textarea.directive.ts`
+Directiva que faz uma `<textarea>` crescer automaticamente com o conteúdo.
+
+```html
+<textarea appAutoResize formControlName="description"></textarea>
+```
 
 ### SSR
 

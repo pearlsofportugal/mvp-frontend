@@ -1,20 +1,13 @@
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.form-header-left {
+.form-tabs-row {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.form-header h2 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
+.form-tabs-row .tabs {
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .btn-back {
@@ -33,7 +26,7 @@
 }
 
 .btn-back:hover {
-  border-color: var(--border-hi);
+  border-color: var(--border-light);
   color: var(--text);
 }
 
@@ -157,6 +150,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.85rem;
+  align-items: end;
 }
 
 .form-group {
@@ -183,7 +177,7 @@ label .hint {
 input:not([type=radio]),
 select,
 textarea {
-  background: var(--bg-input);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   color: var(--text);
@@ -225,7 +219,7 @@ input::placeholder {
   align-items: flex-start;
   gap: 0.7rem;
   padding: 0.8rem;
-  background: var(--bg-input);
+  background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   cursor: pointer;
@@ -237,7 +231,7 @@ input::placeholder {
 }
 
 .radio-option:hover {
-  border-color: var(--border-hi);
+  border-color: var(--border-light);
 }
 
 .radio-option:has(input:checked) {
