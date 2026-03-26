@@ -1,56 +1,110 @@
 @if (jobs().length === 0) {
-  <div class="empty">
-    <div class="icon">⚡</div>
-    <p>No jobs found.</p>
+  <div class="empty-state">
+    <svg class="empty-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+      <line x1="12" y1="12" x2="12" y2="16"/>
+      <line x1="10" y1="14" x2="14" y2="14"/>
+    </svg>
+    <p class="empty-title">No jobs yet</p>
+    <p class="empty-desc">Launch your first scrape job using the form on the left.</p>
   </div>
 } @else {
   <div class="table-wrap">
     <table>
-        <caption class="sr-only">List of recent scrape jobs</caption>
       <thead>
         <tr>
-          <th>Site</th>
+          <th>Job</th>
           <th>Status</th>
-          <th>Pages</th>
-          <th>Found</th>
-          <th>Scraped</th>
+          <th>Progress</th>
           <th>Errors</th>
-          <th>Start</th>
-          <th>Actions</th>
+          <th>Started</th>
+          <th aria-label="Actions"></th>
         </tr>
       </thead>
       <tbody>
         @for (job of jobs(); track job.id) {
           <tr>
-            <td><strong>{{ job.site_key }}</strong></td>
             <td>
-              <span [class]="getBadgeClass(job.status)">
-                {{ job.status }}
+              <span class="job-site">{{ job.site_key }}</span>
+              <span class="job-id">{{ job.id.slice(0, 8) }}&hellip;</span>
+            </td>
+            <td>
+              <span [class]="getBadgeClass(job.status)">{{ job.status }}</span>
+            </td>
+            <td>
+              <span class="progress-nums">
+                <span title="Pages visited">{{ job.progress?.pages_visited ?? 0 }}&thinsp;pg</span>
+                <span class="prog-sep">&middot;</span>
+                <span title="Listings found">{{ job.progress?.listings_found ?? 0 }}&thinsp;found</span>
+                <span class="prog-sep">&middot;</span>
+                <span title="Listings saved">{{ job.progress?.listings_scraped ?? 0 }}&thinsp;saved</span>
               </span>
             </td>
-            <td>{{ job.progress?.pages_visited ?? '-' }}</td>
-            <td>{{ job.progress?.listings_found ?? '-' }}</td>
-            <td>{{ job.progress?.listings_scraped ?? '-' }}</td>
-            <td>{{ job.progress?.errors ?? '-' }}</td>
-            <td>{{ formatDate(job.started_at) }}</td>
             <td>
-              <button 
-                class="btn btn-outline btn-sm" 
-                (click)="onView(job)">
-                 View
-              </button>
-              @if (job.status === 'running' || job.status === 'pending') {
-                <button 
-                  class="btn btn-danger btn-sm" 
-                  (click)="onCancel(job.id)">
-                  Cancel
+              <span [class.has-errors]="(job.progress?.errors ?? 0) > 0">
+                {{ job.progress?.errors ?? 0 }}
+              </span>
+            </td>
+            <td>{{ formatDate(job.started_at) }}</td>
+            <td class="td-actions">
+              <div class="menu-wrap" [class.row-active]="openMenuId() === job.id">
+                <button
+                  class="kebab-btn"
+                  [class.kebab-btn--open]="openMenuId() === job.id"
+                  type="button"
+                  (click)="toggleMenu(job.id, $event)"
+                  (blur)="closeMenuDelayed()"
+                  [attr.aria-label]="'Actions for ' + job.site_key"
+                  [attr.aria-expanded]="openMenuId() === job.id"
+                  [attr.aria-haspopup]="true"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <circle cx="12" cy="5"  r="1.5"/>
+                    <circle cx="12" cy="12" r="1.5"/>
+                    <circle cx="12" cy="19" r="1.5"/>
+                  </svg>
                 </button>
-              }
-              <button 
-                class="btn btn-danger btn-sm" 
-                (click)="onDelete(job.id)">
-                Delete
-              </button>
+
+                @if (openMenuId() === job.id) {
+                  <div
+                    class="dropdown-menu"
+                    role="menu"
+                    [attr.aria-label]="'Actions for ' + job.site_key"
+                    [style.top.px]="menuPos().top"
+                    [style.right.px]="menuPos().right"
+                  >
+                    <button class="dropdown-item" role="menuitem" type="button" (click)="onView(job)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      View detail
+                    </button>
+
+                    @if (job.status === 'running' || job.status === 'pending') {
+                      <button class="dropdown-item" role="menuitem" type="button" (click)="onCancel(job.id)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="15" y1="9" x2="9" y2="15"/>
+                          <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        Cancel job
+                      </button>
+                    }
+
+                    <button class="dropdown-item dropdown-item--danger" role="menuitem" type="button" (click)="onDelete(job.id)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
+                }
+              </div>
             </td>
           </tr>
         }

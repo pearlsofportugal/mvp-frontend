@@ -8,21 +8,13 @@
         <p class="step-desc">Choose the site configuration to use.</p>
       </div>
     </div>
-
     <div class="form-group">
-      <label for="site_key">Site *</label>
-      <select
-        id="site_key"
+      <label>Site *</label>
+      <app-select-dropdown
         formControlName="site_key"
-        (change)="onSiteChange($event)"
-        [class.error]="form.controls.site_key.invalid && form.controls.site_key.touched"
-        aria-required="true"
-      >
-        <option value="" disabled>— select site —</option>
-        @for (site of sites(); track site.id) {
-          <option [value]="site.key">{{ site.name }} · {{ site.key }}</option>
-        }
-      </select>
+        placeholder="Select site"
+        [options]="siteOptions()"
+      />
       @if (form.controls.site_key.invalid && form.controls.site_key.touched) {
         <span class="field-error" role="alert">Please select a website.</span>
       }

@@ -1,35 +1,48 @@
-<!-- job-detail.html — atualizado para SSE -->
-<div class="card">
-  <div class="flex-between">
-    <h2>
-      Detalhe do Job
+<div class="card detail-card">
+
+  <div class="detail-header">
+    <h2 class="detail-title">
+      Job Detail
       @if (streaming()) {
-      <!-- Indicador visual de stream ativo — pulsa enquanto recebe dados em tempo real -->
-      <span class="live-badge" title="A receber atualizações em tempo real">● ao vivo</span>
+        <span class="live-badge" title="Receiving real-time updates">
+          <span class="live-dot" aria-hidden="true"></span>
+          live
+        </span>
       }
     </h2>
-    <div class="btn-group">
+    <div class="detail-actions">
       @if (!streaming()) {
-      <!-- Fallback manual quando SSE não está ativo (job terminado ou SSE falhou) -->
-      <button class="btn btn-outline btn-sm" (click)="onRefresh()" title="Atualizar dados do job">
-        ↻ Atualizar
-      </button>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="onRefresh()" title="Refresh job data">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+          </svg>
+          Refresh
+        </button>
       }
-      <button class="btn btn-outline btn-sm" (click)="onClose()">
-        ✕ Fechar
+      <button class="btn btn-ghost btn-sm" type="button" (click)="onClose()" title="Close">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Close
       </button>
     </div>
   </div>
 
   @if (streamError()) {
-  <div class="error-message mt" role="alert">
-    ⚠️ Stream em tempo real indisponível: {{ streamError() }}.
-    O progresso continua a ser atualizado pelo polling de 3s.
-  </div>
+    <div class="stream-error" role="alert">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Stream unavailable: {{ streamError() }}. Progress updates continue via polling.
+    </div>
   }
 
   @if (displayJob(); as job) {
-  <div class="mt">
     <dl class="detail-grid">
       <dt>ID</dt>
       <dd class="mono">{{ job.id }}</dd>
@@ -37,54 +50,57 @@
       <dt>Site</dt>
       <dd>{{ job.site_key }}</dd>
 
-      <dt>Estado</dt>
+      <dt>Status</dt>
       <dd>
-        <span class="badge" [class.badge-pending]="job.status === 'pending'"
-          [class.badge-running]="job.status === 'running'" [class.badge-completed]="job.status === 'completed'"
-          [class.badge-failed]="job.status === 'failed'" [class.badge-cancelled]="job.status === 'cancelled'">
+        <span class="badge"
+          [class.badge-pending]="job.status === 'pending'"
+          [class.badge-running]="job.status === 'running'"
+          [class.badge-completed]="job.status === 'completed'"
+          [class.badge-failed]="job.status === 'failed'"
+          [class.badge-cancelled]="job.status === 'cancelled'">
           {{ job.status }}
         </span>
       </dd>
 
       <dt>URL</dt>
-      <dd>{{ job.start_url }}</dd>
+      <dd class="cell-truncate">{{ job.start_url }}</dd>
 
-      <dt>Páginas máx.</dt>
+      <dt>Max pages</dt>
       <dd>{{ job.max_pages }}</dd>
 
-      <dt>Páginas visitadas</dt>
+      <dt>Pages visited</dt>
       <dd>{{ job.progress?.pages_visited ?? '-' }}</dd>
 
-      <dt>Listings encontrados</dt>
+      <dt>Listings found</dt>
       <dd>{{ job.progress?.listings_found ?? '-' }}</dd>
 
-      <dt>Listings guardados</dt>
+      <dt>Listings saved</dt>
       <dd>{{ job.progress?.listings_scraped ?? '-' }}</dd>
 
-      <dt>Erros</dt>
+      <dt>Errors</dt>
       <dd>{{ job.progress?.errors ?? '-' }}</dd>
 
-      <dt>Início</dt>
+      <dt>Started</dt>
       <dd>{{ job.started_at | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
 
-      <dt>Fim</dt>
+      <dt>Finished</dt>
       <dd>{{ job.completed_at ? (job.completed_at | date:'dd/MM/yyyy HH:mm:ss') : '-' }}</dd>
 
       @if (job.error_message) {
-      <dt>Erro</dt>
-      <dd style="color:var(--red); grid-column: 1 / -1;">
-        {{ job.error_message }}
-      </dd>
+        <dt>Error</dt>
+        <dd class="cell-error">{{ job.error_message }}</dd>
       }
     </dl>
 
-    <div class="progress-bar mt">
-      <div class="fill" [style.width.%]="progressPercentage()"></div>
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="fill" [style.width.%]="progressPercentage()"></div>
+      </div>
+      <div class="progress-info">
+        <span class="phase">{{ progressPhase() }}</span>
+        <span class="percentage">{{ progressPercentage() }}%</span>
+      </div>
     </div>
-    <div class="progress-info">
-      <small class="phase">{{ progressPhase() }}</small>
-      <small class="percentage">{{ progressPercentage() }}%</small>
-    </div>
-  </div>
   }
+
 </div>
