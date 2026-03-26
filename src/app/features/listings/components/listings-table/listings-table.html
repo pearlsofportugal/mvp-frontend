@@ -1,41 +1,96 @@
 @if (realEstates().length === 0) {
-  <div class="empty">
-    <div class="icon">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.35">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    </div>
-    <p>No listings found.</p>
+  <!-- aria-hidden no SVG decorativo: não deve ser lido por leitores de ecrã -->
+  <div class="empty" role="status">
+    <svg
+      class="empty-icon"
+      aria-hidden="true"
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+    <p class="empty-text">Nenhuma listagem encontrada.</p>
+    <p class="empty-sub">Tente ajustar os filtros.</p>
   </div>
 } @else {
   <div class="table-wrap">
-    <table>
+    <!--
+      caption visualmente oculto mas lido por leitores de ecrã —
+      fornece contexto semântico essencial para a tabela
+    -->
+    <table aria-label="Listagens imobiliárias">
+      <caption class="sr-only">Listagens imobiliárias</caption>
       <thead>
         <tr>
-          <th class="th-sortable" [class.th-sorted]="isSortActive('title')" (click)="onSort('title')">
-            Title <span class="sort-indicator">{{ getSortIndicator('title') }}</span>
+          <!--
+            aria-sort comunica o estado de ordenação a tecnologias assistivas.
+            Valores: "ascending" | "descending" | "none"
+          -->
+          <th
+            class="th-sortable"
+            [class.th-sorted]="isSortActive('title')"
+            [attr.aria-sort]="isSortActive('title') ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+            (click)="onSort('title')"
+            scope="col"
+          >
+            Listagem
+            <span class="sort-indicator" aria-hidden="true">
+              {{ sortIndicators().title }}
+            </span>
           </th>
-          <th>Source</th>
-          <th>Type</th>
-          <th>Typology</th>
-          <th class="th-sortable" [class.th-sorted]="isSortActive('price')" (click)="onSort('price')">
-            Price <span class="sort-indicator">{{ getSortIndicator('price') }}</span>
+
+          <th scope="col">Tipo</th>
+
+          <th
+            class="th-sortable"
+            [class.th-sorted]="isSortActive('price')"
+            [attr.aria-sort]="isSortActive('price') ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+            (click)="onSort('price')"
+            scope="col"
+          >
+            Preço
+            <span class="sort-indicator" aria-hidden="true">
+              {{ sortIndicators().price }}
+            </span>
           </th>
-          <th class="th-sortable" [class.th-sorted]="isSortActive('district')" (click)="onSort('district')">
-            District <span class="sort-indicator">{{ getSortIndicator('district') }}</span>
+
+          <th
+            class="th-sortable col-location"
+            [class.th-sorted]="isSortActive('district')"
+            [attr.aria-sort]="isSortActive('district') ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+            (click)="onSort('district')"
+            scope="col"
+          >
+            Localização
+            <span class="sort-indicator" aria-hidden="true">
+              {{ sortIndicators().district }}
+            </span>
           </th>
-          <th>County</th>
-          <th class="th-sortable" [class.th-sorted]="isSortActive('area')" (click)="onSort('area')">
-            Area <span class="sort-indicator">{{ getSortIndicator('area') }}</span>
+
+          <th class="col-details" scope="col">Detalhes</th>
+
+          <th
+            class="th-sortable col-date"
+            [class.th-sorted]="isSortActive('created_at')"
+            [attr.aria-sort]="isSortActive('created_at') ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'"
+            (click)="onSort('created_at')"
+            scope="col"
+          >
+            Data
+            <span class="sort-indicator" aria-hidden="true">
+              {{ sortIndicators().created_at }}
+            </span>
           </th>
-          <th class="th-sortable" [class.th-sorted]="isSortActive('bedrooms')" (click)="onSort('bedrooms')">
-            Beds <span class="sort-indicator">{{ getSortIndicator('bedrooms') }}</span>
-          </th>
-          <th class="th-sortable" [class.th-sorted]="isSortActive('created_at')" (click)="onSort('created_at')">
-            Date <span class="sort-indicator">{{ getSortIndicator('created_at') }}</span>
-          </th>
-          <th class="th-actions">Actions</th>
+
+          <!-- Coluna de ações sem cabeçalho visível — aria-label descreve o propósito -->
+          <th class="th-actions" scope="col" aria-label="Ações"></th>
         </tr>
       </thead>
 
@@ -43,38 +98,90 @@
         @for (realEstate of realEstates(); track realEstate.id) {
           <tr [class.row-active]="openMenuId() === realEstate.id">
 
-            <!-- Title + avatar -->
+            <!-- Listagem: avatar + título + source + tipo -->
             <td class="td-title">
               <div class="listing-cell">
                 <span
                   class="listing-avatar"
                   [style.background]="getAvatarColor(realEstate.source_partner)"
+                  aria-hidden="true"
                 >
                   {{ getInitial(realEstate.source_partner) }}
                 </span>
-                <span class="listing-name" [title]="realEstate.title || ''">
-                  {{ realEstate.title || '&lt;no title&gt;' }}
-                </span>
+                <div class="listing-info">
+                  <span class="listing-name" [title]="realEstate.title || ''">
+                    {{ realEstate.title || 'Sem título' }}
+                  </span>
+                  <div class="listing-tags">
+                    <span class="tag-source">{{ realEstate.source_partner }}</span>
+                    @if (realEstate.listing_type) {
+                      <span class="tag-listing-type">{{ realEstate.listing_type }}</span>
+                    }
+                  </div>
+                </div>
               </div>
             </td>
 
-            <td>{{ realEstate.source_partner }}</td>
-            <td>{{ realEstate.property_type || '-' }}</td>
-            <td>{{ realEstate.typology || '-' }}</td>
-            <td>{{ formatPrice(realEstate.price_amount, realEstate.price_currency) }}</td>
-            <td>{{ realEstate.district || '-' }}</td>
-            <td>{{ realEstate.county || '-' }}</td>
-            <td>
-              @if (realEstate.area_useful_m2) {
-                {{ realEstate.area_useful_m2 }} m²
+            <!-- Tipo + Tipologia -->
+            <td class="td-type">
+              @if (realEstate.property_type || realEstate.typology) {
+                <div class="type-stack">
+                  @if (realEstate.property_type) {
+                    <span class="type-main">{{ realEstate.property_type }}</span>
+                  }
+                  @if (realEstate.typology) {
+                    <span class="type-sub">{{ realEstate.typology }}</span>
+                  }
+                </div>
               } @else {
-                -
+                <span class="td-empty" aria-label="Não disponível">—</span>
               }
             </td>
-            <td>{{ realEstate.bedrooms ?? '-' }}</td>
-            <td>{{ formatDate(realEstate.created_at) }}</td>
 
-            <!-- Kebab menu -->
+            <!-- Preço -->
+            <td class="td-price">
+              {{ formatPrice(realEstate.price_amount, realEstate.price_currency) }}
+            </td>
+
+            <!-- Localização -->
+            <td class="td-location col-location">
+              @if (realEstate.district || realEstate.county) {
+                <div class="location-stack">
+                  @if (realEstate.district) {
+                    <span class="loc-primary">{{ realEstate.district }}</span>
+                  }
+                  @if (realEstate.county) {
+                    <span class="loc-secondary">{{ realEstate.county }}</span>
+                  }
+                </div>
+              } @else {
+                <span class="td-empty" aria-label="Não disponível">—</span>
+              }
+            </td>
+
+            <!-- Detalhes: área + quartos -->
+            <td class="td-details col-details">
+              <div class="details-chips">
+                @if (realEstate.area_useful_m2) {
+                  <span class="detail-chip">{{ realEstate.area_useful_m2 }} m²</span>
+                }
+                @if (realEstate.bedrooms != null) {
+                  <span class="detail-chip">{{ realEstate.bedrooms }} qt.</span>
+                }
+                @if (!realEstate.area_useful_m2 && realEstate.bedrooms == null) {
+                  <span class="td-empty" aria-label="Não disponível">—</span>
+                }
+              </div>
+            </td>
+
+            <!-- Data -->
+            <td class="td-date col-date">
+              <time [dateTime]="realEstate.created_at">
+                {{ formatDate(realEstate.created_at) }}
+              </time>
+            </td>
+
+            <!-- Menu kebab -->
             <td class="td-actions">
               <div class="menu-wrap">
                 <button
@@ -82,39 +189,105 @@
                   [class.kebab-btn--open]="openMenuId() === realEstate.id"
                   (click)="toggleMenu(realEstate.id, $event)"
                   (blur)="closeMenuDelayed()"
-                  title="Actions"
+                  [attr.aria-label]="'Ações para ' + (realEstate.title || 'listagem sem título')"
+                  [attr.aria-expanded]="openMenuId() === realEstate.id"
+                  [attr.aria-haspopup]="true"
+                  type="button"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="5" r="1.5" />
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="5"  r="1.5" />
                     <circle cx="12" cy="12" r="1.5" />
                     <circle cx="12" cy="19" r="1.5" />
                   </svg>
                 </button>
 
                 @if (openMenuId() === realEstate.id) {
-                  <div class="dropdown-menu" [style.top.px]="menuPos().top" [style.right.px]="menuPos().right">
-                    <button class="dropdown-item" (click)="onView(realEstate)">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <!--
+                    role="menu" + role="menuitem" semântica ARIA para menus de ação.
+                    O dropdown usa position:fixed com coordenadas calculadas no TS.
+                  -->
+                  <div
+                    class="dropdown-menu"
+                    role="menu"
+                    [attr.aria-label]="'Ações para ' + (realEstate.title || 'listagem sem título')"
+                    [style.top.px]="menuPos().top"
+                    [style.right.px]="menuPos().right"
+                  >
+                    <button
+                      class="dropdown-item"
+                      role="menuitem"
+                      type="button"
+                      (click)="onView(realEstate)"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" />
                       </svg>
-                      View detail
+                      Ver detalhe
                     </button>
-                    <button class="dropdown-item" (click)="onEdit(realEstate)">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                    <button
+                      class="dropdown-item"
+                      role="menuitem"
+                      type="button"
+                      (click)="onEdit(realEstate)"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                       </svg>
-                      Edit
+                      Editar
                     </button>
-                    <button class="dropdown-item dropdown-item--danger" (click)="onDelete(realEstate.id)">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                    <button
+                      class="dropdown-item dropdown-item--danger"
+                      role="menuitem"
+                      type="button"
+                      (click)="onDelete(realEstate.id)"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
                         <path d="M10 11v6M14 11v6" />
                         <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
                       </svg>
-                      Delete
+                      Eliminar
                     </button>
                   </div>
                 }
@@ -127,4 +300,3 @@
     </table>
   </div>
 }
-
