@@ -1,30 +1,24 @@
-<div class="sites-page" [class.has-form]="showForm()">
-  <div class="card card-generator">
-    <div class="generator-header">
-      <div class="generator-title-block">
-        <span class="generator-eyebrow">Site Configuration</span>
-        <h2 class="generator-title">Manage scraping sites</h2>
-        <p class="generator-desc">
-          Configure source websites, extraction mode, and selectors used by scraping jobs.
-        </p>
-      </div>
-
-      <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
+<div class="sites-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Scraping Sites</h1>
+      <p class="page-subtitle">Configure source websites, extraction modes, and CSS selectors for scraping jobs.</p>
     </div>
+    <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
+  </header>
 
+  <div class="card">
     @if (loading()) {
       <div class="state-loading">
-        <div class="state-spinner"></div>
-        <span>Loading sites...</span>
+        <span class="state-spinner"></span>
+        <span>Loading sites…</span>
       </div>
     } @else {
       <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (reactivate)="onReactivateSite($event)" (addSite)="onShowCreateForm()" />
     }
   </div>
 
-  @if (showForm()) {
-    <div class="card card-result">
-      <app-site-form [site]="editingSite()" (success)="onFormSuccess()" (cancel)="onFormCancel()" />
-    </div>
-  }
+  <app-dialog [open]="showForm()" [title]="dialogTitle()" size="lg" (closed)="onFormCancel()">
+    <app-site-form [site]="editingSite()" (success)="onFormSuccess()" (cancel)="onFormCancel()" />
+  </app-dialog>
 </div>

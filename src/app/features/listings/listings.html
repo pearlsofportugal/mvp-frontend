@@ -47,33 +47,24 @@
 	}
 
 	<!-- ── DETAIL DIALOG ───────────────────────────────────────── -->
-	@if (selectedRealEstate()) {
-		<div class="detail-dialog-backdrop" (click)="onCloseDetail()">
-			<div class="detail-dialog" (click)="$event.stopPropagation()">
-				<div class="detail-dialog-header">
-					<h2>Listing Detail</h2>
-					<button class="btn btn-ghost btn-sm" (click)="onCloseDetail()" title="Close">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-							<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-						</svg>
-					</button>
-				</div>
-				<div class="detail-dialog-body">
-					@if (isLoadingDetail()) {
-						<div class="table-loading">
-							<div class="loading-spinner"></div>
-							<span>Loading detail...</span>
-						</div>
-					} @else {
-						<app-listing-detail
-							[realEstate]="selectedRealEstate()!"
-							(delete)="onDeleteRealEstate($event)"
-						/>
-					}
-				</div>
+	<app-dialog
+		[open]="!!(selectedListingId())"
+		title="Listing Detail"
+		size="md"
+		(closed)="onCloseDetail()"
+	>
+		@if (isLoadingDetail()) {
+			<div class="table-loading">
+				<div class="loading-spinner"></div>
+				<span>Loading detail...</span>
 			</div>
-		</div>
-	}
+		} @else if (selectedRealEstate()) {
+			<app-listing-detail
+				[realEstate]="selectedRealEstate()!"
+				(delete)="onDeleteRealEstate($event)"
+			/>
+		}
+	</app-dialog>
 
 	@if (confirmingDeleteListingId()) {
 		<app-confirm-dialog
@@ -87,25 +78,18 @@
 	}
 
 	<!-- ── EDIT DIALOG ─────────────────────────────────────────── -->
-	@if (editingRealEstate()) {
-		<div class="detail-dialog-backdrop" (click)="onCloseEdit()">
-			<div class="detail-dialog detail-dialog--wide" (click)="$event.stopPropagation()">
-				<div class="detail-dialog-header">
-					<h2>Edit Listing</h2>
-					<button class="btn btn-ghost btn-sm" (click)="onCloseEdit()" title="Close">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-							<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-						</svg>
-					</button>
-				</div>
-				<div class="detail-dialog-body">
-					<app-listing-edit
-						[listing]="editingRealEstate()!"
-						(saved)="onEditSaved($event)"
-						(cancel)="onCloseEdit()"
-					/>
-				</div>
-			</div>
-		</div>
-	}
+	<app-dialog
+		[open]="!!(editingListingId())"
+		title="Edit Listing"
+		size="lg"
+		(closed)="onCloseEdit()"
+	>
+		@if (editingRealEstate()) {
+			<app-listing-edit
+				[listing]="editingRealEstate()!"
+				(saved)="onEditSaved($event)"
+				(cancel)="onCloseEdit()"
+			/>
+		}
+	</app-dialog>
 </div>

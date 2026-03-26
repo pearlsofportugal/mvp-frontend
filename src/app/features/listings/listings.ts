@@ -18,6 +18,7 @@ import { SitesService } from '../../core/services/sites.service';
 import { RealEstateFilters } from '../../core/models/listing.model';
 import type { ApiResponsePaginatedResponse, ListingListRead, ListingDetailRead, SiteConfigRead } from '../../core/api/model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 
 @Component({
   selector: 'app-listings',
@@ -27,6 +28,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
     ListingDetailComponent,
     ListingEditComponent,
     ConfirmDialogComponent,
+    AppDialogComponent,
   ],
   templateUrl: './listings.html',
   styleUrl: './listings.css',
@@ -38,7 +40,7 @@ export class ListingsComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   // State
-  private readonly selectedListingId = signal<string | null>(null);
+  protected readonly selectedListingId = signal<string | null>(null);
   protected readonly confirmingDeleteListingId = signal<string | null>(null);
   protected readonly editingListingId = signal<string | null>(null);
   protected readonly userFilters = signal<RealEstateFilters>({ page: 1, page_size: 20 });

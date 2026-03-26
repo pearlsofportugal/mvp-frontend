@@ -12,10 +12,11 @@ import { SitesService } from '../../core/services/sites.service';
 import type { SiteConfigRead, SiteConfigCreate } from '../../core/api/model';
 import { SiteListComponent } from './components/site-list/site-list';
 import { SiteFormComponent } from './components/site-form/site-form';
+import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 
 @Component({
   selector: 'app-sites',
-  imports: [SiteListComponent, SiteFormComponent],
+  imports: [SiteListComponent, SiteFormComponent, AppDialogComponent],
   templateUrl: './sites.html',
   styleUrl: './sites.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +45,10 @@ export class SitesComponent {
 
   protected readonly loading = computed<boolean>(
     () => this.sitesResource.isLoading()
+  );
+
+  protected readonly dialogTitle = computed(() =>
+    this.editingSite() ? 'Edit Site' : 'New Site'
   );
 
   onShowCreateForm(): void {
