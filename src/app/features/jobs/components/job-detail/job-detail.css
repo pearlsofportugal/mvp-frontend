@@ -1,23 +1,139 @@
-/* Progress Info */
+/* ── Card override ────────────────────────────── */
+.detail-card {
+  margin-bottom: 0;
+}
+
+/* ── Header ───────────────────────────────── */
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.detail-title {
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--text);
+}
+
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+/* ── Live badge ────────────────────────────── */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--red-light);
+  color: var(--red);
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ── Stream error ───────────────────────────── */
+.stream-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--yellow-light);
+  border-left: 3px solid var(--yellow);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+.stream-error svg {
+  flex-shrink: 0;
+  color: var(--yellow);
+  margin-top: 0.1rem;
+}
+
+/* ── Detail grid overrides ────────────────────── */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: var(--text-dim);
+}
+
+.cell-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 320px;
+}
+
+.cell-error {
+  color: var(--red);
+  grid-column: 1 / -1;
+  word-break: break-word;
+}
+
+/* ── Progress ──────────────────────────────── */
+.progress-section {
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-bar .fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 9999px;
+  transition: width 0.3s ease-out;
+  min-width: 2px;
+}
+
 .progress-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
+  margin-top: 0.4rem;
 }
 
 .progress-info .phase {
+  font-size: 0.78rem;
   color: var(--text-dim);
 }
 
 .progress-info .percentage {
+  font-size: 0.78rem;
   color: var(--accent);
   font-weight: 600;
-  font-family: 'Cascadia Code', 'Fira Code', monospace;
-}
-
-/* Progress bar animation */
-.progress-bar .fill {
-  transition: width 0.3s ease-out;
+  font-family: var(--font-mono);
 }

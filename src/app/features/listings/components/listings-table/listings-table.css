@@ -1,20 +1,53 @@
-/* Table */
-:host {
-  display: contents;
+/* ── SCREEN-READER ONLY ──────────────────────────────────────────
+   Classe utilitária para conteúdo visualmente oculto mas acessível.
+   Usada no <caption> da tabela.
+─────────────────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
+/* ── HOST ─────────────────────────────────────────────────────── */
+:host { display: contents; }
+
+/* ── WRAPPER ─────────────────────────────────────────────────── */
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ── THEAD ───────────────────────────────────────────────────── */
 .table-wrap :where(th) {
-  background: transparent;
+  background: var(--surface2);
   color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--border);
-  font-size: 0.6875rem;
-  padding: 0.625rem 1rem;
+  white-space: nowrap;
 }
 
+/* ── TBODY ───────────────────────────────────────────────────── */
 .table-wrap :where(td) {
-  color: var(--text-dim);
   border-bottom: 1px solid var(--border);
-  padding: 0.875rem 1rem;
+  padding: 0.7rem 1rem;
+  vertical-align: middle;
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+}
+
+.table-wrap :where(tbody tr) {
+  transition: background var(--transition-fast);
 }
 
 .table-wrap :where(tbody tr:hover) {
@@ -25,51 +58,52 @@
   border-bottom: none;
 }
 
-.table-wrap {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+/* ── FOCUS VISÍVEL ───────────────────────────────────────────────
+   Garantir outline visível para navegação por teclado.
+   Complementa a semântica ARIA do menu.
+─────────────────────────────────────────────────────────────────── */
+.kebab-btn:focus-visible,
+.dropdown-item:focus-visible,
+.th-sortable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-/* Sortable headers */
+/* Remove outline apenas quando não é navegação por teclado */
+.kebab-btn:focus:not(:focus-visible),
+.dropdown-item:focus:not(:focus-visible),
+.th-sortable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── SORT ────────────────────────────────────────────────────── */
 .th-sortable {
   cursor: pointer;
   user-select: none;
-  white-space: nowrap;
 }
 
-.th-sortable:hover {
-  color: var(--accent);
-}
-
-.th-sorted {
-  color: var(--accent);
-}
+.th-sortable:hover { color: var(--accent); }
+.th-sorted { color: var(--accent); }
 
 .sort-indicator {
-  font-size: 0.65rem;
-  opacity: 0.6;
-  margin-left: 0.2rem;
+  font-size: 0.6rem;
+  opacity: 0.4;
+  margin-left: 0.15rem;
+  transition: opacity var(--transition-fast);
 }
 
-.th-sorted .sort-indicator {
-  opacity: 1;
-}
+.th-sorted .sort-indicator { opacity: 1; }
+.th-sortable:hover .sort-indicator { opacity: 0.7; }
 
-.th-actions {
-  width: 1%;
-  text-align: center;
-}
+.th-actions { width: 1%; }
 
-/* Row states */
-.row-active {
-  background: var(--accent-light) !important;
-}
+/* ── ROW STATES ──────────────────────────────────────────────── */
+.row-active { background: var(--accent-light) !important; }
 
-/* Title cell: avatar + name */
+/* ── LISTING CELL ────────────────────────────────────────────── */
 .td-title {
-  min-width: 180px;
-  max-width: 260px;
+  min-width: 200px;
+  max-width: 300px;
 }
 
 .listing-cell {
@@ -80,27 +114,146 @@
 
 .listing-avatar {
   flex-shrink: 0;
-  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  line-height: 1;
+}
+
+.listing-info {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
 .listing-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.8125rem;
   color: var(--text);
+  line-height: 1.3;
 }
 
-/* Actions cell */
+.listing-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.tag-source,
+.tag-listing-type {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  line-height: 1.6;
+}
+
+.tag-source {
+  color: var(--text-muted);
+  background: var(--surface3);
+}
+
+.tag-listing-type {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* ── TYPE CELL ───────────────────────────────────────────────── */
+.td-type { min-width: 90px; }
+
+.type-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.3;
+}
+
+.type-main {
+  font-size: 0.8rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.type-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── PRICE CELL ──────────────────────────────────────────────── */
+.td-price {
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--accent);
+}
+
+/* ── LOCATION CELL ───────────────────────────────────────────── */
+.td-location { min-width: 110px; }
+
+.location-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.3;
+}
+
+.loc-primary {
+  font-size: 0.8rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.loc-secondary {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── DETAILS CELL ────────────────────────────────────────────── */
+.td-details { white-space: nowrap; }
+
+.details-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.detail-chip {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.4rem;
+}
+
+/* ── DATE CELL ───────────────────────────────────────────────── */
+.td-date {
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── EMPTY PLACEHOLDER ───────────────────────────────────────── */
+.td-empty {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+/* ── ACTIONS ─────────────────────────────────────────────────── */
 .td-actions {
   width: 48px;
   padding: 0 0.75rem;
@@ -132,7 +285,7 @@
   color: var(--text);
 }
 
-/* Dropdown */
+/* ── DROPDOWN ────────────────────────────────────────────────── */
 .dropdown-menu {
   position: fixed;
   z-index: 1000;
@@ -148,6 +301,13 @@
 @keyframes dropdown-in {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Respeita preferência do utilizador por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-menu {
+    animation: none;
+  }
 }
 
 .dropdown-item {
@@ -171,28 +331,128 @@
   color: var(--text);
 }
 
-.dropdown-item--danger {
-  color: var(--text-muted);
-}
-
+.dropdown-item--danger { color: var(--text-muted); }
 .dropdown-item--danger:hover {
   background: var(--red-light);
   color: var(--red);
 }
 
-/* ── Responsive ─────────────────────────────────────────────── */
+/* ── EMPTY STATE ─────────────────────────────────────────────── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.empty-icon {
+  opacity: 0.25;
+  margin-bottom: 0.25rem;
+}
+
+.empty-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.empty-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── RESPONSIVE: tablet ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .col-date { display: none; }
+}
+
 @media (max-width: 768px) {
   .table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  .table-wrap table {
-    min-width: 520px;
-  }
+  .table-wrap table { min-width: 520px; }
 
   .td-title {
-    min-width: 140px;
-    max-width: 180px;
+    min-width: 160px;
+    max-width: 210px;
+  }
+
+  .col-date, .col-details { display: none; }
+}
+
+/* ── RESPONSIVE: mobile card layout ─────────────────────────── */
+@media (max-width: 520px) {
+  .table-wrap {
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .table-wrap table,
+  .table-wrap tbody { display: block; }
+
+  .table-wrap thead { display: none; }
+
+  .table-wrap tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "title   actions"
+      "price   actions"
+      "type    actions"
+      "loc     actions";
+    align-items: start;
+    gap: 0.2rem 0;
+    padding: 0.875rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+  }
+
+  .table-wrap tbody tr:last-child { margin-bottom: 0; }
+
+  .table-wrap :where(td) {
+    padding: 0;
+    border: none;
+    font-size: 0.8rem;
+  }
+
+  .td-title    { grid-area: title; padding-bottom: 0.25rem; }
+  .td-price    { grid-area: price; }
+  .td-type     { grid-area: type; }
+  .td-location { grid-area: loc; }
+  .td-details  { display: none; }
+  .td-date     { display: none; }
+
+  .td-actions {
+    grid-area: actions;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0;
+    width: auto;
+  }
+
+  .td-title { min-width: unset; max-width: unset; }
+
+  .listing-avatar {
+    width: 26px;
+    height: 26px;
+  }
+
+  .td-price {
+    font-size: 0.9rem;
+    font-weight: 700;
   }
 }

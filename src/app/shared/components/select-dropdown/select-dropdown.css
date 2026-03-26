@@ -1,0 +1,108 @@
+:host {
+  display: block;
+  position: relative;
+}
+
+/* ── TRIGGER ─────────────────────────────────────────────────── */
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2rem;
+  width: 100%;
+  padding: 0 0.5rem 0 0.6rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: var(--text-dim);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.trigger:hover,
+.trigger--open {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.trigger--active {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.trigger-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trigger-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.15s;
+}
+
+.trigger--open .trigger-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── PANEL ───────────────────────────────────────────────────── */
+.panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 0.25rem;
+  animation: panel-in 0.1s ease;
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── OPTION ──────────────────────────────────────────────────── */
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.option:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.option--selected {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.option-check {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  color: var(--accent);
+}

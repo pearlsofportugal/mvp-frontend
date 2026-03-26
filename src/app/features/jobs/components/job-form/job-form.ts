@@ -19,6 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { JobsService } from '../../../../core/services/jobs';
 import { SitesService } from '../../../../core/services/sites.service';
 import type { SiteConfigRead, JobCreate, SiteConfigPreviewResponse } from '../../../../core/api/model';
+import { SelectDropdownComponent, SelectOption } from '../../../../shared/components/select-dropdown/select-dropdown';
 
 type JobFormGroup = FormGroup<{
   site_key: FormControl<string>;
@@ -28,7 +29,7 @@ type JobFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-job-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule,SelectDropdownComponent],
   templateUrl: './job-form.html',
   styleUrl: './job-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,6 +66,10 @@ export class JobFormComponent {
     }),
   });
 
+  protected readonly siteOptions = computed<SelectOption[]>(() =>
+    this.sites().map((s) => ({ value: s.key, label: s.name ? `${s.name} · ${s.key}` : s.key }))
+  );
+
   protected readonly selectedSite = computed<SiteConfigRead | null>(
     () => this.sites().find((s) => s.key === this.selectedSiteKey()) ?? null,
   );
@@ -74,15 +79,19 @@ export class JobFormComponent {
     return (selectors?.['listing_link_selector'] as string | undefined) ?? null;
   });
 
-  protected onSiteChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const site = this.sites().find((s) => s.key === select.value);
-    this.selectedSiteKey.set(select.value);
-    this.previewResult.set(null);
-    this.previewError.set(false);
-    if (site) {
-      this.form.patchValue({ start_url: site.base_url });
-    }
+  constructor() {
+    // React to site_key form control changes (works with CVA SelectDropdownComponent)
+    this.form.controls.site_key.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((key) => {
+        this.selectedSiteKey.set(key);
+        this.previewResult.set(null);
+        this.previewError.set(false);
+        const site = this.sites().find((s) => s.key === key);
+        if (site) {
+          this.form.patchValue({ start_url: site.base_url });
+        }
+      });
   }
 
   protected onStartUrlChange(): void {

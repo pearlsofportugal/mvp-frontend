@@ -1,0 +1,35 @@
+<button
+  type="button"
+  class="trigger"
+  [class.trigger--open]="open()"
+  [class.trigger--active]="hasValue()"
+  (click)="$event.stopPropagation(); toggle()"
+>
+  <span class="trigger-label">{{ selectedLabel() }}</span>
+  <svg class="trigger-chevron" width="10" height="6" viewBox="0 0 10 6" fill="currentColor" aria-hidden="true">
+    <path d="M0 0l5 6 5-6z"/>
+  </svg>
+</button>
+
+@if (open()) {
+  <div class="panel" role="listbox">
+    @for (opt of options(); track opt.value) {
+      <button
+        type="button"
+        class="option"
+        role="option"
+        [class.option--selected]="value() === opt.value"
+        (click)="select(opt.value)"
+      >
+        @if (value() === opt.value) {
+          <svg class="option-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        } @else {
+          <span class="option-check"></span>
+        }
+        {{ opt.label }}
+      </button>
+    }
+  </div>
+}

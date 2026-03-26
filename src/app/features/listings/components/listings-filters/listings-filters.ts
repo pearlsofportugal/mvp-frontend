@@ -10,10 +10,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 import { RealEstateFilters } from '../../../../core/models/listing.model';
 import type { SiteConfigRead } from '../../../../core/api/model';
+import { SelectDropdownComponent, type SelectOption } from '../../../../shared/components/select-dropdown/select-dropdown';
 
 @Component({
   selector: 'app-listings-filters',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SelectDropdownComponent],
   templateUrl: './listings-filters.html',
   styleUrl: './listings-filters.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +38,11 @@ export class ListingsFiltersComponent {
   private formValue = toSignal(this.filterForm.valueChanges, {
     initialValue: this.filterForm.value,
   });
+
+  protected readonly sourceOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'All sources' },
+    ...this.sites().map(s => ({ value: s.key, label: s.name || s.key })),
+  ]);
 
   readonly filters = computed<RealEstateFilters>(() => {
     const value = this.formValue();

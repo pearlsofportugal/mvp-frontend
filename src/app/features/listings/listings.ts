@@ -10,7 +10,7 @@ import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 
 import { ListingsFiltersComponent } from './components/listings-filters/listings-filters';
-import { ListingsTableComponent } from './components/listings-table/listings-table';
+import { ListingsTableComponent, SortField } from './components/listings-table/listings-table';
 import { ListingDetailComponent } from './components/listing-detail/listing-detail';
 import { ListingEditComponent } from './components/listing-edit/listing-edit';
 import { RealEstateService } from '../../core/services/listings.service';
@@ -42,7 +42,7 @@ export class ListingsComponent {
   protected readonly confirmingDeleteListingId = signal<string | null>(null);
   protected readonly editingListingId = signal<string | null>(null);
   protected readonly userFilters = signal<RealEstateFilters>({ page: 1, page_size: 20 });
-  protected readonly sortField = signal<string | null>(null);
+  protected readonly sortField = signal<SortField | null>(null);
   protected readonly sortOrder = signal<'asc' | 'desc'>('asc');
 
   // Effective filters = user filters + sort
@@ -94,7 +94,7 @@ export class ListingsComponent {
     this.userFilters.set({ ...filters, page: 1, page_size: 20 });
   }
 
-  onSort(field: string, order: 'asc' | 'desc'): void {
+  onSort(field: SortField, order: 'asc' | 'desc'): void {
     this.sortField.set(field);
     this.sortOrder.set(order);
     this.userFilters.update((f) => ({ ...f, page: 1 }));

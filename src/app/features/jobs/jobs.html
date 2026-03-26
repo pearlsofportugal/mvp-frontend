@@ -1,29 +1,49 @@
-<div class="card">
-	<h2>Launch Scrape Job</h2>
-	<app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
-</div>
+﻿<div class="jobs-page">
 
-<div class="card mt">
-	<div class="flex-between">
-		<h2>Recent Jobs</h2>
-		<button class="btn btn-outline btn-sm" (click)="onJobCreated()">
-			Refresh
-		</button>
-	</div>
+  <header class="jobs-header">
+    <div>
+      <h1 class="jobs-title">Scrape Jobs</h1>
+      <p class="jobs-subtitle">Launch and monitor real estate data scraping jobs</p>
+    </div>
+    <button class="btn btn-ghost btn-sm" type="button" (click)="onJobCreated()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+      </svg>
+      Refresh
+    </button>
+  </header>
 
-	@if (loading()) {
-	<p class="mt">Loading...</p>
-	} @else {
-	<app-jobs-list class="mt" [jobs]="jobs()" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
-		(delete)="onDeleteJob($event)" />
-	}
-</div>
+  <div class="jobs-layout">
 
-@if (selectedJob()) {
-<div class="card mt">
-	<app-job-detail [job]="selectedJob()!" (close)="onCloseDetail()" />
+    <aside class="card jobs-form-panel" aria-label="New job form">
+      <h2>New Job</h2>
+      <app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
+    </aside>
+
+    <main class="jobs-main">
+      @if (loading()) {
+        <div class="jobs-loading">
+          <span class="jobs-spinner" aria-hidden="true"></span>
+          Loading jobs&hellip;
+        </div>
+      } @else {
+        <app-jobs-list
+          [jobs]="jobs()"
+          (view)="onViewJob($event)"
+          (cancel)="onCancelJob($event)"
+          (delete)="onDeleteJob($event)"
+        />
+      }
+      @if (selectedJob()) {
+        <app-job-detail [job]="selectedJob()!" (close)="onCloseDetail()" />
+      }
+    </main>
+
+  </div>
+
 </div>
-}
 
 @if (confirmingCancelJobId()) {
   <app-confirm-dialog

@@ -1,38 +1,82 @@
 <div class="filter-bar" [formGroup]="filterForm">
 
-  <div class="filter-group">
-    <select class="filter-select" formControlName="source_partner">
-      <option value="">All sources</option>
-      @for (site of sites(); track site.key) {
-        <option [value]="site.key">{{ site.name || site.key }}</option>
-      }
-    </select>
+  <!-- Source -->
+  <div class="filter-field">
+    <svg class="field-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2" y="3" width="20" height="14" rx="2"/>
+      <path d="M8 21h8M12 17v4"/>
+    </svg>
+    <app-select-dropdown
+      class="field-select"
+      formControlName="source_partner"
+      placeholder="All sources"
+      [options]="sourceOptions()"
+    />
   </div>
 
-  <div class="filter-group">
-    <input class="filter-input" formControlName="property_type" placeholder="Type…" />
+  <span class="filter-sep" aria-hidden="true"></span>
+
+  <!-- Type -->
+  <div class="filter-field">
+    <svg class="field-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    <input class="field-input" formControlName="property_type" placeholder="Type…" />
   </div>
 
-  <div class="filter-group">
-    <input class="filter-input" formControlName="district" placeholder="District…" />
+  <!-- District -->
+  <div class="filter-field">
+    <svg class="field-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+    <input class="field-input" formControlName="district" placeholder="District…" />
   </div>
 
-  <div class="filter-group">
-    <input class="filter-input" formControlName="county" placeholder="County…" />
+  <!-- County -->
+  <div class="filter-field">
+    <svg class="field-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+    <input class="field-input" formControlName="county" placeholder="County…" />
   </div>
 
-  <div class="filter-group filter-group--range">
-    <input class="filter-input filter-input--short" formControlName="price_min" type="number" placeholder="Min €" />
+  <span class="filter-sep" aria-hidden="true"></span>
+
+  <!-- Price range -->
+  <div class="filter-range">
+    <div class="filter-field filter-field--short">
+      <span class="field-prefix">€</span>
+      <input class="field-input field-input--prefix" formControlName="price_min" type="number" placeholder="Min" />
+    </div>
     <span class="filter-range-sep">–</span>
-    <input class="filter-input filter-input--short" formControlName="price_max" type="number" placeholder="Max €" />
+    <div class="filter-field filter-field--short">
+      <input class="field-input" formControlName="price_max" type="number" placeholder="Max" />
+    </div>
   </div>
 
-  <div class="filter-group">
-    <input class="filter-input filter-input--short" formControlName="bedrooms" type="number" placeholder="Beds" />
+  <!-- Beds -->
+  <div class="filter-field filter-field--short">
+    <svg class="field-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+      <path d="M16 3.13a4 4 0 010 7.75"/>
+    </svg>
+    <input class="field-input" formControlName="bedrooms" type="number" placeholder="Beds" />
   </div>
 
+  <span class="filter-sep filter-sep--push" aria-hidden="true"></span>
+
+  <!-- Actions -->
   <div class="filter-actions">
-    <button class="btn btn-primary btn-sm" type="button" (click)="onSearch()">Search</button>
+    <button class="btn btn-primary btn-sm" type="button" (click)="onSearch()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      Search
+    </button>
     <button class="btn btn-ghost btn-sm" type="button" (click)="onClearFilters()">Clear</button>
   </div>
 

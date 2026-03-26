@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import {
   Subject,
+  merge,
   of,
   debounceTime,
   distinctUntilChanged,
@@ -60,7 +61,10 @@ export class ListingSelectorComponent {
 
   // ── Search ────────────────────────────────────────────────────
   protected readonly searchQuery = signal('');
-  private readonly search$ = new Subject<string>();
+  // Text input changes: debounced
+  private readonly textSearch$ = new Subject<{ query: string; filter: FilterOption }>();
+  // Filter/clear/open changes: immediate (no debounce)
+  private readonly filterChange$ = new Subject<{ query: string; filter: FilterOption }>();
   protected readonly isSearching = signal(false);
   protected readonly searchResults = signal<ListingSearchItem[]>([]);
 
@@ -68,15 +72,14 @@ export class ListingSelectorComponent {
   private readonly currentPage = signal(1);
   protected readonly isLoadingMore = signal(false);
   protected readonly hasMore = signal(false);
-  // Active query for load-more requests (empty string = initial browse)
   private activeQuery = '';
-
-  // ── Initial load flag ─────────────────────────────────────────
-  private initialLoaded = false;
 
   // ── Filters & sort ────────────────────────────────────────────
   protected readonly activeFilter = signal<FilterOption>('all');
   protected readonly activeSort = signal<SortOption>('title');
+
+  // ── Known source partners (accumulated across fetches) ────────
+  private readonly knownSources = signal<string[]>([]);
 
   // ── Source pills — capped, expandable ────────────────────────
   private readonly MAX_VISIBLE_SOURCES = 4;
@@ -91,15 +94,10 @@ export class ListingSelectorComponent {
   // ── Confirmed listing (shown on trigger button) ───────────────
   protected readonly confirmedListing = signal<ListingSearchItem | null>(null);
 
-  // ── Filtered + sorted list ────────────────────────────────────
+  // ── Sort only — filtering is handled server-side ──────────────
   protected readonly displayList = computed(() => {
-    let list = [...this.searchResults()];
-    const filter = this.activeFilter();
+    const list = [...this.searchResults()];
     const sort = this.activeSort();
-
-    if (filter === 'enriched') list = list.filter((l) => l.is_enriched === true);
-    else if (filter === 'not_enriched') list = list.filter((l) => !l.is_enriched);
-    else if (filter !== 'all') list = list.filter((l) => l.source_partner === filter);
 
     if (sort === 'price_asc')
       list.sort((a, b) => (Number(a.price_amount) || 0) - (Number(b.price_amount) || 0));
@@ -112,12 +110,7 @@ export class ListingSelectorComponent {
 
   protected readonly resultCount = computed(() => this.displayList().length);
 
-  protected readonly allSourcePills = computed(() => {
-    const sources = new Set(
-      this.searchResults().map((l) => l.source_partner).filter(Boolean),
-    );
-    return Array.from(sources) as string[];
-  });
+  protected readonly allSourcePills = computed(() => this.knownSources());
 
   protected readonly visibleSourcePills = computed(() => {
     const all = this.allSourcePills();
@@ -128,6 +121,22 @@ export class ListingSelectorComponent {
     const total = this.allSourcePills().length;
     return total > this.MAX_VISIBLE_SOURCES ? total - this.MAX_VISIBLE_SOURCES : 0;
   });
+
+  // ── Filter → API params ───────────────────────────────────────
+  private filterToParams(filter: FilterOption): { is_enriched?: boolean; source_partner?: string } {
+    if (filter === 'enriched') return { is_enriched: true };
+    if (filter === 'not_enriched') return { is_enriched: false };
+    if (filter !== 'all') return { source_partner: filter };
+    return {};
+  }
+
+  // ── Accumulate source pills from any result set ───────────────
+  private accumulateSources(items: ListingSearchItem[]): void {
+    const newSources = items.map((l) => l.source_partner).filter(Boolean) as string[];
+    if (newSources.length > 0) {
+      this.knownSources.update((existing) => [...new Set([...existing, ...newSources])]);
+    }
+  }
 
   // ── Helpers ───────────────────────────────────────────────────
   protected formatPrice(
@@ -156,38 +165,16 @@ export class ListingSelectorComponent {
     return (title ?? '?').trim().charAt(0).toUpperCase();
   }
 
-  // ── Initial load ──────────────────────────────────────────────
-  private loadInitial(): void {
-    if (this.initialLoaded) return;
-
-    this.isSearching.set(true);
-    this.activeQuery = '';
-    this.currentPage.set(1);
-
-    this.realEstateService
-      .searchForSelector('', { page: 1, page_size: PAGE_SIZE })
-      .pipe(
-        catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((data) => {
-        const items = data.items ?? [];
-        this.searchResults.set(items);
-        this.hasMore.set(items.length === PAGE_SIZE);
-        this.isSearching.set(false);
-        this.initialLoaded = true;
-      });
-  }
-
   // ── Load more ─────────────────────────────────────────────────
   protected loadMore(): void {
     if (this.isLoadingMore() || !this.hasMore()) return;
 
     const nextPage = this.currentPage() + 1;
     this.isLoadingMore.set(true);
+    const params = this.filterToParams(this.activeFilter());
 
     this.realEstateService
-      .searchForSelector(this.activeQuery, { page: nextPage, page_size: PAGE_SIZE })
+      .searchForSelector(this.activeQuery, { page: nextPage, page_size: PAGE_SIZE, ...params })
       .pipe(
         catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })),
         takeUntilDestroyed(this.destroyRef),
@@ -198,43 +185,42 @@ export class ListingSelectorComponent {
         this.hasMore.set(newItems.length === PAGE_SIZE);
         this.currentPage.set(nextPage);
         this.isLoadingMore.set(false);
+        this.accumulateSources(newItems);
       });
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────
   constructor() {
-    this.search$
-      .pipe(
+    // Text search is debounced; filter/clear/open are immediate.
+    // Both share the same switchMap so an in-flight request is cancelled
+    // whenever either stream emits.
+    merge(
+      this.textSearch$.pipe(
         debounceTime(280),
-        distinctUntilChanged(),
-        switchMap((query) => {
-          if (query.trim().length < 2) {
-            this.initialLoaded = false;
-            this.isSearching.set(false);
-            return of(null);
-          }
-
+        distinctUntilChanged((a, b) => a.query === b.query && a.filter === b.filter),
+      ),
+      this.filterChange$,
+    )
+      .pipe(
+        switchMap(({ query, filter }) => {
+          // Treat 1-char as empty: browse with filter instead of free-text search
+          const effectiveQuery = query.trim().length >= 2 ? query.trim() : '';
           this.isSearching.set(true);
-          this.activeQuery = query;
+          this.activeQuery = effectiveQuery;
           this.currentPage.set(1);
-
+          const params = this.filterToParams(filter);
           return this.realEstateService
-            .searchForSelector(query, { page: 1, page_size: PAGE_SIZE })
-            .pipe(
-              catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })),
-            );
+            .searchForSelector(effectiveQuery, { page: 1, page_size: PAGE_SIZE, ...params })
+            .pipe(catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })));
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((data) => {
-        if (data === null) {
-          this.loadInitial();
-          return;
-        }
         const items = data.items ?? [];
         this.searchResults.set(items);
         this.hasMore.set(items.length === PAGE_SIZE);
         this.isSearching.set(false);
+        this.accumulateSources(items);
       });
 
     effect(() => {
@@ -256,7 +242,9 @@ export class ListingSelectorComponent {
     if (this.multiMode()) {
       this.selectedItemIds.set([]);
     }
-    this.loadInitial();
+    // Reset text and trigger an immediate browse with current filter
+    this.searchQuery.set('');
+    this.filterChange$.next({ query: '', filter: this.activeFilter() });
   }
 
   protected close(): void {
@@ -283,12 +271,12 @@ export class ListingSelectorComponent {
   // ── Interactions ──────────────────────────────────────────────
   protected onSearch(query: string): void {
     this.searchQuery.set(query);
-    this.search$.next(query);
+    this.textSearch$.next({ query, filter: this.activeFilter() });
   }
 
   protected clearSearch(): void {
     this.searchQuery.set('');
-    this.search$.next('');
+    this.filterChange$.next({ query: '', filter: this.activeFilter() });
   }
 
   protected selectPending(listing: ListingSearchItem): void {
@@ -307,6 +295,8 @@ export class ListingSelectorComponent {
 
   protected setFilter(filter: FilterOption): void {
     this.activeFilter.set(filter);
+    // Immediate API call — no debounce — with current query + new filter
+    this.filterChange$.next({ query: this.searchQuery(), filter });
   }
 
   protected setSort(sort: SortOption): void {
