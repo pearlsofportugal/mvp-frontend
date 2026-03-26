@@ -35,7 +35,7 @@ export class ExportFormComponent {
   price_max: new FormControl('', { nonNullable: true }),
 });
 
-  protected readonly previewCount = toSignal(
+  readonly previewCount = toSignal(
     this.form.valueChanges.pipe(
       startWith(this.form.value),
       debounceTime(400),

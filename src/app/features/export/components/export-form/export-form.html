@@ -2,87 +2,32 @@
   <div class="form-grid">
     <div class="form-group">
       <label for="district">District</label>
-      <input
-        type="text"
-        id="district"
-        formControlName="district"
-        placeholder="Lisbon"
-      />
+      <input type="text" id="district" formControlName="district" placeholder="e.g. Lisboa" />
     </div>
 
     <div class="form-group">
       <label for="county">County</label>
-      <input type="text" id="county" formControlName="county" placeholder="" />
+      <input type="text" id="county" formControlName="county" placeholder="e.g. Cascais" />
     </div>
 
     <div class="form-group">
       <label for="property_type">Property Type</label>
-      <input
-        type="text"
-        id="property_type"
-        formControlName="property_type"
-        placeholder="apartment"
-      />
+      <input type="text" id="property_type" formControlName="property_type" placeholder="e.g. apartment" />
     </div>
 
     <div class="form-group">
       <label for="source_partner">Source Partner</label>
-      <input
-        type="text"
-        id="source_partner"
-        formControlName="source_partner"
-        placeholder="pearls"
-      />
+      <input type="text" id="source_partner" formControlName="source_partner" placeholder="e.g. pearls" />
     </div>
 
     <div class="form-group">
       <label for="price_min">Min. Price</label>
-      <input
-        type="number"
-        id="price_min"
-        formControlName="price_min"
-        placeholder="0"
-      />
+      <input type="number" id="price_min" formControlName="price_min" placeholder="0" />
     </div>
 
     <div class="form-group">
       <label for="price_max">Max. Price</label>
-      <input
-        type="number"
-        id="price_max"
-        formControlName="price_max"
-        placeholder="500000"
-      />
+      <input type="number" id="price_max" formControlName="price_max" placeholder="500 000" />
     </div>
-  </div>
-
-  @if (previewCount(); as r) {
-    <p class="export-preview-count">
-      <strong>{{ r.meta?.total ?? 0 }}</strong> listing{{ (r.meta?.total ?? 0) !== 1 ? 's' : '' }} correspondem aos filtros
-    </p>
-  }
-
-  <div class="btn-group">
-    <button
-      type="button"
-      class="btn btn-primary"
-      (click)="exportData('csv')"
-    >
-      CSV
-    </button>
-    <button
-      type="button"
-      class="btn btn-primary"
-      (click)="exportData('json')"
-    >
-      JSON
-    </button>
-    <button
-      type="button"
-      class="btn btn-success"
-      (click)="exportData('excel')"
-    >
-      Excel
-    </button>
   </div>
 </form>
