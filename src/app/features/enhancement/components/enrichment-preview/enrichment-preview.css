@@ -25,14 +25,14 @@
   gap: 0.45rem;
   padding: 0.5rem 1.1rem;
   background: transparent;
-  border: 1px solid var(--border-hi);
-  border-radius: 0.375rem;
-  color: var(--text-mid);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
   font-size: 0.8rem;
   font-family: inherit;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
 }
 
 .btn-refresh:hover:not(:disabled) {
@@ -49,8 +49,8 @@
 .refresh-spinner {
   width: 0.75rem;
   height: 0.75rem;
-  border: 1.5px solid var(--border-hi);
-  border-top-color: var(--text-mid);
+  border: 1.5px solid var(--border-light);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
@@ -100,7 +100,7 @@
   height: 2px;
   border-radius: 9999px;
   overflow: hidden;
-  background: var(--border-hi, #2d3748);
+  background: var(--border-light);
 }
 
 .preview-loading-bar {
@@ -148,7 +148,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border);
 }
@@ -165,7 +165,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
+  padding: 0.45rem 0.75rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface2);
 }

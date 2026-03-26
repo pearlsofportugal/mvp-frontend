@@ -1,22 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 
 import { EnrichmentFormComponent } from './components/enrichment-form/enrichment-form';
-import { EnrichmentResultComponent } from './components/enrichment-result/enrichment-result';
-import { EnrichmentPreviewComponent } from './components/enrichment-preview/enrichment-preview';
 import { EnrichmentStatsComponent } from './components/enrichment-stats/enrichment-stats';
 import { EnrichmentService } from '../../core/services/enrichment.service';
 import { EnrichmentResult, EnrichmentStats } from '../../core/models/enrichment.model';
+import type { AIListingEnrichmentResponse } from '../../core/api/model';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-enrichment',
   imports: [
     EnrichmentFormComponent,
-    EnrichmentResultComponent,
-    EnrichmentPreviewComponent,
     EnrichmentStatsComponent,
-    DecimalPipe
+    DecimalPipe,
   ],
   templateUrl: './enhancement.html',
   styleUrl: './enhancement.css',
@@ -24,10 +22,14 @@ import { DecimalPipe } from '@angular/common';
 })
 export class EnhancementComponent {
   private readonly enrichmentService = inject(EnrichmentService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly statsRefreshTick = signal(0);
 
   protected readonly result = signal<EnrichmentResult | null>(null);
   protected readonly selectedListingId = signal<string | null>(null);
+  protected readonly directResult = signal<AIListingEnrichmentResponse | null>(null);
+  protected readonly editedValues = signal<Partial<Record<string, string>>>({});
+  protected readonly applyingResult = signal(false);
 
   readonly statsResource = rxResource<EnrichmentStats, number>({
     params: () => this.statsRefreshTick(),
@@ -41,12 +43,23 @@ export class EnhancementComponent {
     if (!err) return null;
     return err instanceof Error ? err.message : 'Erro ao carregar estatísticas';
   });
+  protected readonly changedCount = computed(
+    () => this.directResult()?.results?.filter((item) => item.changed).length ?? 0,
+  );
+  protected readonly unchangedCount = computed(
+    () => this.directResult()?.results?.filter((item) => !item.changed).length ?? 0,
+  );
+  protected readonly hasDirectResults = computed(
+    () => (this.directResult()?.results?.length ?? 0) > 0,
+  );
+
   readonly viewState = computed(() => {
     if (this.loading()) return 'loading';
     if (this.error()) return 'error';
     if (this.stats()) return 'data';
     return 'empty';
   });
+
   onEnrichmentSuccess(res: EnrichmentResult): void {
     this.result.set(res);
     this.reloadStats();
@@ -54,6 +67,43 @@ export class EnhancementComponent {
 
   onListingSelected(listingId: string): void {
     this.selectedListingId.set(listingId);
+  }
+
+  onGenerated(res: AIListingEnrichmentResponse | null): void {
+    this.directResult.set(res);
+    if (res) {
+      const edited: Partial<Record<string, string>> = {};
+      for (const r of res.results ?? []) {
+        if (r.changed && r.enriched != null) edited[r.field] = r.enriched;
+      }
+      this.editedValues.set(edited);
+    } else {
+      this.editedValues.set({});
+    }
+  }
+
+  onEditField(field: string, value: string): void {
+    this.editedValues.update((v) => ({ ...v, [field]: value }));
+  }
+
+  onApplyResult(): void {
+    if (this.applyingResult()) return;
+    const listingId = this.selectedListingId();
+    if (!listingId) return;
+
+    this.applyingResult.set(true);
+    const enrichedValues = Object.fromEntries(
+      Object.entries(this.editedValues()).filter((e): e is [string, string] => e[1] != null),
+    );
+    this.enrichmentService
+      .applyListingEnrichment(listingId, enrichedValues)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingResult.set(false)),
+      )
+      .subscribe({
+        next: (response) => this.directResult.set(response),
+      });
   }
 
   protected reloadStats(): void {

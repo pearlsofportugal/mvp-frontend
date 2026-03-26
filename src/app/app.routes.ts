@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-
+// const projectName = "Pearl Collector"
+const projectName = "MVP Scraper"
 export interface NavRoute {
   path: string;
   label: string;
@@ -21,25 +22,25 @@ export const routes: Routes = [
   },
   {
     path: 'sites',
-    title: 'Sites — MVP Scraper',
+    title: `Sites — ${projectName}`,
     loadComponent: () =>
       import('./features/sites/sites').then((m) => m.SitesComponent),
   },
   {
     path: 'jobs',
-    title: 'Jobs — MVP Scraper',
+    title: `Jobs — ${projectName}`,
     loadComponent: () =>
       import('./features/jobs/jobs').then((m) => m.JobsComponent),
   },
   {
     path: 'real-estate',
-    title: 'Real Estate — MVP Scraper',
+    title: `Real Estate — ${projectName}`,
     loadComponent: () =>
       import('./features/listings/listings').then((m) => m.ListingsComponent),
   },
   {
     path: 'enhancement',
-    title: 'Enhancement — MVP Scraper',
+    title: `Enhancement — ${projectName}`,
     loadComponent: () =>
       import('./features/enhancement/enhancement').then(
         (m) => m.EnhancementComponent
@@ -47,7 +48,7 @@ export const routes: Routes = [
   },
   {
     path: 'export',
-    title: 'Export — MVP Scraper',
+    title: `Export — ${projectName}`,
     loadComponent: () =>
       import('./features/export/export').then((m) => m.ExportComponent),
   },

@@ -1,58 +1,140 @@
-<div class="enrichment-page">
-  <div class="card card-generator">
-    <div class="generator-header">
-      <div class="generator-title-block">
-        <span class="generator-eyebrow">AI Content Generator</span>
-        <h2 class="generator-title">Enhance your property listing</h2>
-        <p class="generator-desc">Select a property, choose what to improve, and let AI generate optimised content for
-          SEO and readability.</p>
-      </div>
-      @if (result(); as r) {
-      <div class="last-run-badge">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-        Last run: {{ r.total_enriched }} changed · {{ r.duration_seconds | number:'1.1-1' }}s
-      </div>
-      }
+<div class="enhancement-page">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 class="page-title">AI Enhancement</h1>
+      <p class="page-subtitle">Enrich property listings with AI-generated, SEO-optimised content</p>
     </div>
-    <app-enrichment-form (success)="onEnrichmentSuccess($event)" (listingSelected)="onListingSelected($event)" />
-  </div>
+  </header>
 
-  @if (result(); as r) {
-  <div class="card card-result">
-    <div class="result-header">
-      <h2 class="section-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-        </svg>
-        Generation result
-      </h2>
-      <app-enrichment-result [result]="r" />
-    </div>
-  </div>
-  }
+  <div class="enhancement-layout">
 
-  <div class="secondary-grid">
+    <!-- LEFT: sticky form panel -->
+    <aside class="card form-panel">
+      <div class="form-panel-head">
+        <span class="panel-eyebrow">AI Content Generator</span>
+        <h2 class="panel-title">Enhance property</h2>
+        <p class="panel-desc">Select a property, choose what to improve, and let AI generate optimised content for SEO
+          and readability.</p>
+        @if (result(); as r) {
+        <div class="last-run-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Last run: {{ r.total_enriched }} changed · {{ r.duration_seconds | number:'1.1-1' }}s
+        </div>
+        }
+      </div>
+      <app-enrichment-form (success)="onEnrichmentSuccess($event)" (listingSelected)="onListingSelected($event)"
+        (generated)="onGenerated($event)" />
+    </aside>
 
-    <div class="card card-preview">
-      <div class="card-head">
-        <h2 class="section-title">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <!-- RIGHT: main content -->
+    <main class="main-panel">
+
+
+      <div class="card preview-card">
+        @if (!hasDirectResults()) {
+        <div class="section-head">
+          <h2 class="section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            Content preview
+          </h2>
+          <p class="section-desc">Generate content with AI to see a side-by-side comparison here.</p>
+        </div>
+        <div class="preview-empty">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
-          Content preview
-        </h2>
-        <p class="card-desc">Compare original and AI-suggested text before applying.</p>
-      </div>
-      <app-enrichment-preview [listingId]="selectedListingId()" />
-    </div>
+          <p>Use <strong>Generate with AI</strong> on the left<br>to see content changes here.</p>
+        </div>
+        } @else {
+        <div class="section-head section-head--row">
+          <h2 class="section-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            Generated content
+          </h2>
+          <div class="diff-badges">
+            <span class="diff-badge diff-badge--changed">{{ changedCount() }} changed</span>
+            @if (unchangedCount() > 0) {
+            <span class="diff-badge diff-badge--same">{{ unchangedCount() }} same</span>
+            }
+            <span class="diff-badge diff-badge--model">{{ directResult()!.model_used }}</span>
+            <span class="diff-badge" [class.diff-badge--applied]="directResult()!.applied"
+              [class.diff-badge--preview]="!directResult()!.applied">
+              {{ directResult()!.applied ? 'Applied' : 'Preview only' }}
+            </span>
+          </div>
+        </div>
 
-    <div class="card card-stats">
-      <div class="card-head">
-        <div class="card-head-row">
+        @for (item of directResult()!.results; track item.field) {
+        <div class="diff-field" [class.diff-field--changed]="item.changed">
+          <div class="diff-field-label">
+            <span class="diff-field-name">{{ item.field }}</span>
+            @if (item.changed) {
+            <span class="diff-field-status diff-field-status--changed">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Changed
+            </span>
+            } @else {
+            <span class="diff-field-status diff-field-status--same">Unchanged</span>
+            }
+          </div>
+          <div class="diff-columns">
+            <div class="diff-col diff-col--before">
+              <span class="diff-col-label">Before</span>
+              <p class="diff-col-text">{{ item.original || '—' }}</p>
+            </div>
+            <div class="diff-col diff-col--after">
+              <span class="diff-col-label">After</span>
+              @if (directResult()!.applied || !item.changed) {
+              <p class="diff-col-text">{{ (editedValues()[item.field] ?? item.enriched) || '—' }}</p>
+              } @else {
+              <textarea class="diff-col-edit"
+                [value]="editedValues()[item.field] ?? (item.enriched ?? '')"
+                (input)="onEditField(item.field, $any($event.target).value)"
+                [attr.aria-label]="'Edit ' + item.field"></textarea>
+              }
+            </div>
+          </div>
+        </div>
+        }
+
+        <div class="diff-result-footer">
+          @if (directResult()!.applied) {
+          <span class="diff-applied-label">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Applied
+          </span>
+          } @else if (changedCount() > 0) {
+          <button type="button" class="btn btn-success btn-sm" [disabled]="applyingResult()"
+            (click)="onApplyResult()">
+            @if (applyingResult()) {
+            <span class="diff-apply-spinner"></span>
+            Applying...
+            } @else {
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Apply changes
+            }
+          </button>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="card stats-card">
+        <div class="section-head section-head--row">
           <h2 class="section-title">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="20" x2="18" y2="10" />
@@ -63,32 +145,32 @@
           </h2>
           <button class="btn-icon" type="button" (click)="reloadStats()" [disabled]="loading()"
             [class.spinning]="loading()" aria-label="Refresh stats">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="23 4 23 10 17 10" />
               <polyline points="1 20 1 14 7 14" />
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
             </svg>
           </button>
         </div>
+        @switch (viewState()) {
+        @case ('loading') {
+        <div class="stats-loading">
+          <div class="stats-spinner"></div>
+          <span>Loading overview...</span>
+        </div>
+        }
+        @case ('error') {
+        <p class="error-msg">{{ error() }}</p>
+        }
+        @case ('data') {
+        <app-enrichment-stats [stats]="stats()!" />
+        }
+        @default {
+        <p class="empty-state">No overview data yet.</p>
+        }
+        }
       </div>
-      @switch (viewState()) {
-      @case ('loading') {
-      <div class="stats-loading">
-        <div class="stats-spinner"></div>
-        <span>Loading overview...</span>
-      </div>
-      }
-      @case ('error') {
-      <p class="error-message">{{ error() }}</p>
-      }
-      @case ('data') {
-      <app-enrichment-stats [stats]="stats()!" />
-      }
-      @default {
-      <p class="empty-state">No overview data yet.</p>
-      }
-      }
-    </div>
 
+    </main>
   </div>
 </div>
