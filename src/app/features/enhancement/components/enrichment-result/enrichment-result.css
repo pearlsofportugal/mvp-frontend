@@ -1,14 +1,14 @@
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
 }
 
 .stat-card {
-  background: var(--bg);
+  background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 1rem;
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
   text-align: center;
 }
 
@@ -16,6 +16,8 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--accent);
+  font-family: var(--font-mono, monospace);
+  line-height: 1.1;
 }
 
 .stat-card .value.success {
@@ -27,8 +29,15 @@
 }
 
 .stat-card .label {
-  font-size: 0.7rem;
+  font-size: 0.63rem;
   color: var(--text-dim);
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
   text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

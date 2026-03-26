@@ -24,7 +24,7 @@ import { RealEstateService } from '../../../../core/services/listings.service';
 import { of, finalize, timer, Subject, takeUntil } from 'rxjs';
 import { ListingSelectorComponent } from '../../../listings/components/listing-selector/listing-selector';
 import { DecimalPipe } from '@angular/common';
-import { AutoResizeTextareaDirective } from '../../../../shared/directives/auto-resize-textarea.directive';
+
 
 type EnrichmentFormGroup = FormGroup<{
   target_title: FormControl<boolean>;
@@ -35,8 +35,7 @@ type EnrichmentFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-enrichment-form',
-  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe, AutoResizeTextareaDirective
-  ],
+  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe],
   templateUrl: './enrichment-form.html',
   styleUrl: './enrichment-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +56,7 @@ export class EnrichmentFormComponent {
 
   readonly success = output<EnrichmentResult>();
   readonly listingSelected = output<string>();
+  readonly generated = output<AIListingEnrichmentResponse | null>();
 
   protected readonly form: EnrichmentFormGroup = new FormGroup({
     target_title: new FormControl(false, { nonNullable: true }),
@@ -67,8 +67,6 @@ export class EnrichmentFormComponent {
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly applyingResult = signal(false);
-  protected readonly editedValues = signal<Partial<Record<string, string>>>({});
   protected readonly selectedListings = signal<ListingSearchItem[]>([]);
   protected readonly selectedListingId = computed(() => this.selectedListings()[0]?.id ?? null);
   protected readonly batchProgress = signal<{ done: number; total: number } | null>(null);
@@ -79,7 +77,7 @@ export class EnrichmentFormComponent {
   protected onListingsConfirmed(listings: ListingSearchItem[]): void {
     this.selectedListings.set(listings);
     this.directResult.set(null);
-    this.editedValues.set({});
+    this.generated.emit(null);
     this.error.set(null);
     this.batchProgress.set(null);
     if (listings.length > 0) {
@@ -96,15 +94,6 @@ export class EnrichmentFormComponent {
   protected readonly loadingListing = computed(() => this.listingResource.isLoading());
   protected readonly selectedCount = computed(() => this.selectedListings().length);
 
-  protected readonly changedCount = computed(
-    () => this.directResult()?.results?.filter((item) => item.changed).length ?? 0,
-  );
-  protected readonly unchangedCount = computed(
-    () => this.directResult()?.results?.filter((item) => !item.changed).length ?? 0,
-  );
-  protected readonly hasDirectResults = computed(
-    () => (this.directResult()?.results?.length ?? 0) > 0,
-  );
   protected readonly generationStatus = computed(() => {
     const index = this.generationStepIndex();
     return this.aiProgressMessages[index] ?? this.aiProgressMessages[0];
@@ -118,7 +107,7 @@ export class EnrichmentFormComponent {
 
     this.error.set(null);
     this.directResult.set(null);
-    this.editedValues.set({});
+    this.generated.emit(null);
     this.batchProgress.set(null);
 
     const value = this.form.getRawValue();
@@ -162,13 +151,8 @@ export class EnrichmentFormComponent {
         .subscribe({
           next: (response) => {
             this.directResult.set(response);
+            this.generated.emit(response);
             this.batchProgress.set({ done: 1, total: 1 });
-            // Pre-populate edited values with AI output so the user can tweak before applying
-            const edited: Record<string, string> = {};
-            for (const r of response.results ?? []) {
-              if (r.changed && r.enriched != null) edited[r.field] = r.enriched;
-            }
-            this.editedValues.set(edited);
             const changedCount = (response.results ?? []).filter((r) => r.changed).length;
             const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
             this.success.emit({
@@ -206,31 +190,6 @@ export class EnrichmentFormComponent {
           error: (err: unknown) => this.error.set(extractErrorMessage(err)),
         });
     }
-  }
-
-  protected onEditField(field: string, value: string): void {
-    this.editedValues.update((v) => ({ ...v, [field]: value }));
-  }
-
-  protected onApplyResult(): void {
-    if (this.applyingResult()) return;
-    const listing = this.selectedListings()[0];
-    if (!listing) return;
-
-    this.applyingResult.set(true);
-    const enrichedValues = Object.fromEntries(
-      Object.entries(this.editedValues()).filter((e): e is [string, string] => e[1] != null),
-    );
-    this.enrichmentService
-      .applyListingEnrichment(listing.id, enrichedValues)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.applyingResult.set(false)),
-      )
-      .subscribe({
-        next: (response) => this.directResult.set(response),
-        error: (err: unknown) => this.error.set(extractErrorMessage(err)),
-      });
   }
 
   private startGenerationProgress(): void {
