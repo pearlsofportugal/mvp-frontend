@@ -104,6 +104,7 @@ export class ListingsTableComponent implements OnDestroy {
 
   onEdit(listing: ListingListRead): void {
     this.closeMenu();
+    console.log("teste")
     this.editRealEstate.emit(listing);
   }
 
