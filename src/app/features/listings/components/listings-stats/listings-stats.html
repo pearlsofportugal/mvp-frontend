@@ -1,8 +1,7 @@
 @if (isLoading()) {
-<div class="empty">
-  <div class="icon">⏳</div>
-  <p>Loading statistics...</p>
-</div>
+  <div class="empty">
+    <app-spinner size="sm" message="Loading statistics"></app-spinner>
+  </div>
 } @else if (stats()) {
 <div class="stats-grid">
   <div class="stat-card">
@@ -12,21 +11,21 @@
 
   @if (stats()!.avg_price) {
   <div class="stat-card">
-    <div class="value">{{ formatPrice(stats()!.avg_price) }}</div>
+    <div class="value">{{stats()!.avg_price | formatPrice }}</div>
     <div class="label">Average Price</div>
   </div>
   }
 
   @if (stats()!.min_price) {
   <div class="stat-card">
-    <div class="value">{{ formatPrice(stats()!.min_price) }}</div>
+    <div class="value">{{stats()!.min_price | formatPrice }}</div>
     <div class="label">Minimum Price</div>
   </div>
   }
 
   @if (stats()!.max_price) {
   <div class="stat-card">
-    <div class="value">{{ formatPrice(stats()!.max_price) }}</div>
+    <div class="value">{{stats()!.max_price | formatPrice }}</div>
     <div class="label">Maximum Price</div>
   </div>
   }

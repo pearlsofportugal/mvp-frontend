@@ -338,6 +338,30 @@ tbody tr:last-child td {
   color: var(--accent);
   animation: pulse-badge 2s infinite;
 }
+.export-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-dim);
+}
+
+.export-status--published {
+  background: var(--green-light);
+  color: var(--green);
+  border-color: var(--green-light);
+}
+
+.export-status--failed {
+  background: var(--red-light);
+  color: var(--red);
+  border-color: var(--red-light);
+}
 
 @keyframes pulse-badge {
 

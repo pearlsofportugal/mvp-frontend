@@ -22,6 +22,7 @@ export interface SiteConfigUpdate {
   pagination_param?: string | null;
   link_pattern?: string | null;
   image_filter?: string | null;
+  image_exclude_filter?: string | null;
   is_active?: boolean | null;
   /** Per-field confidence scores (0.0–1.0). */
   confidence_scores?: SiteConfigUpdateConfidenceScores;

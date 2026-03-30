@@ -24,6 +24,8 @@ import { SlicePipe } from '@angular/common';
 
 import { RealEstateService } from '../../../../core/services/listings.service';
 import type { ListingSearchItem } from '../../../../core/api/model';
+import { Spinner } from "../../../../shared/components/spinner/spinner";
+import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
 
 export type SortOption = 'title' | 'price_asc' | 'price_desc';
 export type FilterOption = 'all' | 'enriched' | 'not_enriched' | string;
@@ -32,7 +34,7 @@ const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-listing-selector',
-  imports: [SlicePipe],
+  imports: [SlicePipe, Spinner, FormatPricePipe],
   templateUrl: './listing-selector.html',
   styleUrl: './listing-selector.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -138,16 +140,6 @@ export class ListingSelectorComponent {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────
-  protected formatPrice(
-    amount: string | number | null | undefined,
-    currency: string | null | undefined,
-  ): string {
-    if (amount == null) return '—';
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (isNaN(num)) return '—';
-    return `${currency ?? '€'} ${num.toLocaleString('pt-PT')}`;
-  }
 
   protected shortId(id: string): string {
     return id.slice(0, 8) + '…';

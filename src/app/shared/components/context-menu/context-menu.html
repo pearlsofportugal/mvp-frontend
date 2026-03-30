@@ -1,0 +1,29 @@
+<div class="menu-wrap">
+  <button
+    class="kebab-btn"
+    [class.kebab-btn--open]="isOpen()"
+    type="button"
+    (click)="toggle($event)"
+    (blur)="closeDelayed()"
+    aria-haspopup="true"
+    [attr.aria-expanded]="isOpen()"
+  >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="5"  r="1.5"/>
+      <circle cx="12" cy="12" r="1.5"/>
+      <circle cx="12" cy="19" r="1.5"/>
+    </svg>
+  </button>
+
+  @if (isOpen()) {
+    <div
+      class="dropdown-menu"
+      role="menu"
+      [style.top.px]="menuPos().top"
+      [style.right.px]="menuPos().right"
+      (mouseenter)="cancelClose()"
+    >
+      <ng-content />
+    </div>
+  }
+</div>

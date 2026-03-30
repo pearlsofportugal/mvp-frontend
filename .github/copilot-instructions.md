@@ -532,6 +532,120 @@ protected readonly form = new FormGroup({
 - Classes comuns (`form-group`, `form-grid`, `btn`, `card`) em `src/styles/components.css`
 - Não usar Tailwind para estilos de componentes — usar CSS custom com variáveis do design system
 
+---
+
+## 10. Padrões Adicionais e Anti-padrões Identificados
+
+### `window` / `document` sem guard de plataforma — SSR crash
+
+Qualquer acesso directo a `window`, `document`, `localStorage` ou `window.addEventListener` fora de `isPlatformBrowser` causa crash no SSR.
+
+Componentes afectados actualmente: `SelectDropdownComponent.toggle()`, `ListingsTableComponent`, `JobsListComponent`.
+
+**Regra:** todo o acesso DOM/BOM deve ser encapsulado:
+```typescript
+if (isPlatformBrowser(this.platformId)) {
+  const rect = (this.el.nativeElement as HTMLElement).getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+}
+```
+
+---
+
+### `timer()` no `constructor` sem guard — polling desnecessário no servidor
+
+`HeaderComponent` usa `timer(0, 30_000)` directamente no `constructor` sem guard. Em SSR isso cria um timer que nunca é destruído no servidor.
+
+**Regra:** polling com `timer` deve usar toSignal com EMPTY fallback (padrão já existente em `jobs.ts`):
+```typescript
+private readonly pollTick = toSignal(
+  isPlatformBrowser(this.platformId) ? timer(0, 30_000) : EMPTY,
+  { initialValue: 0 },
+);
+```
+
+---
+
+### `ngOnInit` / `ngOnDestroy` — evitar quando possível
+
+- `ngOnInit` para inicializar formulários a partir de inputs: substituir por `effect()` que reage à mudança do input signal.
+- `ngOnDestroy` para cleanup de listeners: substituir por `this.destroyRef.onDestroy(() => ...)` no constructor.
+- Só usar `implements OnInit` / `implements OnDestroy` se não houver alternativa reativa.
+
+---
+
+### `as unknown as` — code smell de tipagem fraca
+
+O padrão `site as unknown as SiteConfigCreate` em `sites.ts` indica que um `SiteConfigRead` está a ser reutilizado onde se espera um `SiteConfigCreate`. Criar um helper de mapeamento tipado em vez de forçar o cast:
+```typescript
+// ❌ Má prática
+this.sitesService.create(site as unknown as SiteConfigCreate)
+
+// ✅ Boa prática
+const { id, created_at, updated_at, ...payload } = site;
+this.sitesService.create(payload)
+```
+
+---
+
+### `console.log` de debug — nunca deixar em produção
+
+Qualquer `console.log` de debug deve ser removido antes de commit. Actualmente existe um em `listings-table.ts`.
+
+---
+
+### `effect()` em services com `localStorage` — guard de plataforma obrigatório
+
+`ThemeService` usa `effect()` que acede a `localStorage` e `document`. O `isPlatformBrowser` está correcto neste caso — manter este padrão em todos os serviços que acedem ao DOM.
+
+---
+
+### Polling duplicado — `header.ts` e `jobs.ts`
+
+O `HeaderComponent` faz polling do health ao mesmo ritmo que `JobsComponent` faz polling dos jobs (30s). Quando ambos estão no ecrã, há 2 timers simultâneos. Considerar mover o health polling para um serviço com signal partilhado caso haja mais componentes a precisar do estado de saúde.
+
+---
+
+### Componentes reutilizáveis identificados para extracção futura
+
+| Padrão repetido | Ficheiros | Componente sugerido |
+|---|---|---|
+| Menu de contexto (3 pontos) com posicionamento absoluto + scroll listener | `ListingsTableComponent`, `JobsListComponent` | `ContextMenuComponent` em `shared/components/context-menu/` |
+| Avatar/initials colorido com hash | `ListingsTableComponent` | `AvatarComponent` em `shared/components/avatar/` |
+| Badge de estado (status pill) | `ListingsTableComponent`, `listing-detail.html`, `job-detail.html` | `StatusBadgeComponent` em `shared/components/status-badge/` |
+| Loading spinner inline | `listings.html`, `jobs.html`, `listing-detail.html` | `SpinnerComponent` em `shared/components/spinner/` |
+| Secção key-value (kv-grid/kv-row) | `listing-detail.html`, `job-detail.html` | Mover para `components.css` como classes globais (já existe parcialmente) |
+| Formato de preço/data | `ListingDetailComponent`, `ListingEditComponent` | `shared/pipes/format-price.pipe.ts`, `shared/pipes/format-date.pipe.ts` |
+| Paginação (prev/next + meta) | `listings.html` | `PaginationComponent` em `shared/components/pagination/` |
+
+---
+
+### `SelectDropdownComponent` — abertura inteligente (up/down)
+
+O componente detecta automaticamente o espaço disponível no viewport ao abrir e usa `.panel--up` quando necessário. Para isso usa `ElementRef` + `window.innerHeight`. Este padrão requer guard de plataforma se usado em contexto SSR-heavy.
+
+---
+
+### `FormControl` + `toSignal` para CVA bidireccional
+
+Quando um componente precisa de usar um CVA (`SelectDropdownComponent`) mas também precisa de reagir ao valor como signal (ex: para feedback visual, computed derivado):
+```typescript
+protected readonly storeControl = new FormControl<string>('', { nonNullable: true });
+private readonly storeValue = toSignal(this.storeControl.valueChanges, { initialValue: '' });
+protected readonly derivedSignal = computed(() => +this.storeValue() || null);
+```
+
+---
+
+### Segurança — API Key exposta no bundle
+
+A `apiKey: '123'` em `environment.prod.ts` é uma chave de placeholder mas está versionada. Para produção real:
+- Usar variáveis de ambiente no CI/CD e substituição em build time
+- NUNCA commitar chaves reais no repositório
+- O `apiKeyInterceptor` só envia a key a URLs do próprio backend — correcto
+
+---
+
 ### Regenerar tipos Orval
 
 ```bash

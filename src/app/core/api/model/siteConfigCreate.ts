@@ -30,8 +30,10 @@ export interface SiteConfigCreate {
   pagination_param?: string | null;
   /** Regex pattern to filter listing URLs on listing pages. */
   link_pattern?: string | null;
-  /** Regex pattern to filter image URLs (e.g. exclude thumbnails). */
+  /** Regex to require image URLs to match (include-only filter). */
   image_filter?: string | null;
+  /** Regex pattern — images whose URL matches are excluded (e.g. banners, logos). */
+  image_exclude_filter?: string | null;
   /** Whether this site config is enabled for scraping. */
   is_active?: boolean;
   /**

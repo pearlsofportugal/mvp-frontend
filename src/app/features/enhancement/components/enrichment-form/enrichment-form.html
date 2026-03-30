@@ -11,10 +11,8 @@
     <div class="listing-info-title">{{ selectedCount() }} properties selected for enrichment</div>
   </div>
   } @else if (loadingListing()) {
-  <div class="listing-info listing-info--loading">
-    <div class="listing-info-spinner"></div>
-    <span>Loading property...</span>
-  </div>
+    <app-spinner size="md" message="Loading property"></app-spinner>
+
   } @else if (selectedListing(); as listing) {
   <div class="listing-info" role="status" aria-live="polite">
     <div class="listing-info-title">{{ listing.title || '—' }}</div>

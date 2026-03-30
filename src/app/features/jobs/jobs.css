@@ -45,28 +45,6 @@
   min-width: 0;
 }
 
-/* ── Loading state ───────────────────────────── */
-.jobs-loading {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 2rem 1.5rem;
-  color: var(--text-dim);
-  font-size: 0.875rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-}
-
-.jobs-spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: jobs-spin 0.7s linear infinite;
-  flex-shrink: 0;
-}
 
 @keyframes jobs-spin {
   to { transform: rotate(360deg); }

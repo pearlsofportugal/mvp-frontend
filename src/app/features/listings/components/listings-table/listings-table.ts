@@ -11,6 +11,10 @@ import {
 } from '@angular/core';
 
 import type { ListingListRead } from '../../../../core/api/model';
+import { ContextMenu } from "../../../../shared/components/context-menu/context-menu";
+import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
+import { FormatDatePipe } from "../../../../shared/pipes/format-date-pipe";
+import { Avatar } from "../../../../shared/components/avatar/avatar";
 
 export type SortField = 'title' | 'price' | 'area' | 'bedrooms' | 'district' | 'created_at';
 
@@ -27,6 +31,7 @@ const avatarColorCache = new Map<string, string>();
   templateUrl: './listings-table.html',
   styleUrl: './listings-table.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ContextMenu, FormatPricePipe, FormatDatePipe, Avatar],
 })
 export class ListingsTableComponent implements OnDestroy {
   // ── Inputs ────────────────────────────────────────────────────────────────
@@ -104,7 +109,6 @@ export class ListingsTableComponent implements OnDestroy {
 
   onEdit(listing: ListingListRead): void {
     this.closeMenu();
-    console.log("teste")
     this.editRealEstate.emit(listing);
   }
 
@@ -113,38 +117,7 @@ export class ListingsTableComponent implements OnDestroy {
     this.deleteRealEstate.emit(id);
   }
 
-  // ── Menu kebab ────────────────────────────────────────────────────────────
-  toggleMenu(id: string, event: MouseEvent): void {
-    event.stopPropagation();
 
-    if (this.openMenuId() === id) {
-      this.closeMenu();
-      return;
-    }
-
-    const btn  = event.currentTarget as HTMLElement;
-    const rect = btn.getBoundingClientRect();
-
-    // Atualização atómica: id e posição num único set
-    this.menuState.set({
-      id,
-      top:   rect.bottom + 4,
-      right: window.innerWidth - rect.right,
-    });
-
-    this.removeScrollListener();
-    this.scrollListener = () => this.closeMenu();
-    window.addEventListener('scroll', this.scrollListener, { capture: true, passive: true });
-  }
-
-  closeMenuDelayed(): void {
-    // Corrigido: setTimeout guardado para poder ser cancelado no destroy
-    if (this.closeTimer !== null) clearTimeout(this.closeTimer);
-    this.closeTimer = setTimeout(() => {
-      this.closeMenu();
-      this.closeTimer = null;
-    }, 120);
-  }
 
   private closeMenu(): void {
     this.menuState.set(null);
@@ -171,44 +144,9 @@ export class ListingsTableComponent implements OnDestroy {
     return this.sortField() === field;
   }
 
-  // ── Formatação ────────────────────────────────────────────────────────────
-  getInitial(source: string): string {
-    return source.charAt(0).toUpperCase();
-  }
 
-  getAvatarColor(source: string): string {
-    // Corrigido: resultado memoizado — hash não é recalculado a cada render
-    const cached = avatarColorCache.get(source);
-    if (cached) return cached;
 
-    let hash = 0;
-    for (let i = 0; i < source.length; i++) {
-      hash = source.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const color = AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-    avatarColorCache.set(source, color);
-    return color;
-  }
 
-  formatPrice(amount?: string | number | null, currency?: string | null): string {
-    if (amount == null) return '—';
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (isNaN(num)) return '—';
-    return new Intl.NumberFormat('pt-PT', {
-      style:    'currency',
-      currency: currency || 'EUR',
-    }).format(num);
-  }
 
-  formatDate(date?: string | null): string {
-    // Corrigido: aceitava undefined mas não null; e não validava datas inválidas
-    if (!date) return '—';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '—';
-    return d.toLocaleDateString('pt-PT', {
-      year:  'numeric',
-      month: '2-digit',
-      day:   '2-digit',
-    });
-  }
+
 }

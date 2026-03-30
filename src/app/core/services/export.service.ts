@@ -1,16 +1,8 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
+import { ExportFilters } from '../models/export-filter.model';
 
-export interface ExportFilters {
-  district?: string;
-  county?: string;
-  property_type?: string;
-  source_partner?: string;
-  price_min?: number;
-  price_max?: number;
-  scrape_job_id?: string;
-}
 
 @Injectable({
   providedIn: 'root',

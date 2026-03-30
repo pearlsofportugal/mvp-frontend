@@ -1,0 +1,9 @@
+<span [class]="badgeClass()">
+    @if (label()) {
+    {{ label() }} ·
+    }
+    {{ status() }}
+    @if (reference()) {
+    · {{ reference() }}
+    }
+</span>

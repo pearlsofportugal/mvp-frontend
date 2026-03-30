@@ -66,8 +66,7 @@
           aria-label="Preview how many ads exist on this page"
         >
           @if (previewLoading()) {
-            <span class="spinner" aria-hidden="true"></span>
-            Checking…
+            <app-spinner size="sm" message="Checking"></app-spinner>
           } @else {
             Verify ads
           }
@@ -157,8 +156,7 @@
       aria-label="Start scraping"
     >
       @if (submitting()) {
-        <span class="spinner spinner-dark" aria-hidden="true"></span>
-        Launching…
+        <app-spinner size="sm" variant="current" message="Launching"></app-spinner>
       } @else {
         Launch Scraping
       }

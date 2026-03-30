@@ -25,12 +25,13 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { JobRead } from '../../../../core/api/model';
 import { JobsService } from '../../../../core/services/jobs';
+import { StatusBadge } from "../../../../shared/components/status-badge/status-badge";
 
 const TERMINAL_STATUSES = new Set(['completed', 'failed', 'cancelled']);
 
 @Component({
   selector: 'app-job-detail',
-  imports: [DatePipe],
+  imports: [DatePipe, StatusBadge],
   templateUrl: './job-detail.html',
   styleUrl: './job-detail.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

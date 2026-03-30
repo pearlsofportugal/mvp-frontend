@@ -19,6 +19,7 @@ import { RealEstateFilters } from '../../core/models/listing.model';
 import type { ApiResponsePaginatedResponse, ListingListRead, ListingDetailRead, SiteConfigRead } from '../../core/api/model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { AppDialogComponent } from '../../shared/components/dialog/dialog';
+import { Spinner } from "../../shared/components/spinner/spinner";
 
 @Component({
   selector: 'app-listings',
@@ -29,7 +30,8 @@ import { AppDialogComponent } from '../../shared/components/dialog/dialog';
     ListingEditComponent,
     ConfirmDialogComponent,
     AppDialogComponent,
-  ],
+    Spinner
+],
   templateUrl: './listings.html',
   styleUrl: './listings.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

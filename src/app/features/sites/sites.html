@@ -9,10 +9,7 @@
 
   <div class="card">
     @if (loading()) {
-      <div class="state-loading">
-        <span class="state-spinner"></span>
-        <span>Loading sites…</span>
-      </div>
+        <app-spinner size="md" message="Loading sites"></app-spinner>
     } @else {
       <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (reactivate)="onReactivateSite($event)" (addSite)="onShowCreateForm()" />
     }

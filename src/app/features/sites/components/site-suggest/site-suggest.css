@@ -39,20 +39,7 @@
   color: var(--text-dim);
 }
 
-/* ── Spinner ── */
-.spinner {
-  display: inline-block;
-  width: 0.85rem;
-  height: 0.85rem;
-  border: 2px solid var(--accent-light);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 /* ── Results panel ── */
 .suggest-results {

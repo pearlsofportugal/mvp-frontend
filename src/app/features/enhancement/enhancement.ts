@@ -8,6 +8,7 @@ import { EnrichmentService } from '../../core/services/enrichment.service';
 import { EnrichmentResult, EnrichmentStats } from '../../core/models/enrichment.model';
 import type { AIListingEnrichmentResponse } from '../../core/api/model';
 import { DecimalPipe } from '@angular/common';
+import { Spinner } from "../../shared/components/spinner/spinner";
 
 @Component({
   selector: 'app-enrichment',
@@ -15,7 +16,8 @@ import { DecimalPipe } from '@angular/common';
     EnrichmentFormComponent,
     EnrichmentStatsComponent,
     DecimalPipe,
-  ],
+    Spinner
+],
   templateUrl: './enhancement.html',
   styleUrl: './enhancement.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

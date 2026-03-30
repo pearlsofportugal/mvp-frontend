@@ -9,10 +9,12 @@ import { DecimalPipe } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 import { RealEstateService } from '../../../../core/services/listings.service';
+import { Spinner } from "../../../../shared/components/spinner/spinner";
+import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
 
 @Component({
   selector: 'app-listings-stats',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, Spinner, FormatPricePipe],
   templateUrl: './listings-stats.html',
   styleUrl: './listings-stats.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,14 +34,6 @@ export class ListingsStatsComponent {
   stats = computed(() => this.statsResource.value());
   isLoading = computed(() => this.statsResource.isLoading());
 
-  formatPrice(amount?: number | null): string {
-    if (amount == null) return '-';
-
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(amount);
-  }
 
   getStatsEntries(obj?: Record<string, number>): Array<[string, number]> {
     if (!obj) return [];

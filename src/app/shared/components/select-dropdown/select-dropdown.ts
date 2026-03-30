@@ -1,8 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   computed,
   forwardRef,
+  inject,
   input,
   signal,
 } from '@angular/core';
@@ -36,7 +38,9 @@ export class SelectDropdownComponent implements ControlValueAccessor {
 
   protected readonly value = signal('');
   protected readonly open = signal(false);
+  protected readonly opensUp = signal(false);
   private readonly isDisabled = signal(false);
+  private readonly el = inject(ElementRef<HTMLElement>);
 
   private onChange: (v: string) => void = () => {};
   private onTouched: () => void = () => {};
@@ -49,10 +53,22 @@ export class SelectDropdownComponent implements ControlValueAccessor {
 
   protected readonly hasValue = computed(() => !!this.value());
 
-  protected toggle(): void {
-    if (this.isDisabled()) return;
-    this.open.update(v => !v);
+protected toggle(): void {
+  if (this.isDisabled()) return;
+
+  const opening = !this.open();
+
+  if (opening) {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+
+    const spaceBelow = typeof window !== 'undefined' ? window.innerHeight - rect.bottom : 0;
+    const spaceAbove = typeof window !== 'undefined' ? rect.top : 0;
+
+    this.opensUp.set(spaceAbove > spaceBelow && spaceBelow < 240);
   }
+
+  this.open.set(opening);
+}
 
   protected select(val: string): void {
     this.value.set(val);

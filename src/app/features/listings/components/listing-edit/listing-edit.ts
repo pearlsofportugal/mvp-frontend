@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  effect,
   inject,
   input,
   output,
@@ -21,7 +22,7 @@ import type { ListingDetailRead, ListingUpdate } from '../../../../core/api/mode
   styleUrl: './listing-edit.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListingEditComponent implements OnInit {
+export class ListingEditComponent{
   listing = input.required<ListingDetailRead>();
   saved = output<ListingDetailRead>();
   cancel = output<void>();
@@ -67,7 +68,8 @@ export class ListingEditComponent implements OnInit {
     description: new FormControl<string | null>(null),
   });
 
-  ngOnInit(): void {
+ constructor() {
+  effect(() => {
     const l = this.listing();
     this.form.patchValue({
       title: l.title ?? null,
@@ -96,7 +98,8 @@ export class ListingEditComponent implements OnInit {
       contacts: l.contacts ?? null,
       description: l.description ?? null,
     });
-  }
+  }, { allowSignalWrites: true });
+}
 
   onSubmit(): void {
     if (this.submitting()) return;

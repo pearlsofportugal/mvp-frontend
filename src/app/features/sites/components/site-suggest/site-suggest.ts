@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SitesService } from '../../../../core/services/sites.service';
 import type { SiteConfigSuggestResponse, SelectorCandidate } from '../../../../core/api/model';
 import { SELECTOR_FIELDS, SelectorField } from '../../selectors.schema';
+import { Spinner } from "../../../../shared/components/spinner/spinner";
 
 export interface SelectorApplied {
   field: string;
@@ -55,6 +56,7 @@ interface CandidateGroup {
   templateUrl: './site-suggest.html',
   styleUrl: './site-suggest.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [Spinner],
 })
 export class SiteSuggestComponent {
   private readonly sitesService = inject(SitesService);

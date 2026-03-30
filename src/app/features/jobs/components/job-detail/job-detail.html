@@ -52,14 +52,7 @@
 
       <dt>Status</dt>
       <dd>
-        <span class="badge"
-          [class.badge-pending]="job.status === 'pending'"
-          [class.badge-running]="job.status === 'running'"
-          [class.badge-completed]="job.status === 'completed'"
-          [class.badge-failed]="job.status === 'failed'"
-          [class.badge-cancelled]="job.status === 'cancelled'">
-          {{ job.status }}
-        </span>
+        <app-status-badge [status]="job.status"></app-status-badge>
       </dd>
 
       <dt>URL</dt>
