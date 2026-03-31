@@ -20,6 +20,7 @@ import { JobsService } from '../../../../core/services/jobs';
 import { SitesService } from '../../../../core/services/sites.service';
 import type { SiteConfigRead, JobCreate, SiteConfigPreviewResponse } from '../../../../core/api/model';
 import { SelectDropdownComponent, SelectOption } from '../../../../shared/components/select-dropdown/select-dropdown';
+import { Spinner } from "../../../../shared/components/spinner/spinner";
 
 type JobFormGroup = FormGroup<{
   site_key: FormControl<string>;
@@ -29,7 +30,7 @@ type JobFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-job-form',
-  imports: [ReactiveFormsModule,SelectDropdownComponent],
+  imports: [ReactiveFormsModule, SelectDropdownComponent, Spinner],
   templateUrl: './job-form.html',
   styleUrl: './job-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

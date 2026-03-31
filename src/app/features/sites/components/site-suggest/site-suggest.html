@@ -8,8 +8,7 @@
       aria-label="Suggest selectors using AI"
     >
       @if (loading()) {
-        <span class="spinner" aria-hidden="true"></span>
-        Analysing page…
+        <app-spinner size="sm" message="Analysing page"></app-spinner>
       } @else {
         <span aria-hidden="true">✨</span>
         Suggest Selectors

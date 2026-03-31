@@ -1,12 +1,12 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, switchMap, catchError, of, startWith } from 'rxjs';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ExportService,
-  ExportFilters,
 } from '../../../../core/services/export.service';
 import { RealEstateService } from '../../../../core/services/listings.service';
+import { ExportFilters } from '../../../../core/models/export-filter.model';
 type ExportFormGroup = FormGroup<{
   district: FormControl<string>;
   county: FormControl<string>;

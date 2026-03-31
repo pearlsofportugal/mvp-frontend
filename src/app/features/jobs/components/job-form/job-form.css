@@ -212,28 +212,6 @@ form {
   font-size: 0.9rem;
 }
 
-/* ── Spinner ────────────────────────────────── */
-.spinner {
-  width: 13px;
-  height: 13px;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: form-spin 0.7s linear infinite;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
-
-.spinner-dark {
-  border-color: rgba(255, 255, 255, 0.4);
-  border-top-color: white;
-  opacity: 1;
-}
-
-@keyframes form-spin {
-  to { transform: rotate(360deg); }
-}
-
 /* ── Site context strip ── */
 
 .site-context {
@@ -394,28 +372,6 @@ form {
   justify-content: center;
 }
 
-/* ── Spinner ── */
-
-.spinner {
-  display: inline-block;
-  width: 0.85rem;
-  height: 0.85rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: jf-spin 0.7s linear infinite;
-  border-radius: 50%;
-  animation: jf-spin 0.7s linear infinite;
-}
-
-.spinner-dark {
-  border-color: rgba(0, 0, 0, 0.2);
-  border-top-color: currentColor;
-}
-
-@keyframes jf-spin {
-  to { transform: rotate(360deg); }
-}
 
 /* ── Responsive ── */
 

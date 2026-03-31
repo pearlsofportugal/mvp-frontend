@@ -57,6 +57,8 @@
   top: calc(100% + 4px);
   left: 0;
   min-width: 100%;
+  max-height: 280px;
+  overflow-y: auto;
   z-index: 1000;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -66,8 +68,19 @@
   animation: panel-in 0.1s ease;
 }
 
+.panel--up {
+  top: auto;
+  bottom: calc(100% + 4px);
+  animation-name: panel-in-up;
+}
+
 @keyframes panel-in {
   from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panel-in-up {
+  from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 

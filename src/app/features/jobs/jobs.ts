@@ -19,10 +19,12 @@ import { JobFormComponent } from './components/job-form/job-form';
 import { JobsListComponent } from './components/jobs-list/jobs-list';
 import { JobDetailComponent } from './components/job-detail/job-detail';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { Spinner } from "../../shared/components/spinner/spinner";
+import { PollingService } from '../../core/services/polling-service';
 
 @Component({
   selector: 'app-jobs',
-  imports: [JobFormComponent, JobsListComponent, JobDetailComponent, ConfirmDialogComponent],
+  imports: [JobFormComponent, JobsListComponent, JobDetailComponent, ConfirmDialogComponent, Spinner],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,16 +32,12 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 export class JobsComponent {
   private readonly jobsService = inject(JobsService);
   private readonly sitesService = inject(SitesService);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pollingService = inject(PollingService)
 
-  private readonly pollTick = toSignal(
-    isPlatformBrowser(this.platformId) ? timer(0, 30_000) : EMPTY,
-    { initialValue: 0 },
-  );
 
   readonly jobsResource = rxResource({
-    params: () => this.pollTick(),
+    params: () => this.pollingService.tick(),
     stream: () => this.jobsService.getAll(),
   });
 

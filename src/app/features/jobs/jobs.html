@@ -24,10 +24,7 @@
 
     <main class="jobs-main">
       @if (loading()) {
-        <div class="jobs-loading">
-          <span class="jobs-spinner" aria-hidden="true"></span>
-          Loading jobs&hellip;
-        </div>
+        <app-spinner size="lg" message="Loading jobs"></app-spinner>
       } @else {
         <app-jobs-list
           [jobs]="jobs()"

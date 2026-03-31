@@ -30,10 +30,7 @@
 
 	<!-- ── TABLE ───────────────────────────────────────────────── -->
 	@if (isLoadingListings()) {
-		<div class="table-loading">
-			<div class="loading-spinner"></div>
-			<span>Loading listings...</span>
-		</div>
+			<app-spinner size="md" message="Loading listings"></app-spinner>
 	} @else {
 		<app-listings-table
 			[realEstates]="realEstates()"
@@ -55,8 +52,7 @@
 	>
 		@if (isLoadingDetail()) {
 			<div class="table-loading">
-				<div class="loading-spinner"></div>
-				<span>Loading detail...</span>
+				<app-spinner size="sm" message="Loading detail"></app-spinner>
 			</div>
 		} @else if (selectedRealEstate()) {
 			<app-listing-detail

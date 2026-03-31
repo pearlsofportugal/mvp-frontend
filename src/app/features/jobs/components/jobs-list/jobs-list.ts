@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import type { JobListRead } from '../../../../core/api/model';
+import { StatusBadge } from "../../../../shared/components/status-badge/status-badge";
+import { ContextMenu } from "../../../../shared/components/context-menu/context-menu";
+import { FormatDatePipe } from "../../../../shared/pipes/format-date-pipe";
 
 @Component({
   selector: 'app-jobs-list',
-  imports: [],
+  imports: [StatusBadge, ContextMenu, FormatDatePipe],
   templateUrl: './jobs-list.html',
   styleUrl: './jobs-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,22 +32,6 @@ export class JobsListComponent {
       this.removeScrollListener();
       if (this.closeTimer !== null) clearTimeout(this.closeTimer);
     });
-  }
-
-  protected toggleMenu(id: string, event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.openMenuId() === id) { this.closeMenu(); return; }
-    const btn  = event.currentTarget as HTMLElement;
-    const rect = btn.getBoundingClientRect();
-    this.menuState.set({ id, top: rect.bottom + 4, right: window.innerWidth - rect.right });
-    this.removeScrollListener();
-    this.scrollListener = () => this.closeMenu();
-    window.addEventListener('scroll', this.scrollListener, { capture: true, passive: true });
-  }
-
-  protected closeMenuDelayed(): void {
-    if (this.closeTimer !== null) clearTimeout(this.closeTimer);
-    this.closeTimer = setTimeout(() => { this.closeMenu(); this.closeTimer = null; }, 120);
   }
 
   private closeMenu(): void {
@@ -73,14 +60,5 @@ export class JobsListComponent {
   protected onDelete(id: string): void {
     this.closeMenu();
     this.delete.emit(id);
-  }
-
-  protected formatDate(date: string | null | undefined): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleString('pt-PT');
-  }
-
-  protected getBadgeClass(status: string): string {
-    return `badge badge-${status}`;
   }
 }

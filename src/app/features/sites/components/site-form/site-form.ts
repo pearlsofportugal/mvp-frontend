@@ -23,6 +23,9 @@ import {
   SELECTOR_CATEGORIES,
   SELECTOR_FIELDS,
   SelectorField,
+  SUGGEST_FIELD_MAP,
+  FIELD_LABELS
+  
 } from '../../selectors.schema';
 import { SiteSuggestComponent, SelectorApplied } from '../site-suggest/site-suggest';
 import { SitePreviewComponent } from '../site-preview/site-preview';
@@ -32,37 +35,6 @@ type PaginationType = 'html_next' | 'query_param' | 'incremental_path';
 type FormTab = 'basic' | 'selectors' | 'advanced';
 type FormStage = 'detect' | 'configure';
 
-const SUGGEST_FIELD_MAP: Record<string, string> = {
-  price: 'price_selector',
-  title: 'title_selector',
-  area: 'useful_area_selector',
-  land_area: 'gross_area_selector',
-  rooms: 'bedrooms_selector',
-  bathrooms: 'bathrooms_selector',
-  property_type: 'property_type_selector',
-  typology: 'typology_selector',
-  condition: 'condition_selector',
-  business_type: 'business_type_selector',
-  district: 'district_selector',
-  county: 'county_selector',
-  parish: 'parish_selector',
-  images: 'image_selector',
-  listing_link: 'listing_link_selector',
-  next_page: 'next_page_selector',
-  description: 'description_selector',
-  location: 'location_selector',
-  publication_date: 'publication_date_selector',
-  property_id: 'property_id_selector',
-};
-
-const FIELD_LABELS: Record<string, string> = {
-  price: 'Price', title: 'Title', area: 'Useful area', land_area: 'Land area',
-  rooms: 'Bedrooms', bathrooms: 'WC', property_type: 'Property type',
-  typology: 'Typology', condition: 'Condition', business_type: 'Business type',
-  district: 'District', county: 'County', parish: 'Parish', images: 'Images',
-  listing_link: 'Listing link', next_page: 'Next page', description: 'Description',
-  location: 'Location', publication_date: 'Publication date', property_id: 'Ref ID',
-};
 
 @Component({
   selector: 'app-site-form',

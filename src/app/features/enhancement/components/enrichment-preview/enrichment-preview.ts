@@ -13,10 +13,11 @@ import { of } from 'rxjs';
 
 import { EnrichmentService } from '../../../../core/services/enrichment.service';
 import type { AIListingEnrichmentResponse } from '../../../../core/api/model';
+import { Spinner } from "../../../../shared/components/spinner/spinner";
 
 @Component({
   selector: 'app-enrichment-preview',
-  imports: [],
+  imports: [Spinner],
   templateUrl: './enrichment-preview.html',
   styleUrl: './enrichment-preview.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

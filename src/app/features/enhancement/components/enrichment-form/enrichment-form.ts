@@ -24,6 +24,7 @@ import { RealEstateService } from '../../../../core/services/listings.service';
 import { of, finalize, timer, Subject, takeUntil } from 'rxjs';
 import { ListingSelectorComponent } from '../../../listings/components/listing-selector/listing-selector';
 import { DecimalPipe } from '@angular/common';
+import { Spinner } from "../../../../shared/components/spinner/spinner";
 
 
 type EnrichmentFormGroup = FormGroup<{
@@ -35,7 +36,7 @@ type EnrichmentFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-enrichment-form',
-  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe],
+  imports: [ReactiveFormsModule, ListingSelectorComponent, DecimalPipe, Spinner],
   templateUrl: './enrichment-form.html',
   styleUrl: './enrichment-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

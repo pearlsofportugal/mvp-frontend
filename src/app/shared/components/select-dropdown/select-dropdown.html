@@ -12,7 +12,7 @@
 </button>
 
 @if (open()) {
-  <div class="panel" role="listbox">
+  <div class="panel" [class.panel--up]="opensUp()" role="listbox">
     @for (opt of options(); track opt.value) {
       <button
         type="button"

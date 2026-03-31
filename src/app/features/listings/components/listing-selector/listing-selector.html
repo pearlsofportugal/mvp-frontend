@@ -20,15 +20,14 @@
         } @else if (confirmedListing(); as l) {
         <!-- Thumbnail or initial avatar -->
         @if (l.thumbnail_url) {
-        <img class="trigger-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
+        <img class="trigger-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" loading="lazy"/>
         } @else {
         <span class="trigger-thumb trigger-thumb--initial">{{ titleInitial(l.title) }}</span>
         }
         <span class="trigger-text">
             <span class="trigger-title">{{ l.title || 'Sem título' }}</span>
             <span class="trigger-sub">
-                {{ locationLabel(l) }}&nbsp;·&nbsp;{{ typeLabel(l) }}&nbsp;·&nbsp;{{ formatPrice(l.price_amount,
-                l.price_currency) }}
+                {{ locationLabel(l) }}&nbsp;·&nbsp;{{ typeLabel(l) }}&nbsp;·&nbsp;{{ l.price_amount | formatPrice:l.price_currency }}
             </span>
         </span>
         } @else {
@@ -146,8 +145,7 @@
 
             @if (isSearching()) {
             <div class="list-state">
-                <div class="spinner"></div>
-                Searching for properties...
+                <app-spinner size="sm" message="Searching for properties"></app-spinner>
             </div>
             } @else if (displayList().length === 0) {
             <div class="list-state">
@@ -199,8 +197,7 @@
                         }
                     </div>
                     <div class="listing-bottom-row">
-                        <span class="listing-price">{{ formatPrice(listing.price_amount, listing.price_currency)
-                            }}</span>
+                        <span class="listing-price">{{ listing.price_amount | formatPrice:listing.price_currency }}</span>
                         <span class="listing-source">{{ listing.source_partner }}</span>
                     </div>
                 </div>
@@ -225,8 +222,7 @@
             @if (hasMore()) {
             <button type="button" class="load-more-btn" (click)="loadMore()" [disabled]="isLoadingMore()">
                 @if (isLoadingMore()) {
-                <span class="load-more-spinner"></span>
-                Loading...
+                <app-spinner size="xs" message="Loading"></app-spinner>
                 } @else {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="6 9 12 15 18 9" />
@@ -258,7 +254,7 @@
             @if (pendingListing(); as l) {
             <div class="footer-preview">
                 @if (l.thumbnail_url) {
-                <img class="footer-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
+                <img class="footer-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" loading="lazy" />
                 } @else {
                 <span class="footer-thumb footer-thumb--initial">{{ titleInitial(l.title) }}</span>
                 }
@@ -266,9 +262,7 @@
                     <span class="footer-preview-title">{{ l.title | slice:0:50 }}{{ (l.title?.length ?? 0) > 50 ? '…' :
                         ''
                         }}</span>
-                    <span class="footer-preview-sub">{{ locationLabel(l) }} · {{ formatPrice(l.price_amount,
-                        l.price_currency)
-                        }}</span>
+                    <span class="footer-preview-sub">{{ locationLabel(l) }} · {{ l.price_amount | formatPrice:l.price_currency }}</span>
                 </div>
             </div>
             } @else {

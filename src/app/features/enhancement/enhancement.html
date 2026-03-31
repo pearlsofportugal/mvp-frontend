@@ -119,8 +119,7 @@
           <button type="button" class="btn btn-success btn-sm" [disabled]="applyingResult()"
             (click)="onApplyResult()">
             @if (applyingResult()) {
-            <span class="diff-apply-spinner"></span>
-            Applying...
+            <app-spinner size="xs" message="Applying"></app-spinner>
             } @else {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12" />
@@ -154,10 +153,7 @@
         </div>
         @switch (viewState()) {
         @case ('loading') {
-        <div class="stats-loading">
-          <div class="stats-spinner"></div>
-          <span>Loading overview...</span>
-        </div>
+          <app-spinner size="md" message="Loading overview"></app-spinner>
         }
         @case ('error') {
         <p class="error-msg">{{ error() }}</p>

@@ -112,18 +112,6 @@
   gap: 0.625rem;
 }
 
-.listing-avatar {
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
 
 .listing-info {
   overflow: hidden;
@@ -445,11 +433,6 @@
   }
 
   .td-title { min-width: unset; max-width: unset; }
-
-  .listing-avatar {
-    width: 26px;
-    height: 26px;
-  }
 
   .td-price {
     font-size: 0.9rem;
