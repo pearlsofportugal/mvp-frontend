@@ -2,7 +2,7 @@
 
   <!-- Logo -->
   <div class="logo">
-    <img width="28" height="28" [src]="themeService.isDark() ? '/iconPearls64.svg' : '/iconPearls64Dark.svg'" alt="Logo">
+    <img width="28" height="28" [src]="themeService.isDark() ? '/iconPearls64.svg' : '/iconPearls64Dark.svg'" alt="Logo"  loading="lazy">
     <div class="logo-text">
       <span class="logo-title">MVP Scraper</span>
       <span class="logo-subtitle">Real Estate Platform</span>
@@ -26,15 +26,6 @@
 
   <!-- Right side -->
   <div class="header-right">
-    <!-- <div
-      class="status-indicator"
-      [class.online]="isHealthy()"
-      [class.offline]="!isHealthy()"
-    >
-      <span class="status-dot"></span>
-      <span class="status-text">{{ healthText() }}</span>
-    </div> -->
-
     <button
       class="theme-toggle"
       type="button"

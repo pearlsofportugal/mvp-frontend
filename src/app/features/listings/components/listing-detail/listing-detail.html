@@ -175,7 +175,7 @@ realEstate().latitude) {
   <div class="section-label">Media ({{ realEstate().media_assets!.length }})</div>
   <div class="media-grid">
     @for (media of realEstate().media_assets; track media.id) {
-    <img [src]="media.url" [alt]="media.alt_text || media.type || ''" (error)="onImageError($event)" />
+    <img [src]="media.url" [alt]="media.alt_text || media.type || ''" (error)="onImageError($event)" loading="lazy" />
     }
   </div>
 </div>

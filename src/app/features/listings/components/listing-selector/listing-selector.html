@@ -20,7 +20,7 @@
         } @else if (confirmedListing(); as l) {
         <!-- Thumbnail or initial avatar -->
         @if (l.thumbnail_url) {
-        <img class="trigger-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
+        <img class="trigger-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" loading="lazy"/>
         } @else {
         <span class="trigger-thumb trigger-thumb--initial">{{ titleInitial(l.title) }}</span>
         }
@@ -254,7 +254,7 @@
             @if (pendingListing(); as l) {
             <div class="footer-preview">
                 @if (l.thumbnail_url) {
-                <img class="footer-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" />
+                <img class="footer-thumb" [src]="l.thumbnail_url" [alt]="l.title ?? ''" loading="lazy" />
                 } @else {
                 <span class="footer-thumb footer-thumb--initial">{{ titleInitial(l.title) }}</span>
                 }
