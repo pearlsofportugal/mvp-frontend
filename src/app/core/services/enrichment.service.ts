@@ -29,7 +29,7 @@ export class EnrichmentService {
 
   enrichListing(request: AIListingEnrichmentRequest): Observable<AIListingEnrichmentResponse> {
     return this.api
-      .enrichListing(request)
+      .enhanceListing(request)
       .pipe(map((r) => r.data!));
   }
 

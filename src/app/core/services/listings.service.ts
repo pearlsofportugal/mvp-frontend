@@ -65,7 +65,7 @@ export class RealEstateService {
     } = {},
   ): Observable<{ items: ListingSearchItem[] } & Meta> {
     return this.api
-      .searchListings({
+      .selectorListings({
         q: query,
         page: options.page ?? 1,
         page_size: options.page_size ?? 20,
