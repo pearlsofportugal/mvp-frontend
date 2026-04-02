@@ -12,11 +12,13 @@ import { Injectable, inject } from '@angular/core';
 import type {
   ApiResponseListSiteConfigRead,
   ApiResponseNoneType,
+  ApiResponseSelectorValidationReport,
   ApiResponseSiteConfigPreviewResponse,
   ApiResponseSiteConfigRead,
   ApiResponseSiteConfigSuggestResponse,
   DeleteSiteParams,
   ListSitesParams,
+  SelectorValidateRequest,
   SiteConfigCreate,
   SiteConfigPreviewRequest,
   SiteConfigSuggestRequest,
@@ -180,6 +182,27 @@ Use permanent=true to permanently delete the record.
           }
           return filteredParams;
         })(),
+      },
+      this.http,
+    );
+  }
+  /**
+ * Validate CSS selectors against a live page.
+
+If ``url`` is omitted in the request body, the site's ``base_url`` is used.
+Returns a report with per-field results, warnings (0 matches), and errors (bad CSS).
+ * @summary Validate Site Selectors
+ */
+  validateSiteSelectors<TData = ApiResponseSelectorValidationReport>(
+    key: string,
+    selectorValidateRequest: SelectorValidateRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/sites/${key}/validate-selectors`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: selectorValidateRequest,
       },
       this.http,
     );

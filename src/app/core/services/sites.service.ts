@@ -7,6 +7,7 @@ import type {
   SiteConfigUpdate,
   SiteConfigSuggestResponse,
   SiteConfigPreviewResponse,
+  SelectorValidationReport,
 } from '../api/model';
 
 @Injectable({
@@ -54,6 +55,16 @@ export class SitesService {
   previewSelector(url: string, selector: string): Observable<SiteConfigPreviewResponse> {
     return this.api
       .previewSiteSelector({ url, selector })
+      .pipe(map((r) => r.data!));
+  }
+
+  validateSelectors(
+    key: string,
+    selectors: Record<string, string>,
+    url?: string,
+  ): Observable<SelectorValidationReport> {
+    return this.api
+      .validateSiteSelectors(key, { selectors, url: url ?? null })
       .pipe(map((r) => r.data!));
   }
 }

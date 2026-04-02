@@ -271,6 +271,52 @@
         </div>
       </div>
 
+      <div class="validate-bar">
+        <div class="validate-bar-info">
+          <span class="validate-bar-label">Validate against live page</span>
+          @if (!site()) {
+            <span class="validate-hint">Save the site first to enable validation</span>
+          }
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-ghost]="validationStatus() === 'idle'"
+          [class.btn-secondary]="validationStatus() !== 'idle'"
+          [disabled]="validating() || !canValidate()"
+          (click)="onValidateSelectors()"
+          aria-label="Validate current selectors against the live page"
+        >
+          @if (validating()) {
+            <span class="spinner" aria-hidden="true"></span>
+            Validating…
+          } @else {
+            ✓ Validate Selectors
+          }
+        </button>
+      </div>
+
+      @if (validationReport(); as report) {
+        <div
+          class="validation-banner"
+          role="status"
+          [class.val-banner-success]="validationStatus() === 'success'"
+          [class.val-banner-warning]="validationStatus() === 'warning'"
+          [class.val-banner-error]="validationStatus() === 'error'"
+        >
+          @if (validationStatus() === 'success') {
+            <span class="val-banner-icon" aria-hidden="true">✓</span>
+            <span>All selectors valid — tested on <em>{{ report.url }}</em></span>
+          } @else if (validationStatus() === 'warning') {
+            <span class="val-banner-icon" aria-hidden="true">⚠</span>
+            <span>{{ report.warnings?.length }} selector(s) matched 0 elements — check before saving.</span>
+          } @else {
+            <span class="val-banner-icon" aria-hidden="true">✗</span>
+            <span>{{ report.errors?.length }} invalid selector(s) — fix errors before saving.</span>
+          }
+        </div>
+      }
+
       @for (category of selectorCategories; track category.key) {
         @if (shouldShowCategory(category)) {
         <div class="selector-section" [class.section-mode]="category.sectionModeOnly">
@@ -295,7 +341,34 @@
                 [formControlName]="field.key"
                 [placeholder]="field.placeholder"
                 [class.error]="hasSelectorError(field)"
+                [class.val-error]="isValError(field.key)"
+                [class.val-warning]="isValWarning(field.key)"
+                [class.val-success]="isValSuccess(field.key)"
               />
+              @if (getValidationResult(field.key); as vr) {
+                <div
+                  class="val-result"
+                  [class.val-result-error]="!vr.valid_css"
+                  [class.val-result-warning]="vr.valid_css && vr.matches === 0"
+                  [class.val-result-ok]="vr.valid_css && vr.matches > 0"
+                  role="status"
+                  [attr.aria-label]="vr.valid_css ? vr.matches + ' matches' : 'Invalid CSS selector'"
+                >
+                  @if (!vr.valid_css) {
+                    <span class="val-result-icon" aria-hidden="true">✗</span>
+                    <span>Invalid CSS selector</span>
+                  } @else if (vr.matches === 0) {
+                    <span class="val-result-icon" aria-hidden="true">⚠</span>
+                    <span>0 matches</span>
+                  } @else {
+                    <span class="val-result-icon" aria-hidden="true">✓</span>
+                    <span>{{ vr.matches }} match(es)</span>
+                    @if (vr.sample) {
+                      <span class="val-sample" [title]="vr.sample">{{ vr.sample }}</span>
+                    }
+                  }
+                </div>
+              }
               @if (previewUrl()) {
                 <app-site-preview [url]="previewUrl()" [selector]="getFieldValue(field.key)" />
               }

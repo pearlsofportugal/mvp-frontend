@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   effect,
   inject,
   input,
@@ -17,7 +18,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../../../core/services/sites.service';
-import type { SiteConfigRead, SiteConfigCreate, SiteConfigSuggestResponse } from '../../../../core/api/model';
+import type {
+  SiteConfigRead,
+  SiteConfigCreate,
+  SiteConfigSuggestResponse,
+  SelectorValidationReport,
+  SelectorValidationResult,
+} from '../../../../core/api/model';
 import {
   SelectorCategory,
   SELECTOR_CATEGORIES,
@@ -60,6 +67,28 @@ export class SiteFormComponent {
   protected readonly suggestResult = signal<SiteConfigSuggestResponse | null>(null);
   protected readonly suggestError = signal(false);
 
+  protected readonly validating = signal(false);
+  protected readonly validationReport = signal<SelectorValidationReport | null>(null);
+
+  protected readonly validationStatus = computed<'idle' | 'success' | 'warning' | 'error'>(() => {
+    const r = this.validationReport();
+    if (!r) return 'idle';
+    if (!r.success) return 'error';
+    if (r.warnings?.length) return 'warning';
+    return 'success';
+  });
+
+  protected readonly validationResultMap = computed<Map<string, SelectorValidationResult>>(() => {
+    const r = this.validationReport();
+    if (!r) return new Map();
+    return new Map(r.results.map((res) => [res.field, res]));
+  });
+
+  protected readonly canValidate = computed(() => {
+    if (!this.site()) return false;
+    return this.selectorFields.some((f) => !!this.form.get(f.key)?.value?.trim());
+  });
+
   protected readonly selectorFields = SELECTOR_FIELDS;
   protected readonly selectorCategories = SELECTOR_CATEGORIES;
 
@@ -96,6 +125,7 @@ export class SiteFormComponent {
         this.suggestError.set(false);
         this.resetFormForCreate();
       }
+      this.validationReport.set(null);
     });
   }
 
@@ -130,6 +160,13 @@ export class SiteFormComponent {
   }
 
   protected onSubmit(): void {
+    // Block save if validation ran and found errors
+    const report = this.validationReport();
+    if (report && !report.success) {
+      this.activeTab.set('selectors');
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.activeTab.set(this.resolveInvalidTab());
@@ -211,6 +248,54 @@ export class SiteFormComponent {
 
   protected onBackToDetect(): void {
     this.formStage.set('detect');
+  }
+
+  protected onValidateSelectors(): void {
+    const siteKey = this.site()?.key;
+    if (!siteKey) return;
+
+    const selectors: Record<string, string> = {};
+    for (const field of this.selectorFields) {
+      const val = (this.form.get(field.key)?.value as string)?.trim();
+      if (val) selectors[field.key] = val;
+    }
+
+    const url = this.previewUrl().trim() || undefined;
+
+    this.validating.set(true);
+    this.validationReport.set(null);
+
+    this.sitesService
+      .validateSelectors(siteKey, selectors, url)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          this.validationReport.set(r);
+          this.validating.set(false);
+        },
+        error: () => {
+          this.validating.set(false);
+        },
+      });
+  }
+
+  protected getValidationResult(fieldKey: string): SelectorValidationResult | undefined {
+    return this.validationResultMap().get(fieldKey);
+  }
+
+  protected isValError(fieldKey: string): boolean {
+    const r = this.validationResultMap().get(fieldKey);
+    return !!r && !r.valid_css;
+  }
+
+  protected isValWarning(fieldKey: string): boolean {
+    const r = this.validationResultMap().get(fieldKey);
+    return !!r && r.valid_css && r.matches === 0;
+  }
+
+  protected isValSuccess(fieldKey: string): boolean {
+    const r = this.validationResultMap().get(fieldKey);
+    return !!r && r.valid_css && r.matches > 0;
   }
 
   protected suggestCoverage(): number {
