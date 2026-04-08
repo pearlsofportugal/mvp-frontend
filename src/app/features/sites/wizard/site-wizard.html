@@ -1,0 +1,79 @@
+<div class="wizard-page">
+  <header class="wizard-header">
+    <button type="button" class="btn-back-list" (click)="onCancel()">← Sites</button>
+    <h1 class="wizard-title">{{ isEditMode() ? 'Edit Site' : 'New Site' }}</h1>
+  </header>
+
+  <!-- Stepper -->
+  <nav class="stepper" aria-label="Wizard steps">
+    @for (step of steps; track step) {
+      <button
+        type="button"
+        class="stepper-item"
+        [class.active]="currentStep() === step"
+        [class.done]="currentStep() > step"
+        [class.locked]="!isStepUnlocked(step)"
+        [disabled]="!isStepUnlocked(step)"
+        (click)="goToStep(step)"
+        [attr.aria-current]="currentStep() === step ? 'step' : null"
+      >
+        <span class="stepper-num">
+          @if (currentStep() > step) { ✓ } @else { {{ step }} }
+        </span>
+        <span class="stepper-label">{{ stepLabels[step] }}</span>
+      </button>
+
+      @if (step < 5) {
+        <span class="stepper-divider" aria-hidden="true"></span>
+      }
+    }
+  </nav>
+
+  <!-- Step content -->
+  <div class="wizard-body">
+    @switch (currentStep()) {
+      @case (1) {
+        <app-step-basic
+          [site]="site()"
+          (siteCreated)="onSiteCreated($event)"
+          (siteUpdated)="onSiteUpdated($event); currentStep.set(2)"
+          (next)="currentStep.set(2)"
+          (cancelled)="onCancel()"
+        />
+      }
+      @case (2) {
+        <app-step-listing
+          [site]="site()"
+          (back)="currentStep.set(1)"
+          (skip)="currentStep.set(3)"
+          (next)="currentStep.set(3)"
+        />
+      }
+      @case (3) {
+        <app-step-selectors
+          [site]="site()"
+          (back)="currentStep.set(2)"
+          (skip)="currentStep.set(4)"
+          (next)="currentStep.set(4)"
+          (siteUpdated)="onSiteUpdated($event)"
+        />
+      }
+      @case (4) {
+        <app-step-test-scrape
+          [site]="site()"
+          (back)="currentStep.set(3)"
+          (skip)="currentStep.set(5)"
+          (next)="currentStep.set(5)"
+        />
+      }
+      @case (5) {
+        <app-step-done
+          [site]="site()"
+          (launchJob)="onLaunchJob()"
+          (backToList)="onCancel()"
+          (editAgain)="currentStep.set(1)"
+        />
+      }
+    }
+  </div>
+</div>

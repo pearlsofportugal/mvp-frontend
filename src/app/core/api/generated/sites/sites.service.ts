@@ -16,6 +16,8 @@ import type {
   ApiResponseSiteConfigPreviewResponse,
   ApiResponseSiteConfigRead,
   ApiResponseSiteConfigSuggestResponse,
+  ApiResponseTestListingPageResponse,
+  ApiResponseTestScrapeResponse,
   DeleteSiteParams,
   ListSitesParams,
   SelectorValidateRequest,
@@ -23,6 +25,8 @@ import type {
   SiteConfigPreviewRequest,
   SiteConfigSuggestRequest,
   SiteConfigUpdate,
+  TestListingPageRequest,
+  TestScrapeRequest,
 } from '../../model';
 
 import { customFetch } from '../../custom-fetch';
@@ -182,6 +186,55 @@ Use permanent=true to permanently delete the record.
           }
           return filteredParams;
         })(),
+      },
+      this.http,
+    );
+  }
+  /**
+ * Dry-run scrape of a single listing URL using the site's current configuration.
+
+Fetches the page, parses it with the configured selectors and extraction_mode,
+normalizes the result via mapper, and returns the raw + normalized output.
+Nothing is written to the database.
+ * @summary Test Scrape Site
+ */
+  testScrapeSite<TData = ApiResponseTestScrapeResponse>(
+    key: string,
+    testScrapeRequest: TestScrapeRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/sites/${key}/test-scrape`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: testScrapeRequest,
+      },
+      this.http,
+    );
+  }
+  /**
+ * Test a listing/search results page using the site's current configuration.
+
+Fetches the page, extracts listing links via the site's ``listing_link_selector``,
+separates them into matched/rejected based on ``link_pattern``, detects the
+next page URL, and optionally samples thumbnail images.
+
+``link_pattern`` and ``thumbnail_selector`` in the request body override the
+site's saved values when provided.
+
+Nothing is written to the database.
+ * @summary Test Listing Page Site
+ */
+  testListingPageSite<TData = ApiResponseTestListingPageResponse>(
+    key: string,
+    testListingPageRequest: TestListingPageRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/sites/${key}/test-listing-page`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: testListingPageRequest,
       },
       this.http,
     );

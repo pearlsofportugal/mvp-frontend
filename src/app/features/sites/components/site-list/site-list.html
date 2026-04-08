@@ -57,6 +57,9 @@
             <div class="confidence-bar">
               <div class="confidence-fill" [class]="getConfidenceClass(conf)" [style.width.%]="conf"></div>
             </div>
+            @if (site.confidence_meta) {
+              <p class="confidence-meta">{{ formatConfidenceMeta(site.confidence_meta) }}</p>
+            }
           </div>
         }
 

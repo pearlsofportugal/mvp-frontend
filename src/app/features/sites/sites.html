@@ -4,18 +4,14 @@
       <h1 class="page-title">Scraping Sites</h1>
       <p class="page-subtitle">Configure source websites, extraction modes, and CSS selectors for scraping jobs.</p>
     </div>
-    <button class="btn btn-primary btn-sm" (click)="onShowCreateForm()">+ New Site</button>
+    <button class="btn btn-primary btn-sm" (click)="onNewSite()">+ New Site</button>
   </header>
 
   <div class="card">
     @if (loading()) {
         <app-spinner size="md" message="Loading sites"></app-spinner>
     } @else {
-      <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (reactivate)="onReactivateSite($event)" (addSite)="onShowCreateForm()" />
+      <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (addSite)="onNewSite()" />
     }
   </div>
-
-  <app-dialog [open]="showForm()" [title]="dialogTitle()" size="lg" (closed)="onFormCancel()">
-    <app-site-form [site]="editingSite()" (success)="onFormSuccess()" (cancel)="onFormCancel()" />
-  </app-dialog>
 </div>

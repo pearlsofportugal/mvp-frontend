@@ -5,6 +5,7 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
+import type { ConfidenceMeta } from './confidenceMeta';
 import type { SiteConfigReadConfidenceScores } from './siteConfigReadConfidenceScores';
 import type { SiteConfigReadExtractionMode } from './siteConfigReadExtractionMode';
 import type { SiteConfigReadPaginationType } from './siteConfigReadPaginationType';
@@ -40,6 +41,7 @@ export interface SiteConfigRead {
   id: string;
   key: string;
   confidence_scores?: SiteConfigReadConfidenceScores;
+  confidence_meta?: ConfidenceMeta | null;
   created_at: string;
   updated_at: string;
 }

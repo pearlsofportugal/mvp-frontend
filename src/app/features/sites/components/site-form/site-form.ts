@@ -36,16 +36,18 @@ import {
 } from '../../selectors.schema';
 import { SiteSuggestComponent, SelectorApplied } from '../site-suggest/site-suggest';
 import { SitePreviewComponent } from '../site-preview/site-preview';
+import { SiteTestScrapeComponent } from '../site-test-scrape/site-test-scrape';
+import { SiteTestListingComponent } from '../site-test-listing/site-test-listing';
 
 type ExtractionMode = 'section' | 'direct';
 type PaginationType = 'html_next' | 'query_param' | 'incremental_path';
-type FormTab = 'basic' | 'selectors' | 'advanced';
+type FormTab = 'basic' | 'selectors' | 'listing' | 'test' | 'advanced';
 type FormStage = 'detect' | 'configure';
 
 
 @Component({
   selector: 'app-site-form',
-  imports: [ReactiveFormsModule, SiteSuggestComponent, SitePreviewComponent],
+  imports: [ReactiveFormsModule, SiteSuggestComponent, SitePreviewComponent, SiteTestScrapeComponent, SiteTestListingComponent],
   templateUrl: './site-form.html',
   styleUrl: './site-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -88,6 +90,12 @@ export class SiteFormComponent {
     if (!this.site()) return false;
     return this.selectorFields.some((f) => !!this.form.get(f.key)?.value?.trim());
   });
+
+  protected readonly siteKey = computed(() => this.site()?.key ?? '');
+
+  protected readonly isEditMode = computed(() => !!this.site());
+
+  protected readonly savedLinkPattern = computed(() => this.site()?.link_pattern ?? '');
 
   protected readonly selectorFields = SELECTOR_FIELDS;
   protected readonly selectorCategories = SELECTOR_CATEGORIES;
@@ -298,6 +306,17 @@ export class SiteFormComponent {
     return !!r && r.valid_css && r.matches > 0;
   }
 
+  protected isLowConfidence(fieldKey: string): boolean {
+    const scores = this.site()?.confidence_scores;
+    if (!scores) return false;
+    const val = scores[fieldKey];
+    return val != null && val < 0.5;
+  }
+
+  protected goToTestTab(): void {
+    this.activeTab.set('test');
+  }
+
   protected suggestCoverage(): number {
     const r = this.suggestResult();
     return r ? Object.values(r.candidates).filter((c) => c.length > 0).length : 0;
@@ -328,6 +347,28 @@ export class SiteFormComponent {
     if (!scores) return null;
     const val = scores[fieldKey];
     return val != null ? Math.round(val * 100) : null;
+  }
+
+  protected getConfidenceMetaText(): string | null {
+    const meta = this.site()?.confidence_meta;
+    if (!meta) return null;
+    const diffMs = Date.now() - new Date(meta.updated_at).getTime();
+    const mins = Math.floor(diffMs / 60_000);
+    let ago: string;
+    if (mins < 1) ago = 'just now';
+    else if (mins < 60) ago = `${mins}m ago`;
+    else {
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) ago = `${hours}h ago`;
+      else {
+        const days = Math.floor(hours / 24);
+        if (days < 7) ago = `${days}d ago`;
+        else if (days < 30) ago = `${Math.floor(days / 7)}w ago`;
+        else ago = new Date(meta.updated_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+      }
+    }
+    const n = meta.sample_count;
+    return `Scores calculated ${ago} · based on ${n} listing${n !== 1 ? 's' : ''}`;
   }
 
   protected confClass(score: number): string {

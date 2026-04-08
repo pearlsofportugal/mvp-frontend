@@ -1,0 +1,62 @@
+<div class="step-done">
+
+  <div class="done-icon" aria-hidden="true">✅</div>
+
+  @if (site(); as s) {
+    <h2 class="done-title">{{ s.name }} is ready</h2>
+    <p class="done-subtitle">Your site is configured and ready to scrape.</p>
+
+    <div class="done-summary">
+      <div class="summary-row">
+        <span class="summary-label">Key</span>
+        <code class="summary-value">{{ s.key }}</code>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Base URL</span>
+        <a [href]="s.base_url" target="_blank" rel="noopener" class="summary-value-link">{{ s.base_url }}</a>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Mode</span>
+        <span class="summary-value">{{ s.extraction_mode === 'section' ? 'By Section' : 'Direct' }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Selectors</span>
+        <span class="summary-value">{{ selectorCount() }} configured</span>
+      </div>
+    </div>
+
+    @if (averageConfidence(); as conf) {
+      <div class="done-confidence">
+        <div class="conf-header">
+          <span class="conf-label">Selector coverage</span>
+          <span class="conf-value" [class]="confClass(conf)">{{ conf }}%</span>
+        </div>
+        <div class="conf-bar">
+          <div class="conf-fill" [class]="confClass(conf)" [style.width.%]="conf"></div>
+        </div>
+      </div>
+    } @else {
+      <p class="done-no-scores">
+        No coverage scores yet — launch a scrape job to calculate selector confidence.
+      </p>
+    }
+
+    <div class="done-actions">
+      <button type="button" class="btn btn-primary" (click)="launchJob.emit()">
+        🚀 Launch Job
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="editAgain.emit()">
+        ← Edit Again
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="backToList.emit()">
+        Back to List
+      </button>
+    </div>
+  } @else {
+    <p class="done-subtitle">Site not yet created — complete Step 1 to continue.</p>
+    <div class="done-actions">
+      <button type="button" class="btn btn-ghost" (click)="editAgain.emit()">← Go to Step 1</button>
+    </div>
+  }
+
+</div>

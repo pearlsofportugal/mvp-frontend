@@ -1,0 +1,222 @@
+.step-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.lock-icon { font-size: 2rem; }
+
+.step-selectors-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Preview URL bar */
+.preview-url-bar {
+  padding: 0.75rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+}
+
+/* Validate bar */
+.validate-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+}
+
+.validate-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.validate-bar-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Validation banner */
+.validation-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.6rem;
+  font-size: 0.82rem;
+  border: 1px solid;
+}
+
+.val-banner-success {
+  background: var(--green-light, #d1fae5);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.val-banner-warning {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.val-banner-error {
+  background: var(--red-light, #fee2e2);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.val-banner-icon { font-size: 1rem; }
+
+/* Selectors form */
+.selectors-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.selector-section {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.selector-section h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.section-desc {
+  margin: 0 0 0.9rem;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+.selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.8rem;
+}
+
+.selector-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.selector-field label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.selector-field input {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  padding: 0.55rem 0.65rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  transition: all 0.2s;
+}
+
+.selector-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.selector-field input.val-error { border-color: var(--red); }
+.selector-field input.val-warning { border-color: #f59e0b; }
+.selector-field input.val-success { border-color: var(--green); }
+
+.field-conf-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid currentColor;
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.field-conf-badge.conf-high { color: var(--green); }
+.field-conf-badge.conf-mid  { color: #f59e0b; }
+.field-conf-badge.conf-low  { color: var(--red); }
+
+.required { color: var(--red); }
+
+.val-result {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.3rem;
+}
+
+.val-result-error  { color: var(--red); background: var(--red-light, #fee2e2); }
+.val-result-warning{ color: #92400e; background: #fef3c7; }
+.val-result-ok     { color: var(--green); background: var(--green-light, #d1fae5); }
+
+.val-result-icon { font-size: 0.8rem; }
+
+.val-sample {
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+.field-hint {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+/* Step actions */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.step-actions-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

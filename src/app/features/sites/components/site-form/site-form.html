@@ -39,6 +39,28 @@
     >
       Selectors
     </button>
+    @if (isEditMode()) {
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="activeTab() === 'listing'"
+        [attr.aria-selected]="activeTab() === 'listing'"
+        (click)="setTab('listing')"
+      >
+        Listing Page
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="activeTab() === 'test'"
+        [attr.aria-selected]="activeTab() === 'test'"
+        (click)="setTab('test')"
+      >
+        Test Scrape
+      </button>
+    }
     <button
       type="button"
       role="tab"
@@ -255,6 +277,18 @@
         (selectorApplied)="onSelectorApplied($event)"
       />
 
+      @if (getConfidenceMetaText(); as metaText) {
+        <p class="conf-meta-note" role="note">
+          <span class="conf-meta-icon" aria-hidden="true">📊</span>
+          {{ metaText }}
+        </p>
+      } @else if (isEditMode()) {
+        <p class="conf-meta-note conf-meta-no-jobs" role="note">
+          <span class="conf-meta-icon" aria-hidden="true">ℹ</span>
+          No completed job yet — run a scrape job to get field coverage scores.
+        </p>
+      }
+
       <div class="preview-url-bar">
         <div class="form-group">
           <label for="preview_url">
@@ -369,6 +403,13 @@
                   }
                 </div>
               }
+              @if (isLowConfidence(field.key)) {
+                <p class="low-conf-hint">
+                  Low coverage — use
+                  <button type="button" class="btn-link" (click)="goToTestTab()">Test Scrape</button>
+                  to diagnose.
+                </p>
+              }
               @if (previewUrl()) {
                 <app-site-preview [url]="previewUrl()" [selector]="getFieldValue(field.key)" />
               }
@@ -379,6 +420,24 @@
         </div>
         }
       }
+    </div>
+    }
+
+    @if (activeTab() === 'listing') {
+    <div class="tab-content" role="tabpanel">
+      <app-site-test-listing
+        [siteKey]="siteKey()"
+        [savedLinkPattern]="savedLinkPattern()"
+      />
+    </div>
+    }
+
+    @if (activeTab() === 'test') {
+    <div class="tab-content" role="tabpanel">
+      <app-site-test-scrape
+        [siteKey]="siteKey()"
+        [initialUrl]="previewUrl()"
+      />
     </div>
     }
 

@@ -1,0 +1,137 @@
+.wizard-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header */
+.wizard-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-back-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-back-list:hover {
+  border-color: var(--border-light);
+  color: var(--text);
+}
+
+.wizard-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Stepper nav */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  overflow-x: auto;
+}
+
+.stepper-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.5rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.stepper-item:hover:not(:disabled):not(.active) {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.stepper-item.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.stepper-item.done {
+  color: var(--green);
+}
+
+.stepper-item.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper-num {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: grid;
+  place-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stepper-item.active .stepper-num {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: transparent;
+}
+
+.stepper-item.done .stepper-num {
+  border-color: var(--green);
+  background: var(--green-light, #d1fae5);
+}
+
+.stepper-label {
+  font-size: 0.78rem;
+}
+
+.stepper-divider {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  min-width: 0.5rem;
+}
+
+/* Body card */
+.wizard-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .stepper-label { display: none; }
+  .stepper-item { padding: 0.5rem; }
+  .wizard-body { padding: 1rem; }
+}

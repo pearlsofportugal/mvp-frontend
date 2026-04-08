@@ -207,6 +207,12 @@
 .confidence-fill.conf-mid  { background: #f59e0b; }
 .confidence-fill.conf-low  { background: var(--red); }
 
+.confidence-meta {
+  margin: 0.3rem 0 0;
+  font-size: 0.64rem;
+  color: var(--text-dim);
+}
+
 .site-footer {
   display: flex;
   justify-content: flex-end;

@@ -1,0 +1,163 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="step-basic">
+
+  <div class="form-section">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="key">
+          Identifier (key) *
+          <span class="hint">Lowercase letters, numbers, _ and -</span>
+        </label>
+        <input
+          id="key"
+          type="text"
+          formControlName="key"
+          placeholder="pearls"
+          [class.error]="form.controls.key.invalid && form.controls.key.touched"
+          [attr.readonly]="isEditMode() ? true : null"
+        />
+        @if (form.controls.key.invalid && form.controls.key.touched) {
+          <span class="field-error" role="alert">
+            @if (form.controls.key.errors?.['required']) { Campo obrigatório. }
+            @else { Apenas letras minúsculas, números, _ e - são permitidos. }
+          </span>
+        }
+        @if (isEditMode()) {
+          <span class="field-hint">Key cannot be changed after creation.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="name">Site Name *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Pearls of Portugal"
+          [class.error]="form.controls.name.invalid && form.controls.name.touched"
+        />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <span class="field-error" role="alert">Nome obrigatório.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="base_url">
+        Base URL *
+        <span class="hint">Main site URL (without trailing slash)</span>
+      </label>
+      <input
+        id="base_url"
+        type="url"
+        formControlName="base_url"
+        placeholder="https://realestate.example.com"
+        [class.error]="form.controls.base_url.invalid && form.controls.base_url.touched"
+      />
+      @if (form.controls.base_url.invalid && form.controls.base_url.touched) {
+        <span class="field-error" role="alert">
+          @if (form.controls.base_url.errors?.['required']) { URL obrigatório. }
+          @else { URL inválido — deve começar com http:// ou https:// }
+        </span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Extraction Mode</label>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" formControlName="extraction_mode" value="direct" />
+          <span class="radio-label">
+            <strong>Direct</strong>
+            <small>CSS selectors point directly to the values</small>
+          </span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" formControlName="extraction_mode" value="section" />
+          <span class="radio-label">
+            <strong>By Section</strong>
+            <small>Data organized in name/value pairs</small>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <details class="advanced-section">
+    <summary>Advanced Options</summary>
+    <div class="form-section advanced-fields">
+      <div class="form-group">
+        <label for="link_pattern">
+          Link Pattern (Regex)
+          <span class="hint">Filter listing URLs by pattern</span>
+        </label>
+        <input
+          id="link_pattern"
+          type="text"
+          formControlName="link_pattern"
+          placeholder="/en/property/"
+        />
+        <span class="field-hint">Only accept URLs matching this pattern.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="image_filter">
+          Image Filter (Regex)
+          <span class="hint">Filter image URLs by pattern</span>
+        </label>
+        <input
+          id="image_filter"
+          type="text"
+          formControlName="image_filter"
+          placeholder="imodigi\.com/backoffice"
+        />
+        <span class="field-hint">Only accept images from URLs matching this pattern.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="pagination_type">
+          Pagination Type
+          <span class="hint">How the scraper navigates between result pages</span>
+        </label>
+        <select id="pagination_type" formControlName="pagination_type">
+          <option value="">Not set</option>
+          <option value="html_next">HTML next button (selector-based)</option>
+          <option value="query_param">Query parameter (?page=N)</option>
+          <option value="incremental_path">Incremental path (/page/N)</option>
+        </select>
+      </div>
+
+      @if (showPaginationParam()) {
+        <div class="form-group">
+          <label for="pagination_param">
+            Pagination Parameter
+            <span class="hint">Query parameter name for the page number</span>
+          </label>
+          <input
+            id="pagination_param"
+            type="text"
+            formControlName="pagination_param"
+            placeholder="page"
+          />
+          <span class="field-hint">Example: for ?page=2, enter "page"</span>
+        </div>
+      }
+    </div>
+  </details>
+
+  <div class="step-actions">
+    <button type="button" class="btn btn-ghost" (click)="onCancel()" [disabled]="submitting()">
+      Cancel
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="spinner" aria-hidden="true"></span>
+        Saving…
+      } @else if (isEditMode()) {
+        Save &amp; Continue →
+      } @else {
+        Create Site →
+      }
+    </button>
+  </div>
+
+</form>

@@ -8,6 +8,8 @@ import type {
   SiteConfigSuggestResponse,
   SiteConfigPreviewResponse,
   SelectorValidationReport,
+  TestScrapeResponse,
+  TestListingPageResponse,
 } from '../api/model';
 
 @Injectable({
@@ -65,6 +67,27 @@ export class SitesService {
   ): Observable<SelectorValidationReport> {
     return this.api
       .validateSiteSelectors(key, { selectors, url: url ?? null })
+      .pipe(map((r) => r.data!));
+  }
+
+  testScrape(key: string, url: string): Observable<TestScrapeResponse> {
+    return this.api
+      .testScrapeSite(key, { url })
+      .pipe(map((r) => r.data!));
+  }
+
+  testListingPage(
+    key: string,
+    url: string,
+    linkPattern?: string | null,
+    thumbnailSelector?: string | null,
+  ): Observable<TestListingPageResponse> {
+    return this.api
+      .testListingPageSite(key, {
+        url,
+        link_pattern: linkPattern ?? null,
+        thumbnail_selector: thumbnailSelector ?? null,
+      })
       .pipe(map((r) => r.data!));
   }
 }
