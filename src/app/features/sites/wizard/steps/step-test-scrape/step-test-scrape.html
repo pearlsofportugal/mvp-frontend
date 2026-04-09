@@ -1,0 +1,16 @@
+@if (isLocked()) {
+  <div class="step-locked">
+    <span class="lock-icon" aria-hidden="true">🔒</span>
+    <p>Complete <strong>Step 1</strong> to create the site and unlock this step.</p>
+  </div>
+} @else {
+  <app-site-test-scrape [siteKey]="siteKey()" />
+}
+
+<div class="step-actions">
+  <button type="button" class="btn btn-ghost" (click)="back.emit()">← Back</button>
+  <div class="step-actions-right">
+    <button type="button" class="btn btn-ghost" (click)="skip.emit()">Skip</button>
+    <button type="button" class="btn btn-primary" (click)="next.emit()">Next →</button>
+  </div>
+</div>

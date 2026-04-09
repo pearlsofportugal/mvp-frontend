@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import type { SiteConfigRead } from '../../../../core/api/model';
+import type { ConfidenceMeta, SiteConfigRead } from '../../../../core/api/model';
 
 @Component({
   selector: 'app-site-list',
@@ -55,6 +55,25 @@ export class SiteListComponent {
     if (score >= 80) return 'conf-high';
     if (score >= 50) return 'conf-mid';
     return 'conf-low';
+  }
+
+  protected formatConfidenceMeta(meta: ConfidenceMeta): string {
+    const ago = this.relativeTime(meta.updated_at);
+    const n = meta.sample_count;
+    return `Based on ${n} listing${n !== 1 ? 's' : ''} · calculated ${ago}`;
+  }
+
+  private relativeTime(dateStr: string): string {
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diffMs / 60_000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    return new Date(dateStr).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
   }
 
   protected formatUpdatedAt(dateStr: string): string {

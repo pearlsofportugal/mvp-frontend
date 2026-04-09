@@ -1,0 +1,277 @@
+.test-scrape {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ── URL input row ── */
+
+.ts-url-wrap {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.ts-url-wrap input {
+  flex: 1;
+}
+
+/* ── Status banner ── */
+
+.ts-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.6rem;
+  border: 1px solid;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.ts-banner-success {
+  background: var(--green-light);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.ts-banner-warning {
+  background: var(--yellow-light);
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.ts-banner-error {
+  background: var(--red-light);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.ts-banner-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* ── Missing critical ── */
+
+.ts-missing {
+  padding: 0.75rem;
+  background: var(--yellow-light);
+  border: 1px solid var(--yellow);
+  border-radius: 0.6rem;
+}
+
+.ts-missing-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--yellow);
+}
+
+.ts-missing-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ts-missing-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+  padding: 0.15rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--yellow);
+  border-radius: 9999px;
+  color: var(--yellow);
+}
+
+/* ── Section ── */
+
+.ts-section {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.ts-section-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Normalized fields grid ── */
+
+.ts-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.55rem;
+}
+
+.ts-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.65rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.ts-field.ts-field-critical {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.ts-field-label {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.ts-field-critical .ts-field-label {
+  color: var(--accent);
+}
+
+.ts-field-value {
+  font-size: 0.82rem;
+  color: var(--text);
+  word-break: break-word;
+}
+
+/* ── Empty state ── */
+
+.ts-empty {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+/* ── Raw collapsible ── */
+
+.ts-raw {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.ts-raw-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  list-style: none;
+}
+
+.ts-raw-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.ts-raw-toggle::before {
+  content: '▶';
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  transition: transform 0.15s;
+}
+
+details[open] .ts-raw-toggle::before {
+  transform: rotate(90deg);
+}
+
+.ts-raw-count {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+.ts-raw-grid {
+  border-top: 1px solid var(--border);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.ts-raw-row {
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.74rem;
+}
+
+.ts-raw-row:last-child {
+  border-bottom: none;
+}
+
+.ts-raw-key {
+  font-family: var(--font-mono, monospace);
+  color: var(--text-dim);
+  word-break: break-all;
+}
+
+.ts-raw-val {
+  color: var(--text);
+  word-break: break-word;
+}
+
+/* ── Idle state ── */
+
+.ts-idle {
+  padding: 1.25rem;
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+}
+
+.ts-idle p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* ── Spinner reuse ── */
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 520px) {
+  .ts-url-wrap {
+    flex-direction: column;
+  }
+
+  .ts-url-wrap .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ts-fields-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}

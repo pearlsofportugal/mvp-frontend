@@ -55,10 +55,18 @@ export class ListingSelectorComponent {
   protected readonly isOpen = signal(false);
 
   // ── Multi-select ─────────────────────────────────────────────
+  // Last confirmed snapshot — updated only when the user clicks Confirm
+  private readonly confirmedItemIds = signal<string[]>([]);
+  // Working selection inside the modal — reset to snapshot on open/close
   protected readonly selectedItemIds = signal<string[]>([]);
+  // Cache of selected items by id — survives search result changes and modal reopens
+  private readonly selectedItemsCache = signal<Record<string, ListingSearchItem>>({});
   protected readonly selectedItemsList = computed(() =>
-    this.searchResults().filter((l) => this.selectedItemIds().includes(l.id)),
+    this.selectedItemIds()
+      .map((id) => this.selectedItemsCache()[id])
+      .filter((l): l is ListingSearchItem => l != null),
   );
+  // Outside the modal this reflects the confirmed count; inside it reflects the working selection
   protected readonly selectedCount = computed(() => this.selectedItemIds().length);
 
   // ── Search ────────────────────────────────────────────────────
@@ -230,16 +238,16 @@ export class ListingSelectorComponent {
 
   // ── Modal ─────────────────────────────────────────────────────
   protected open(): void {
+    // Restore working selection to last confirmed snapshot
+    this.selectedItemIds.set(this.confirmedItemIds());
     this.isOpen.set(true);
-    if (this.multiMode()) {
-      this.selectedItemIds.set([]);
-    }
-    // Reset text and trigger an immediate browse with current filter
     this.searchQuery.set('');
     this.filterChange$.next({ query: '', filter: this.activeFilter() });
   }
 
   protected close(): void {
+    // Discard uncommitted changes — restore working selection to confirmed snapshot
+    this.selectedItemIds.set(this.confirmedItemIds());
     this.pendingId.set(null);
     this.isOpen.set(false);
   }
@@ -248,6 +256,7 @@ export class ListingSelectorComponent {
     if (this.multiMode()) {
       const items = this.selectedItemsList();
       if (items.length === 0) return;
+      this.confirmedItemIds.set([...this.selectedItemIds()]);
       this.isOpen.set(false);
       this.listingsConfirmed.emit(items);
       return;
@@ -273,9 +282,13 @@ export class ListingSelectorComponent {
 
   protected selectPending(listing: ListingSearchItem): void {
     if (this.multiMode()) {
-      this.selectedItemIds.update((ids) =>
-        ids.includes(listing.id) ? ids.filter((id) => id !== listing.id) : [...ids, listing.id],
-      );
+      const ids = this.selectedItemIds();
+      if (ids.includes(listing.id)) {
+        this.selectedItemIds.set(ids.filter((id) => id !== listing.id));
+      } else {
+        this.selectedItemsCache.update((cache) => ({ ...cache, [listing.id]: listing }));
+        this.selectedItemIds.set([...ids, listing.id]);
+      }
       return;
     }
     this.pendingId.set(this.pendingId() === listing.id ? null : listing.id);

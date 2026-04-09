@@ -1,0 +1,171 @@
+<div class="test-listing">
+
+  <!-- Inputs -->
+  <div class="tl-inputs">
+    <div class="form-group">
+      <label for="tl_url">
+        Listing page URL
+        <span class="hint">e.g. https://example.com/buy?page=1</span>
+      </label>
+      <div class="tl-url-wrap">
+        <input
+          id="tl_url"
+          type="url"
+          [(ngModel)]="testUrl"
+          placeholder="https://example.com/buy?page=1"
+          (keydown.enter)="onRun()"
+        />
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="testing() || !canTest()"
+          (click)="onRun()"
+          aria-label="Run listing page test"
+        >
+          @if (testing()) {
+            <span class="spinner" aria-hidden="true"></span>
+            Running…
+          } @else {
+            ▶ Run Test
+          }
+        </button>
+      </div>
+    </div>
+
+    <div class="tl-optional-row">
+      <div class="form-group">
+        <label for="tl_pattern">
+          Link pattern override
+          <span class="hint">Regex — leave empty to use saved config</span>
+        </label>
+        <input
+          id="tl_pattern"
+          type="text"
+          [(ngModel)]="linkPatternOverride"
+          [placeholder]="savedLinkPattern() || '/property/'"
+          class="mono"
+        />
+      </div>
+      <div class="form-group">
+        <label for="tl_thumb">
+          Thumbnail selector
+          <span class="hint">CSS selector for card images (optional)</span>
+        </label>
+        <input
+          id="tl_thumb"
+          type="text"
+          [(ngModel)]="thumbnailSelector"
+          placeholder=".card img"
+          class="mono"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  @if (result(); as r) {
+
+    <div
+      class="tl-banner"
+      role="status"
+      [class.tl-banner-success]="testStatus() === 'success'"
+      [class.tl-banner-warning]="testStatus() === 'warning'"
+      [class.tl-banner-error]="testStatus() === 'error'"
+    >
+      @if (testStatus() === 'success') {
+        <span class="tl-icon" aria-hidden="true">✓</span>
+        <span>
+          Found <strong>{{ r.links_matched }}</strong> matching links out of {{ r.links_found }} total.
+          @if (matchRate(); as rate) {
+            <span class="tl-rate">({{ rate }}%)</span>
+          }
+        </span>
+      } @else if (testStatus() === 'warning') {
+        <span class="tl-icon" aria-hidden="true">⚠</span>
+        <span>No links matched — check or adjust the link pattern.</span>
+      } @else {
+        <span class="tl-icon" aria-hidden="true">✗</span>
+        <span>{{ r.error ?? 'Page could not be fetched.' }}</span>
+      }
+    </div>
+
+    @if (r.success) {
+
+      <div class="tl-stats">
+        <div class="tl-stat">
+          <span class="tl-stat-label">Links found</span>
+          <span class="tl-stat-value">{{ r.links_found }}</span>
+        </div>
+        <div class="tl-stat">
+          <span class="tl-stat-label">Matched</span>
+          <span class="tl-stat-value tl-matched">{{ r.links_matched }}</span>
+        </div>
+        <div class="tl-stat">
+          <span class="tl-stat-label">Rejected</span>
+          <span class="tl-stat-value tl-rejected">{{ r.links_found - r.links_matched }}</span>
+        </div>
+      </div>
+
+      @if (r.next_page_url) {
+        <div class="tl-next-page">
+          <span class="tl-next-label">Next page detected</span>
+          <span class="tl-next-url" [title]="r.next_page_url">{{ r.next_page_url }}</span>
+        </div>
+      } @else {
+        <p class="tl-no-next">No next page URL detected — pagination may not work or last page reached.</p>
+      }
+
+      <div class="tl-columns">
+
+        @if (r.sample_matched?.length) {
+          <div class="tl-col">
+            <h4 class="tl-col-title tl-col-ok">
+              <span aria-hidden="true">✓</span> Matched ({{ r.sample_matched!.length }})
+            </h4>
+            <ul class="tl-url-list tl-url-list-ok">
+              @for (url of r.sample_matched!; track url) {
+                <li class="tl-url-item">
+                  <a [href]="url" target="_blank" rel="noopener" [title]="url">{{ url }}</a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (r.sample_rejected?.length) {
+          <div class="tl-col">
+            <h4 class="tl-col-title tl-col-reject">
+              <span aria-hidden="true">✗</span> Rejected ({{ r.sample_rejected!.length }})
+            </h4>
+            <ul class="tl-url-list tl-url-list-reject">
+              @for (url of r.sample_rejected!; track url) {
+                <li class="tl-url-item">
+                  <a [href]="url" target="_blank" rel="noopener" [title]="url">{{ url }}</a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+      </div>
+
+      @if (r.thumbnail_preview?.length) {
+        <div class="tl-thumbs">
+          <h4 class="tl-col-title">Thumbnail preview</h4>
+          <div class="tl-thumb-grid">
+            @for (src of r.thumbnail_preview!; track src) {
+              <img [src]="src" alt="thumbnail preview" class="tl-thumb" loading="lazy" />
+            }
+          </div>
+        </div>
+      }
+
+    }
+
+  } @else if (!testing()) {
+    <div class="tl-idle" role="note">
+      <p>Enter a search results page URL above and click <strong>Run Test</strong> to check how many listing links are found and whether pagination is detected.</p>
+    </div>
+  }
+
+</div>

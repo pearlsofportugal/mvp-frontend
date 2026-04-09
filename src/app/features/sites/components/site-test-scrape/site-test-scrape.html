@@ -1,0 +1,113 @@
+<div class="test-scrape">
+
+  <div class="ts-input-row">
+    <div class="form-group">
+      <label for="ts_url">
+        Listing detail URL
+        <span class="hint">Paste a single property page URL to test extraction</span>
+      </label>
+      <div class="ts-url-wrap">
+        <input
+          id="ts_url"
+          type="url"
+          [(ngModel)]="testUrl"
+          placeholder="https://example.com/property/123"
+          (keydown.enter)="onRun()"
+        />
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="testing() || !canTest()"
+          (click)="onRun()"
+          aria-label="Run test scrape"
+        >
+          @if (testing()) {
+            <span class="spinner" aria-hidden="true"></span>
+            Running…
+          } @else {
+            ▶ Run Test
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (result(); as r) {
+
+    <!-- Status banner -->
+    <div
+      class="ts-banner"
+      role="status"
+      [class.ts-banner-success]="testStatus() === 'success'"
+      [class.ts-banner-warning]="testStatus() === 'warning'"
+      [class.ts-banner-error]="testStatus() === 'error'"
+    >
+      @if (testStatus() === 'success') {
+        <span class="ts-banner-icon" aria-hidden="true">✓</span>
+        All critical fields extracted successfully.
+      } @else if (testStatus() === 'warning') {
+        <span class="ts-banner-icon" aria-hidden="true">⚠</span>
+        Extraction succeeded but <strong>{{ r.missing_critical?.length }} critical field(s) missing</strong> — review selectors before saving.
+      } @else {
+        <span class="ts-banner-icon" aria-hidden="true">✗</span>
+        Extraction failed: {{ r.error ?? 'Page could not be fetched or parsed.' }}
+      }
+    </div>
+
+    @if (r.success) {
+
+      <!-- Missing critical warnings -->
+      @if (r.missing_critical?.length) {
+        <div class="ts-missing" role="alert" aria-label="Missing critical fields">
+          <p class="ts-missing-title">Missing critical fields</p>
+          <div class="ts-missing-list">
+            @for (field of r.missing_critical!; track field) {
+              <span class="ts-missing-badge">{{ field }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Normalized preview -->
+      @if (normalizedFields().length) {
+        <div class="ts-section">
+          <h4 class="ts-section-title">Normalized data preview</h4>
+          <div class="ts-fields-grid">
+            @for (f of normalizedFields(); track f.label) {
+              <div class="ts-field" [class.ts-field-critical]="f.critical">
+                <span class="ts-field-label">{{ f.label }}</span>
+                <span class="ts-field-value">{{ f.value }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <p class="ts-empty">No normalised fields extracted.</p>
+      }
+
+      <!-- Raw collapsible -->
+      @if (rawEntries().length) {
+        <details class="ts-raw" [open]="showRaw()">
+          <summary class="ts-raw-toggle" (click)="toggleRaw()">
+            Raw extracted values
+            <span class="ts-raw-count">{{ rawEntries().length }} fields</span>
+          </summary>
+          <div class="ts-raw-grid">
+            @for (entry of rawEntries(); track entry[0]) {
+              <div class="ts-raw-row">
+                <span class="ts-raw-key">{{ entry[0] }}</span>
+                <span class="ts-raw-val">{{ entry[1] || '—' }}</span>
+              </div>
+            }
+          </div>
+        </details>
+      }
+
+    }
+  } @else if (!testing()) {
+    <div class="ts-idle" role="note">
+      <p>Enter a property detail page URL above and click <strong>Run Test</strong> to see what the current selectors would extract — nothing is saved to the database.</p>
+    </div>
+  }
+
+</div>

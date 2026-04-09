@@ -1,0 +1,229 @@
+@if (!listingId()) {
+  <div class="trans-empty">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h3M19 12h3M12 2v3M12 19v3" />
+      <path d="M6.34 6.34l2.12 2.12M15.54 15.54l2.12 2.12M6.34 17.66l2.12-2.12M15.54 8.46l2.12-2.12" />
+    </svg>
+    <p>Select a property using the AI Content Generator to generate multi-locale translations.</p>
+  </div>
+} @else {
+
+  <!-- ── LOCALE SELECTOR ─────────────────────────────────────── -->
+  <div class="locale-section">
+    <span class="options-label">Target locales</span>
+    <div class="locale-grid">
+      @for (locale of allLocales; track locale) {
+        <label class="locale-card" [class.locale-card--active]="selectedLocales().has(locale)">
+          <input
+            type="checkbox"
+            [checked]="selectedLocales().has(locale)"
+            (change)="toggleLocale(locale)"
+          />
+          <span class="locale-flag">{{ locale === 'en' ? '🇬🇧' : locale === 'pt' ? '🇵🇹' : locale === 'es' ? '🇪🇸' : locale === 'fr' ? '🇫🇷' : '🇩🇪' }}</span>
+          <span class="locale-abbr">{{ locale.toUpperCase() }}</span>
+          <span class="locale-name">{{ localeLabels[locale] }}</span>
+        </label>
+      }
+    </div>
+  </div>
+
+  <!-- ── KEYWORDS ────────────────────────────────────────────── -->
+  <div class="keywords-section">
+    <label class="options-label" for="trans-keywords">Keywords <span class="label-opt">(optional)</span></label>
+    <input
+      id="trans-keywords"
+      type="text"
+      class="keywords-input"
+      [formControl]="keywordsControl"
+      placeholder="e.g. pool, sea view, luxury"
+      autocomplete="off"
+    />
+    <span class="field-hint">Comma-separated. Leave empty to infer automatically from the listing.</span>
+  </div>
+
+  <!-- ── FORCE TOGGLE ────────────────────────────────────────── -->
+  <div class="behaviour-row">
+    <label class="toggle-option">
+      <input type="checkbox" [checked]="force()" (change)="force.set(!force())" />
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-label">Force regeneration</span>
+    </label>
+    <span class="toggle-hint">Regenerates locales that already have stored translations.</span>
+  </div>
+
+  <!-- ── ERROR ──────────────────────────────────────────────── -->
+  @if (error()) {
+    <div class="error-message" role="alert" aria-live="assertive">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- ── GENERATE BUTTON ─────────────────────────────────────── -->
+  <div class="form-footer">
+    <button
+      type="button"
+      class="btn-generate"
+      [disabled]="loading() || selectedLocales().size === 0"
+      [attr.aria-busy]="loading()"
+      (click)="onGenerate()"
+    >
+      @if (loading()) {
+        <span class="btn-generate-spinner"></span>
+        Generating translations...
+      } @else {
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h3M19 12h3M12 2v3M12 19v3" />
+          <path d="M7.76 7.76l1.41 1.41M14.83 14.83l1.41 1.41M7.76 16.24l1.41-1.41M14.83 9.17l1.41-1.41" />
+        </svg>
+        Generate translations
+      }
+    </button>
+  </div>
+
+  <!-- ── RESULTS ─────────────────────────────────────────────── -->
+  @if (hasResult() && hasAnyLocaleInResults()) {
+    <div class="trans-results">
+
+      <!-- Locale tab bar -->
+      <div class="locale-tabs">
+        @for (locale of allLocales; track locale) {
+          @if (editedResults()[locale]) {
+            <button
+              type="button"
+              class="locale-tab"
+              [class.locale-tab--active]="activeLocale() === locale"
+              (click)="setActiveLocale(locale)"
+            >
+              {{ locale.toUpperCase() }}
+              @if (localeStatus()[locale] === 'cached') {
+                <span class="tab-badge tab-badge--cached">cached</span>
+              } @else if (localeStatus()[locale] === 'new') {
+                <span class="tab-badge tab-badge--new">new</span>
+              }
+            </button>
+          }
+        }
+        <div class="locale-tabs-right">
+          <span class="diff-badge diff-badge--model">{{ result()!.model_used }}</span>
+          <span
+            class="diff-badge"
+            [class.diff-badge--applied]="isApplied()"
+            [class.diff-badge--preview]="!isApplied()"
+          >{{ isApplied() ? 'Applied' : 'Preview only' }}</span>
+        </div>
+      </div>
+
+      <!-- Keywords used strip -->
+      @if (result()!.keywords_used?.length) {
+        <div class="keywords-used">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span class="keywords-used-label">Keywords:</span>
+          {{ result()!.keywords_used!.join(', ') }}
+        </div>
+      }
+
+      <!-- Active locale fields -->
+      @if (activeLocaleResult(); as localeData) {
+
+        <!-- Title -->
+        <div class="trans-field">
+          <div class="trans-field-header">
+            <span class="diff-field-name">title</span>
+            <span class="char-hint" [class.char-hint--warn]="activeTitleLength() > 60">
+              {{ activeTitleLength() }}/60
+            </span>
+          </div>
+          @if (isApplied()) {
+            <p class="trans-field-text">{{ localeData.title || '—' }}</p>
+          } @else {
+            <input
+              type="text"
+              class="trans-input"
+              [value]="localeData.title ?? ''"
+              (input)="onEditField('title', $any($event.target).value)"
+              maxlength="80"
+              [attr.aria-label]="'Edit title for ' + activeLocale()"
+            />
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="trans-field">
+          <div class="trans-field-header">
+            <span class="diff-field-name">description</span>
+            <span class="char-hint">250–400 words</span>
+          </div>
+          @if (isApplied()) {
+            <p class="trans-field-text">{{ localeData.description || '—' }}</p>
+          } @else {
+            <textarea
+              class="trans-textarea"
+              appAutoResize
+              [value]="localeData.description ?? ''"
+              (input)="onEditField('description', $any($event.target).value)"
+              [attr.aria-label]="'Edit description for ' + activeLocale()"
+            ></textarea>
+          }
+        </div>
+
+        <!-- Meta description -->
+        <div class="trans-field">
+          <div class="trans-field-header">
+            <span class="diff-field-name">meta_description</span>
+            <span class="char-hint" [class.char-hint--warn]="activeMetaLength() > 155">
+              {{ activeMetaLength() }}/155
+            </span>
+          </div>
+          @if (isApplied()) {
+            <p class="trans-field-text">{{ localeData.meta_description || '—' }}</p>
+          } @else {
+            <textarea
+              class="trans-textarea trans-textarea--meta"
+              [value]="localeData.meta_description ?? ''"
+              (input)="onEditField('meta_description', $any($event.target).value)"
+              maxlength="200"
+              [attr.aria-label]="'Edit meta description for ' + activeLocale()"
+            ></textarea>
+          }
+        </div>
+      }
+
+      <!-- Footer: apply / applied state -->
+      <div class="diff-result-footer">
+        @if (isApplied()) {
+          <span class="diff-applied-label">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Translations applied
+          </span>
+        } @else {
+          <button
+            type="button"
+            class="btn btn-success btn-sm"
+            [disabled]="applying()"
+            (click)="onApply()"
+          >
+            @if (applying()) {
+              <app-spinner size="xs" message="Applying"></app-spinner>
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Apply translations
+            }
+          </button>
+        }
+      </div>
+
+    </div>
+  }
+
+}

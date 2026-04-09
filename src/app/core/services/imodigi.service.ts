@@ -9,7 +9,7 @@ import type {
   ImodigiExportResponse,
   ImodigiExportRead,
   ImodigiSearchLocationsParams,
-  ImodigiListExportsParams,
+  ImodigiListPublicationsParams,
 } from '../api/model';
 
 @Injectable({ providedIn: 'root' })
@@ -30,15 +30,15 @@ export class ImodigiService {
 
   exportListing(listingId: string, clientId?: number | null): Observable<ImodigiExportResponse> {
     return this.api
-      .imodigiExportListing(listingId, { client_id: clientId ?? null })
+      .imodigiPublishListing(listingId, { client_id: clientId ?? null })
       .pipe(map((r) => r.data!));
   }
 
-  listExports(params?: ImodigiListExportsParams): Observable<ImodigiExportRead[]> {
-    return this.api.imodigiListExports(params).pipe(map((r) => r.data ?? []));
+  listExports(params?: ImodigiListPublicationsParams): Observable<ImodigiExportRead[]> {
+    return this.api.imodigiListPublications(params).pipe(map((r) => r.data ?? []));
   }
 
   getExport(listingId: string): Observable<ImodigiExportRead> {
-    return this.api.imodigiGetExport(listingId).pipe(map((r) => r.data!));
+    return this.api.imodigiGetPublication(listingId).pipe(map((r) => r.data!));
   }
 }

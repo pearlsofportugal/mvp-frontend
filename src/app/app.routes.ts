@@ -22,9 +22,26 @@ export const routes: Routes = [
   },
   {
     path: 'sites',
-    title: `Sites — ${projectName}`,
-    loadComponent: () =>
-      import('./features/sites/sites').then((m) => m.SitesComponent),
+    children: [
+      {
+        path: '',
+        title: `Sites — ${projectName}`,
+        loadComponent: () =>
+          import('./features/sites/sites').then((m) => m.SitesComponent),
+      },
+      {
+        path: 'new',
+        title: `New Site — ${projectName}`,
+        loadComponent: () =>
+          import('./features/sites/wizard/site-wizard').then((m) => m.SiteWizardComponent),
+      },
+      {
+        path: ':key/edit',
+        title: `Edit Site — ${projectName}`,
+        loadComponent: () =>
+          import('./features/sites/wizard/site-wizard').then((m) => m.SiteWizardComponent),
+      },
+    ],
   },
   {
     path: 'jobs',

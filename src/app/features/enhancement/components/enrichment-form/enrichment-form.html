@@ -1,93 +1,29 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="AI Enrichment form">
+<form aria-label="AI Bulk Enrichment form">
 
-  <!-- ── PROPERTY SELECTOR ────────────────────────────────────── -->
-  <div class="form-group full-width">
-    <app-listing-selector [multiMode]="true" (listingsConfirmed)="onListingsConfirmed($event)" />
-  </div>
-
-  <!-- ── SELECTED LISTING INFO ─────────────────────────────────── -->
-  @if (selectedCount() > 1) {
-  <div class="listing-info" role="status" aria-live="polite">
-    <div class="listing-info-title">{{ selectedCount() }} properties selected for enrichment</div>
-  </div>
-  } @else if (loadingListing()) {
-    <app-spinner size="md" message="Loading property"></app-spinner>
-
-  } @else if (selectedListing(); as listing) {
-  <div class="listing-info" role="status" aria-live="polite">
-    <div class="listing-info-title">{{ listing.title || '—' }}</div>
-    <div class="listing-info-meta">
-      <span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        {{ listing.district || '' }}{{ listing.district && listing.county ? ', ' : '' }}{{ listing.county || '—' }}
-      </span>
-      @if (listing.price_amount) {
-      <span class="listing-info-price">{{ listing.price_amount | number }} {{ listing.price_currency || '€' }}</span>
-      }
-      <span class="listing-info-source">{{ listing.source_partner }}</span>
-    </div>
-  </div>
-  }
-
-  <!-- ── WHAT TO ENHANCE ──────────────────────────────────────── -->
+  <!-- ── TARGET LOCALES ───────────────────────────────────────── -->
   <div class="options-section">
-    <span class="options-label">What to enhance</span>
+    <span class="options-label">Target locales</span>
     <div class="options-grid">
-
-      <div class="tooltip-wrap"
-        data-tooltip="Rewrites the property title to be more compelling and SEO-friendly. Keeps key facts like location and type.">
-        <label class="option-card" [class.option-card--active]="form.value.target_title">
-          <input type="checkbox" formControlName="target_title" />
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="4 7 4 4 20 4 20 7" />
-            <line x1="9" y1="20" x2="15" y2="20" />
-            <line x1="12" y1="4" x2="12" y2="20" />
-          </svg>
-          Title
+      @for (locale of allLocales; track locale) {
+        <label class="option-card" [class.option-card--active]="selectedLocales().has(locale)">
+          <input
+            type="checkbox"
+            [checked]="selectedLocales().has(locale)"
+            (change)="toggleLocale(locale)"
+          />
+          <span>{{ localeFlags[locale] }}</span>
+          {{ locale.toUpperCase() }}
         </label>
-      </div>
-
-      <div class="tooltip-wrap"
-        data-tooltip="Rewrites the full property description to improve clarity, tone and readability. Highlights key selling points.">
-        <label class="option-card" [class.option-card--active]="form.value.target_description">
-          <input type="checkbox" formControlName="target_description" />
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="21" y1="6" x2="3" y2="6" />
-            <line x1="21" y1="10" x2="3" y2="10" />
-            <line x1="21" y1="14" x2="3" y2="14" />
-            <line x1="21" y1="18" x2="3" y2="18" />
-          </svg>
-          Description
-        </label>
-      </div>
-
-      <div class="tooltip-wrap"
-        data-tooltip="Generates a meta description (up to 160 chars) optimised for search engines and click-through rates.">
-        <label class="option-card" [class.option-card--active]="form.value.target_meta_description">
-          <input type="checkbox" formControlName="target_meta_description" />
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          Meta description
-        </label>
-      </div>
-
+      }
     </div>
   </div>
 
   <div class="behaviour-row">
-    <div class="tooltip-wrap tooltip-wrap--inline"
-      data-tooltip="Forces the AI to generate new content even if this field was already enhanced before. Previous content will be replaced.">
-      <label class="toggle-option">
-        <input type="checkbox" formControlName="force_regeneration" />
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        <span class="toggle-label">Force regeneration</span>
-      </label>
-    </div>
+    <label class="toggle-option">
+      <input type="checkbox" [checked]="force()" (change)="force.set(!force())" />
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-label">Force regeneration</span>
+    </label>
   </div>
 
   <!-- ── ERROR ─────────────────────────────────────────────────── -->
@@ -102,42 +38,38 @@
   </div>
   }
 
+  <!-- ── RESULT ─────────────────────────────────────────────────── -->
+  @if (lastResult(); as r) {
+  <div class="result-strip" role="status" aria-live="polite">
+    <span class="result-item result-item--enriched">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      {{ r.enriched }} enriched
+    </span>
+    @if (r.skipped > 0) {
+      <span class="result-item result-item--skipped">{{ r.skipped }} skipped</span>
+    }
+    @if (r.failed > 0) {
+      <span class="result-item result-item--failed">{{ r.failed }} failed</span>
+    }
+    <span class="result-item result-item--duration">{{ r.duration | number:'1.1-1' }}s</span>
+  </div>
+  }
+
   <!-- ── SUBMIT ─────────────────────────────────────────────────── -->
   <div class="form-footer">
-    <button type="submit" class="btn-generate" [disabled]="loading()" [attr.aria-busy]="loading()">
+    <button type="button" class="btn-generate" [disabled]="loading()" [attr.aria-busy]="loading()" (click)="onSubmit()">
       @if (loading()) {
       <span class="btn-generate-spinner"></span>
-      @if ((batchProgress()?.total ?? 1) > 1) {
-        Processing {{ batchProgress()?.done ?? 0 }}/{{ batchProgress()?.total }}...
-      } @else {
-        Generating...
-      }
+      Enriching {{ submittedCount() }} properties...
       } @else {
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
       </svg>
-      @if (selectedCount() > 1) {
-        Generate for {{ selectedCount() }} properties
-      } @else {
-        Generate with AI
-      }
+      Generate for {{ selectedCount() }} properties
       }
     </button>
   </div>
-
-  <!-- ── AI PROGRESS ───────────────────────────────────────────── -->
-  @if (loading()) {
-  <div class="ai-progress" role="status" aria-live="polite">
-    <div class="ai-progress-head">
-      <span class="ai-progress-status">{{ generationStatus() }}</span>
-      <span class="ai-progress-pct">{{ generationProgress() }}%</span>
-    </div>
-    <div class="progress-track" role="progressbar" [attr.aria-valuenow]="generationProgress()" aria-valuemin="0"
-      aria-valuemax="100">
-      <div class="progress-fill" [style.width.%]="generationProgress()"></div>
-    </div>
-  </div>
-  }
-
 
 </form>

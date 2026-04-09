@@ -833,3 +833,199 @@ input::placeholder {
     flex-direction: column;
   }
 }
+
+/* ── Selector Validation ── */
+
+.conf-meta-note {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.conf-meta-no-jobs {
+  font-style: italic;
+}
+
+.conf-meta-icon {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+/* Low-confidence inline hint */
+
+.low-conf-hint {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--red);
+  line-height: 1.35;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  opacity: 0.75;
+}
+
+.validate-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.validate-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.validate-bar-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.validate-hint {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.validation-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.6rem;
+  border: 1px solid;
+  font-size: 0.8rem;
+  margin-bottom: 0.85rem;
+  line-height: 1.4;
+}
+
+.validation-banner em {
+  font-style: normal;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  opacity: 0.85;
+  word-break: break-all;
+}
+
+.val-banner-success {
+  background: var(--green-light);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.val-banner-warning {
+  background: var(--yellow-light);
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.val-banner-error {
+  background: var(--red-light);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.val-banner-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Per-field validation result row */
+
+.val-result {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.25rem 0.45rem;
+  border-radius: 0.35rem;
+}
+
+.val-result-ok {
+  color: var(--green);
+  background: var(--green-light);
+}
+
+.val-result-warning {
+  color: var(--yellow);
+  background: var(--yellow-light);
+}
+
+.val-result-error {
+  color: var(--red);
+  background: var(--red-light);
+}
+
+.val-result-icon {
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.val-sample {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+  opacity: 0.85;
+  border-left: 1px solid currentColor;
+  padding-left: 0.35rem;
+  margin-left: 0.15rem;
+  cursor: help;
+}
+
+/* Input border state overrides for validation */
+
+input.val-success {
+  border-color: var(--green);
+}
+
+input.val-warning {
+  border-color: var(--yellow);
+}
+
+input.val-error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px var(--red-light);
+}
+
+/* btn-secondary used for validate button after first run */
+
+.btn-secondary {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--border-light);
+  background: var(--surface3);
+}

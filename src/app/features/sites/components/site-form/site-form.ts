@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   effect,
   inject,
   input,
@@ -17,7 +18,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../../../core/services/sites.service';
-import type { SiteConfigRead, SiteConfigCreate, SiteConfigSuggestResponse } from '../../../../core/api/model';
+import type {
+  SiteConfigRead,
+  SiteConfigCreate,
+  SiteConfigSuggestResponse,
+  SelectorValidationReport,
+  SelectorValidationResult,
+} from '../../../../core/api/model';
 import {
   SelectorCategory,
   SELECTOR_CATEGORIES,
@@ -29,16 +36,18 @@ import {
 } from '../../selectors.schema';
 import { SiteSuggestComponent, SelectorApplied } from '../site-suggest/site-suggest';
 import { SitePreviewComponent } from '../site-preview/site-preview';
+import { SiteTestScrapeComponent } from '../site-test-scrape/site-test-scrape';
+import { SiteTestListingComponent } from '../site-test-listing/site-test-listing';
 
 type ExtractionMode = 'section' | 'direct';
 type PaginationType = 'html_next' | 'query_param' | 'incremental_path';
-type FormTab = 'basic' | 'selectors' | 'advanced';
+type FormTab = 'basic' | 'selectors' | 'listing' | 'test' | 'advanced';
 type FormStage = 'detect' | 'configure';
 
 
 @Component({
   selector: 'app-site-form',
-  imports: [ReactiveFormsModule, SiteSuggestComponent, SitePreviewComponent],
+  imports: [ReactiveFormsModule, SiteSuggestComponent, SitePreviewComponent, SiteTestScrapeComponent, SiteTestListingComponent],
   templateUrl: './site-form.html',
   styleUrl: './site-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,6 +68,34 @@ export class SiteFormComponent {
   protected readonly suggestLoading = signal(false);
   protected readonly suggestResult = signal<SiteConfigSuggestResponse | null>(null);
   protected readonly suggestError = signal(false);
+
+  protected readonly validating = signal(false);
+  protected readonly validationReport = signal<SelectorValidationReport | null>(null);
+
+  protected readonly validationStatus = computed<'idle' | 'success' | 'warning' | 'error'>(() => {
+    const r = this.validationReport();
+    if (!r) return 'idle';
+    if (!r.success) return 'error';
+    if (r.warnings?.length) return 'warning';
+    return 'success';
+  });
+
+  protected readonly validationResultMap = computed<Map<string, SelectorValidationResult>>(() => {
+    const r = this.validationReport();
+    if (!r) return new Map();
+    return new Map(r.results.map((res) => [res.field, res]));
+  });
+
+  protected readonly canValidate = computed(() => {
+    if (!this.site()) return false;
+    return this.selectorFields.some((f) => !!this.form.get(f.key)?.value?.trim());
+  });
+
+  protected readonly siteKey = computed(() => this.site()?.key ?? '');
+
+  protected readonly isEditMode = computed(() => !!this.site());
+
+  protected readonly savedLinkPattern = computed(() => this.site()?.link_pattern ?? '');
 
   protected readonly selectorFields = SELECTOR_FIELDS;
   protected readonly selectorCategories = SELECTOR_CATEGORIES;
@@ -96,6 +133,7 @@ export class SiteFormComponent {
         this.suggestError.set(false);
         this.resetFormForCreate();
       }
+      this.validationReport.set(null);
     });
   }
 
@@ -130,6 +168,13 @@ export class SiteFormComponent {
   }
 
   protected onSubmit(): void {
+    // Block save if validation ran and found errors
+    const report = this.validationReport();
+    if (report && !report.success) {
+      this.activeTab.set('selectors');
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.activeTab.set(this.resolveInvalidTab());
@@ -213,6 +258,65 @@ export class SiteFormComponent {
     this.formStage.set('detect');
   }
 
+  protected onValidateSelectors(): void {
+    const siteKey = this.site()?.key;
+    if (!siteKey) return;
+
+    const selectors: Record<string, string> = {};
+    for (const field of this.selectorFields) {
+      const val = (this.form.get(field.key)?.value as string)?.trim();
+      if (val) selectors[field.key] = val;
+    }
+
+    const url = this.previewUrl().trim() || undefined;
+
+    this.validating.set(true);
+    this.validationReport.set(null);
+
+    this.sitesService
+      .validateSelectors(siteKey, selectors, url)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          this.validationReport.set(r);
+          this.validating.set(false);
+        },
+        error: () => {
+          this.validating.set(false);
+        },
+      });
+  }
+
+  protected getValidationResult(fieldKey: string): SelectorValidationResult | undefined {
+    return this.validationResultMap().get(fieldKey);
+  }
+
+  protected isValError(fieldKey: string): boolean {
+    const r = this.validationResultMap().get(fieldKey);
+    return !!r && !r.valid_css;
+  }
+
+  protected isValWarning(fieldKey: string): boolean {
+    const r = this.validationResultMap().get(fieldKey);
+    return !!r && r.valid_css && r.matches === 0;
+  }
+
+  protected isValSuccess(fieldKey: string): boolean {
+    const r = this.validationResultMap().get(fieldKey);
+    return !!r && r.valid_css && r.matches > 0;
+  }
+
+  protected isLowConfidence(fieldKey: string): boolean {
+    const scores = this.site()?.confidence_scores;
+    if (!scores) return false;
+    const val = scores[fieldKey];
+    return val != null && val < 0.5;
+  }
+
+  protected goToTestTab(): void {
+    this.activeTab.set('test');
+  }
+
   protected suggestCoverage(): number {
     const r = this.suggestResult();
     return r ? Object.values(r.candidates).filter((c) => c.length > 0).length : 0;
@@ -243,6 +347,28 @@ export class SiteFormComponent {
     if (!scores) return null;
     const val = scores[fieldKey];
     return val != null ? Math.round(val * 100) : null;
+  }
+
+  protected getConfidenceMetaText(): string | null {
+    const meta = this.site()?.confidence_meta;
+    if (!meta) return null;
+    const diffMs = Date.now() - new Date(meta.updated_at).getTime();
+    const mins = Math.floor(diffMs / 60_000);
+    let ago: string;
+    if (mins < 1) ago = 'just now';
+    else if (mins < 60) ago = `${mins}m ago`;
+    else {
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) ago = `${hours}h ago`;
+      else {
+        const days = Math.floor(hours / 24);
+        if (days < 7) ago = `${days}d ago`;
+        else if (days < 30) ago = `${Math.floor(days / 7)}w ago`;
+        else ago = new Date(meta.updated_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+      }
+    }
+    const n = meta.sample_count;
+    return `Scores calculated ${ago} · based on ${n} listing${n !== 1 ? 's' : ''}`;
   }
 
   protected confClass(score: number): string {
