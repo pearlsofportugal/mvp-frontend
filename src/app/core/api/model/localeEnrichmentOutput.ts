@@ -7,9 +7,9 @@
  */
 
 /**
- * AI-generated SEO content for a listing.
+ * AI-generated SEO content for a single locale.
  */
-export interface AIEnrichmentOutput {
+export interface LocaleEnrichmentOutput {
   /** Optimised listing title. */
   title?: string | null;
   /** Enriched listing description. */

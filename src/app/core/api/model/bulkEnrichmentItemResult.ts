@@ -5,7 +5,7 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
-import type { BulkEnrichmentItemResultFieldsChangedItem } from './bulkEnrichmentItemResultFieldsChangedItem';
+import type { BulkEnrichmentItemResultLocalesGeneratedItem } from './bulkEnrichmentItemResultLocalesGeneratedItem';
 
 /**
  * Per-listing result within a bulk enrichment response.
@@ -14,7 +14,7 @@ export interface BulkEnrichmentItemResult {
   listing_id: string;
   /** 'enriched', 'skipped', or 'error' */
   status: string;
-  fields_changed?: BulkEnrichmentItemResultFieldsChangedItem[];
+  locales_generated?: BulkEnrichmentItemResultLocalesGeneratedItem[];
   /** Error message when status is 'error'. */
   error?: string | null;
 }

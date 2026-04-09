@@ -9,6 +9,55 @@
   grid-column: 1 / -1;
 }
 
+/* ── RESULT STRIP ────────────────────────────────────────────── */
+.result-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  animation: strip-in 0.2s ease;
+}
+
+.result-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.result-item--enriched {
+  color: var(--green);
+  background: var(--green-light);
+  border-color: var(--green);
+}
+
+.result-item--skipped {
+  color: var(--yellow, #f59e0b);
+  background: var(--yellow-light, #fef3c7);
+  border-color: var(--yellow, #f59e0b);
+}
+
+.result-item--failed {
+  color: var(--red);
+  background: var(--red-light);
+  border-color: var(--red);
+}
+
+.result-item--duration {
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
 /* ── LISTING INFO STRIP ─────────────────────────────────────── */
 .listing-info {
   margin-top: 0.75rem;

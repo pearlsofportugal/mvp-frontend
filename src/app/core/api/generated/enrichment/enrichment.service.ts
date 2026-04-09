@@ -10,14 +10,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import type {
-  AIListingEnrichmentRequest,
-  AITextOptimizationRequest,
-  ApiResponseAIListingEnrichmentResponse,
-  ApiResponseAITextOptimizationResponse,
   ApiResponseBulkEnrichmentResponse,
   ApiResponseEnrichmentStats,
+  ApiResponseListingTranslationResponse,
   BulkEnrichmentRequest,
   EnrichmentStatsParams,
+  ListingTranslationRequest,
 } from '../../model';
 
 import { customFetch } from '../../custom-fetch';
@@ -25,40 +23,6 @@ import { customFetch } from '../../custom-fetch';
 @Injectable({ providedIn: 'root' })
 export class EnrichmentService {
   private readonly http = inject(HttpClient);
-  /**
-   * Optimize free text with AI SEO logic.
-   * @summary Optimize Text
-   */
-  optimizeText<TData = ApiResponseAITextOptimizationResponse>(
-    aITextOptimizationRequest: AITextOptimizationRequest,
-  ) {
-    return customFetch<TData>(
-      {
-        url: `/api/v1/enrichment/ai/optimize`,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: aITextOptimizationRequest,
-      },
-      this.http,
-    );
-  }
-  /**
-   * Enrich selected listing fields (title/description/meta_description) using AI.
-   * @summary Enhance Listing
-   */
-  enhanceListing<TData = ApiResponseAIListingEnrichmentResponse>(
-    aIListingEnrichmentRequest: AIListingEnrichmentRequest,
-  ) {
-    return customFetch<TData>(
-      {
-        url: `/api/v1/enrichment/ai/enhance`,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: aIListingEnrichmentRequest,
-      },
-      this.http,
-    );
-  }
   /**
    * Aggregated enrichment statistics across all listings.
    * @summary Enrichment Stats
@@ -100,7 +64,7 @@ export class EnrichmentService {
     );
   }
   /**
- * Enrich multiple listings in one call.
+ * Enrich multiple listings in one call using the multi-locale translations endpoint.
 
 When ``listing_ids`` is provided, only those listings are processed.
 Otherwise, all unenriched listings (optionally filtered by ``source_partner``)
@@ -116,6 +80,31 @@ are queued up to ``limit``.
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: bulkEnrichmentRequest,
+      },
+      this.http,
+    );
+  }
+  /**
+ * Generate multi-locale SEO content (EN, PT, ES, FR, DE) from original scraped data.
+
+All locales are generated independently in a single AI call — no chaining between languages.
+
+- **apply=False** (default): AI is called for locales that do not already have stored content.
+  Returns a preview without writing to the database.
+- **apply=True**: Persists the ``translation_values`` provided by the caller.
+  AI is NOT called in this path — supply the output from a prior apply=False call.
+- **force=True**: Regenerates locales even if they already have stored translations.
+ * @summary Translate Listing
+ */
+  translateListing<TData = ApiResponseListingTranslationResponse>(
+    listingTranslationRequest: ListingTranslationRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/enrichment/ai/translations`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: listingTranslationRequest,
       },
       this.http,
     );

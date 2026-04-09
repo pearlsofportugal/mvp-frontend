@@ -5,15 +5,15 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
-import type { AITextOptimizationResponse } from './aITextOptimizationResponse';
 import type { ErrorDetail } from './errorDetail';
+import type { ListingTranslationResponse } from './listingTranslationResponse';
 import type { Meta } from './meta';
 
-export interface ApiResponseAITextOptimizationResponse {
+export interface ApiResponseListingTranslationResponse {
   /** Whether the request succeeded. */
   success: boolean;
   /** Response payload; present when success=True. */
-  data?: AITextOptimizationResponse | null;
+  data?: ListingTranslationResponse | null;
   /** Pagination metadata for list responses. */
   meta?: Meta | null;
   /** Optional human-readable message. */

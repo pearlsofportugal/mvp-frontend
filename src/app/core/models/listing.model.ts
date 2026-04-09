@@ -50,7 +50,7 @@ export interface RealEstate {
   // Content
   raw_description?: string;
   description?: string;
-  enriched_description?: string;
+  enriched_translations?: Record<string, unknown> | null;
   description_quality_score?: number;
   meta_description?: string;
   page_title?: string;

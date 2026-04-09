@@ -5,19 +5,19 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
-import type { BulkEnrichmentRequestFieldsItem } from './bulkEnrichmentRequestFieldsItem';
+import type { BulkEnrichmentRequestLocalesItem } from './bulkEnrichmentRequestLocalesItem';
 
 /**
- * Request to enrich multiple listings in one call.
+ * Request to enrich multiple listings in one bulk call.
  */
 export interface BulkEnrichmentRequest {
   /** Explicit list of listing IDs to enrich. If empty, enrich all unenriched listings. */
   listing_ids?: string[];
-  /** Fields to enrich. Defaults to all three. */
-  fields?: BulkEnrichmentRequestFieldsItem[];
+  /** Target locales to generate. Defaults to all supported locales. */
+  locales?: BulkEnrichmentRequestLocalesItem[];
   /** Shared SEO keywords. If empty, keywords are inferred per listing. */
   keywords?: string[];
-  /** When True, regenerates output even if target fields already have values. */
+  /** When True, regenerates locales even if they already have stored translations. */
   force?: boolean;
   /** When set (and listing_ids is empty), restricts bulk enrichment to this partner. */
   source_partner?: string | null;

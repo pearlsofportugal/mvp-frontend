@@ -31,6 +31,6 @@ export interface ListingSearchItem {
   price_currency?: string | null;
   /** URL of the first media asset (position=0), if available. */
   thumbnail_url?: string | null;
-  /** True when any of enriched_title, enriched_description, or enriched_meta_description is present. */
+  /** True when enriched_translations contains at least one locale. */
   is_enriched?: boolean;
 }
