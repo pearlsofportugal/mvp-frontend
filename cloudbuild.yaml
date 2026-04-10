@@ -1,0 +1,47 @@
+steps:
+  # Build da imagem com Kaniko
+  - name: 'gcr.io/kaniko-project/executor:v1.23.2'
+    args:
+      - '--dockerfile=Dockerfile'
+      - '--context=dir:///workspace/'
+      - '--destination=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--cache=true'
+      - '--cache-ttl=24h'
+      - '--cache-repo=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME-cache'
+    id: Build
+
+  # Deploy no Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:513.0.0-slim'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - $_SERVICE_NAME
+      - '--platform=managed'
+      - '--image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID'
+      - '--region=$_DEPLOY_REGION'
+      - '--port=8080'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--concurrency=80'
+      - '--quiet'
+    id: Deploy
+    waitFor: ['Build']
+
+options:
+  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+timeout: '1200s'
+
+substitutions:
+  _AR_REPOSITORY: cloud-run-source-deploy
+  _AR_PROJECT_ID: mvp-scraper-488408
+  _SERVICE_NAME: mvp-frontend
+  _DEPLOY_REGION: europe-west1
+  _AR_HOSTNAME: europe-west1-docker.pkg.dev
+
+tags:
+  - gcp-cloud-build-deploy-cloud-run
+  - gcp-cloud-build-deploy-cloud-run-managed
+  - mvp-frontend
