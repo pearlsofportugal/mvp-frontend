@@ -23,7 +23,7 @@
 				</div>
 				@if (exportForm.previewCount(); as r) {
 					<div class="count-stat">
-						<span class="count-value">{{ r.meta?.total ?? 0 }}</span>
+						<span class="count-value">{{ r.meta.total ?? 0 }}</span>
 						<span class="count-label">listings match your filters</span>
 					</div>
 				} @else {

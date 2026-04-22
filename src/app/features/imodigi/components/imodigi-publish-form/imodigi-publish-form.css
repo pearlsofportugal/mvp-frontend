@@ -1,0 +1,169 @@
+/* ── STORE ROW ───────────────────────────────────────────────── */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.store-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.01em;
+}
+
+.store-hint {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding-left: 0.1rem;
+  font-style: italic;
+}
+
+/* ── ERROR ───────────────────────────────────────────────────── */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--red-light, #fee2e2);
+  border: 1px solid var(--red, #ef4444);
+  color: var(--red, #ef4444);
+  font-size: 0.8rem;
+}
+
+/* ── PROGRESS BAR ────────────────────────────────────────────── */
+.progress-wrap {
+  position: relative;
+  height: 1.75rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  animation: strip-in 0.2s ease;
+}
+
+.progress-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.18;
+  transition: width 0.4s ease;
+  min-width: 0;
+}
+
+.progress-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+/* ── RESULT STRIP ────────────────────────────────────────────── */
+.result-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  animation: strip-in 0.2s ease;
+}
+
+.result-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.result-item--published {
+  color: var(--green);
+  background: var(--green-light);
+  border-color: var(--green);
+}
+
+.result-item--skipped {
+  color: var(--yellow, #f59e0b);
+  background: var(--yellow-light, #fef3c7);
+  border-color: var(--yellow, #f59e0b);
+}
+
+.result-item--failed {
+  color: var(--red);
+  background: var(--red-light);
+  border-color: var(--red);
+}
+
+.result-item--duration {
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+/* ── SUBMIT ──────────────────────────────────────────────────── */
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+}
+
+.btn-publish {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  line-height: 1;
+}
+
+.btn-publish:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-publish:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+/* ── SPINNER ─────────────────────────────────────────────────── */
+.btn-spinner {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgba(255 255 255 / 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes strip-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

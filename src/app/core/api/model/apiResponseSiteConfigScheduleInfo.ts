@@ -5,15 +5,15 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
-import type { BulkEnrichmentResponse } from './bulkEnrichmentResponse';
 import type { ErrorDetail } from './errorDetail';
 import type { Meta } from './meta';
+import type { SiteConfigScheduleInfo } from './siteConfigScheduleInfo';
 
-export interface ApiResponseBulkEnrichmentResponse {
+export interface ApiResponseSiteConfigScheduleInfo {
   /** Whether the request succeeded. */
   success: boolean;
   /** Response payload; present when success=True. */
-  data?: BulkEnrichmentResponse | null;
+  data?: SiteConfigScheduleInfo | null;
   /** Pagination metadata for list responses. */
   meta?: Meta | null;
   /** Optional human-readable message. */

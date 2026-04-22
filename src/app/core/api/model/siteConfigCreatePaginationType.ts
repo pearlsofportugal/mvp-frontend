@@ -16,4 +16,5 @@ export const SiteConfigCreatePaginationType = {
   html_next: 'html_next',
   query_param: 'query_param',
   incremental_path: 'incremental_path',
+  sitemap: 'sitemap',
 } as const;

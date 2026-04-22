@@ -7,18 +7,26 @@ export interface NavRoute {
 }
 
 export const NAV_ROUTES: NavRoute[] = [
+  { path: '/dashboard', label: 'Dashboard' },
   { path: '/sites', label: 'Sites' },
   { path: '/jobs', label: 'Jobs' },
   { path: '/real-estate', label: 'Real Estate' },
   { path: '/enhancement', label: 'Enhancement' },
+  { path: '/imodigi', label: 'Imodigi' },
   { path: '/export', label: 'Export' },
 ];
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'sites',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
+  },
+  {
+    path: 'dashboard',
+    title: `Dashboard — ${projectName}`,
+    loadComponent: () =>
+      import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
   },
   {
     path: 'sites',
@@ -62,6 +70,12 @@ export const routes: Routes = [
       import('./features/enhancement/enhancement').then(
         (m) => m.EnhancementComponent
       ),
+  },
+  {
+    path: 'imodigi',
+    title: `Imodigi — ${projectName}`,
+    loadComponent: () =>
+      import('./features/imodigi/imodigi').then((m) => m.ImodigiComponent),
   },
   {
     path: 'export',

@@ -28,6 +28,14 @@ export type ListListingsParams = {
   created_after?: string | null;
   created_before?: string | null;
   search?: string | null;
+  /**
+   * Filter by AI enrichment status.
+   */
+  is_enriched?: boolean | null;
+  /**
+   * Filter by Imodigi export status (published or updated).
+   */
+  is_exported_to_imodigi?: boolean | null;
   sort_by?: ListListingsSortBy;
   /**
    * @pattern ^(asc|desc)$

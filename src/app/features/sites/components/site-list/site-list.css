@@ -215,13 +215,41 @@
 
 .site-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.55rem;
 }
 
 .site-updated {
   font-size: 0.64rem;
   color: var(--text-dim);
+}
+
+.schedule-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.64rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  max-width: 17ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-on {
+  background: var(--green-light);
+  color: var(--green);
+  border-color: var(--green);
+}
+
+.schedule-off {
+  background: var(--surface2);
+  color: var(--text-dim);
+  border-color: var(--border);
 }
 
 .confirm-delete {

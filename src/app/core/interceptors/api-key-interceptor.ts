@@ -34,7 +34,9 @@ export const apiKeyInterceptor: HttpInterceptorFn = (
   const apiKey = environment.apiKey;
   if (!apiKey) {
     // Em dev pode não estar configurada — não bloquear
-    console.warn('[ApiKeyInterceptor] API key não configurada no environment.');
+    if (!environment.production) {
+      console.warn('[ApiKeyInterceptor] API key não configurada no environment.');
+    }
     return next(req);
   }
 

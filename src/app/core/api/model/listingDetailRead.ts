@@ -31,7 +31,7 @@ export interface ListingDetailRead {
   floor?: string | null;
   /** Year of construction. */
   construction_year?: number | null;
-  /** Energy certificate rating. */
+  /** Energy certificate rating (e.g. A+, A, B, C, Isento). */
   energy_certificate?: string | null;
   price_amount?: string | null;
   /** ISO 4217 currency code. */

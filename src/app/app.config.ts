@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { PreloadAllModules, provideRouter, withPreloading } from '@angular/router';
+import { NoPreloading, provideRouter, withPreloading } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
@@ -10,7 +10,7 @@ import { apiKeyInterceptor } from './core/interceptors/api-key-interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideRouter(routes, withPreloading(NoPreloading)),
     provideHttpClient(withFetch(), withInterceptors([apiKeyInterceptor, apiErrorInterceptor])),
     provideClientHydration(withEventReplay()),
   ],

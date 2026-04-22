@@ -14,7 +14,7 @@
  * NÃO editar o nome da função exportada sem actualizar o config.
  */
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import type { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -29,8 +29,19 @@ export type CustomFetchConfig = {
 export const customFetch = <T>(config: CustomFetchConfig, http: HttpClient): Observable<T> => {
   const fullUrl = `${environment.apiUrl}${config.url}`;
 
+  const params = new HttpParams();
+  const httpParams = config.params
+    ? Object.entries(config.params).reduce((acc, [key, value]) => {
+        if (value == null) return acc;
+        if (Array.isArray(value)) {
+          return value.reduce((a, v) => a.append(key, String(v)), acc);
+        }
+        return acc.set(key, String(value));
+      }, params)
+    : params;
+
   return http.request<T>(config.method, fullUrl, {
-    params: config.params as Record<string, string | string[]>,
+    params: httpParams,
     body: config.data,
     headers: config.headers,
   });

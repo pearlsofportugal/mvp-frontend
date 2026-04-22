@@ -58,6 +58,38 @@
   margin-left: auto;
 }
 
+/* ── PROGRESS BAR ────────────────────────────────────────────── */
+.progress-wrap {
+  position: relative;
+  height: 1.75rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  animation: strip-in 0.2s ease;
+}
+
+.progress-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.18;
+  transition: width 0.4s ease;
+  min-width: 0;
+}
+
+.progress-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
 /* ── LISTING INFO STRIP ─────────────────────────────────────── */
 .listing-info {
   margin-top: 0.75rem;

@@ -22,13 +22,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SlicePipe } from '@angular/common';
 
-import { RealEstateService } from '../../../../core/services/listings.service';
-import type { ListingSearchItem } from '../../../../core/api/model';
-import { Spinner } from "../../../../shared/components/spinner/spinner";
-import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
+import { RealEstateService } from '../../../core/services/listings.service';
+import type { ListingSearchItem } from '../../../core/api/model';
+import { Spinner } from "../spinner/spinner";
+import { FormatPricePipe } from "../../pipes/format-price-pipe";
 
 export type SortOption = 'title' | 'price_asc' | 'price_desc';
-export type FilterOption = 'all' | 'enriched' | 'not_enriched' | string;
+export type FilterOption = 'all' | 'enriched' | 'not_enriched' | 'exported' | 'not_exported' | string;
 
 const PAGE_SIZE = 20;
 
@@ -72,9 +72,9 @@ export class ListingSelectorComponent {
   // ── Search ────────────────────────────────────────────────────
   protected readonly searchQuery = signal('');
   // Text input changes: debounced
-  private readonly textSearch$ = new Subject<{ query: string; filter: FilterOption }>();
+  private readonly textSearch$ = new Subject<string>();
   // Filter/clear/open changes: immediate (no debounce)
-  private readonly filterChange$ = new Subject<{ query: string; filter: FilterOption }>();
+  private readonly filterChange$ = new Subject<string>();
   protected readonly isSearching = signal(false);
   protected readonly searchResults = signal<ListingSearchItem[]>([]);
 
@@ -85,7 +85,15 @@ export class ListingSelectorComponent {
   private activeQuery = '';
 
   // ── Filters & sort ────────────────────────────────────────────
-  protected readonly activeFilter = signal<FilterOption>('all');
+  protected readonly activeEnrichedFilter = signal<'enriched' | 'not_enriched' | null>(null);
+  protected readonly activeExportedFilter = signal<'exported' | 'not_exported' | null>(null);
+  protected readonly activeSourceFilter = signal<string | null>(null);
+  protected readonly isAllActive = computed(
+    () =>
+      this.activeEnrichedFilter() === null &&
+      this.activeExportedFilter() === null &&
+      this.activeSourceFilter() === null,
+  );
   protected readonly activeSort = signal<SortOption>('title');
 
   // ── Known source partners (accumulated across fetches) ────────
@@ -133,11 +141,17 @@ export class ListingSelectorComponent {
   });
 
   // ── Filter → API params ───────────────────────────────────────
-  private filterToParams(filter: FilterOption): { is_enriched?: boolean; source_partner?: string } {
-    if (filter === 'enriched') return { is_enriched: true };
-    if (filter === 'not_enriched') return { is_enriched: false };
-    if (filter !== 'all') return { source_partner: filter };
-    return {};
+  private filterToParams(): { is_enriched?: boolean; is_exported_to_imodigi?: boolean; source_partner?: string } {
+    const params: { is_enriched?: boolean; is_exported_to_imodigi?: boolean; source_partner?: string } = {};
+    const enriched = this.activeEnrichedFilter();
+    const exported_ = this.activeExportedFilter();
+    const source = this.activeSourceFilter();
+    if (enriched === 'enriched') params.is_enriched = true;
+    else if (enriched === 'not_enriched') params.is_enriched = false;
+    if (exported_ === 'exported') params.is_exported_to_imodigi = true;
+    else if (exported_ === 'not_exported') params.is_exported_to_imodigi = false;
+    if (source) params.source_partner = source;
+    return params;
   }
 
   // ── Accumulate source pills from any result set ───────────────
@@ -171,7 +185,7 @@ export class ListingSelectorComponent {
 
     const nextPage = this.currentPage() + 1;
     this.isLoadingMore.set(true);
-    const params = this.filterToParams(this.activeFilter());
+    const params = this.filterToParams();
 
     this.realEstateService
       .searchForSelector(this.activeQuery, { page: nextPage, page_size: PAGE_SIZE, ...params })
@@ -197,18 +211,18 @@ export class ListingSelectorComponent {
     merge(
       this.textSearch$.pipe(
         debounceTime(280),
-        distinctUntilChanged((a, b) => a.query === b.query && a.filter === b.filter),
+        distinctUntilChanged(),
       ),
       this.filterChange$,
     )
       .pipe(
-        switchMap(({ query, filter }) => {
+        switchMap((query) => {
           // Treat 1-char as empty: browse with filter instead of free-text search
           const effectiveQuery = query.trim().length >= 2 ? query.trim() : '';
           this.isSearching.set(true);
           this.activeQuery = effectiveQuery;
           this.currentPage.set(1);
-          const params = this.filterToParams(filter);
+          const params = this.filterToParams();
           return this.realEstateService
             .searchForSelector(effectiveQuery, { page: 1, page_size: PAGE_SIZE, ...params })
             .pipe(catchError(() => of({ items: [] as ListingSearchItem[], total: 0 })));
@@ -242,12 +256,13 @@ export class ListingSelectorComponent {
     this.selectedItemIds.set(this.confirmedItemIds());
     this.isOpen.set(true);
     this.searchQuery.set('');
-    this.filterChange$.next({ query: '', filter: this.activeFilter() });
+    this.filterChange$.next('');
   }
 
   protected close(): void {
     // Discard uncommitted changes — restore working selection to confirmed snapshot
     this.selectedItemIds.set(this.confirmedItemIds());
+    this.knownSources.set([]);
     this.pendingId.set(null);
     this.isOpen.set(false);
   }
@@ -272,12 +287,12 @@ export class ListingSelectorComponent {
   // ── Interactions ──────────────────────────────────────────────
   protected onSearch(query: string): void {
     this.searchQuery.set(query);
-    this.textSearch$.next({ query, filter: this.activeFilter() });
+    this.textSearch$.next(query);
   }
 
   protected clearSearch(): void {
     this.searchQuery.set('');
-    this.filterChange$.next({ query: '', filter: this.activeFilter() });
+    this.filterChange$.next('');
   }
 
   protected selectPending(listing: ListingSearchItem): void {
@@ -299,9 +314,19 @@ export class ListingSelectorComponent {
   }
 
   protected setFilter(filter: FilterOption): void {
-    this.activeFilter.set(filter);
-    // Immediate API call — no debounce — with current query + new filter
-    this.filterChange$.next({ query: this.searchQuery(), filter });
+    if (filter === 'all') {
+      this.activeEnrichedFilter.set(null);
+      this.activeExportedFilter.set(null);
+      this.activeSourceFilter.set(null);
+    } else if (filter === 'enriched' || filter === 'not_enriched') {
+      this.activeEnrichedFilter.update((v) => (v === filter ? null : filter));
+    } else if (filter === 'exported' || filter === 'not_exported') {
+      this.activeExportedFilter.update((v) => (v === filter ? null : filter));
+    } else {
+      // source partner — toggle
+      this.activeSourceFilter.update((v) => (v === filter ? null : filter));
+    }
+    this.filterChange$.next(this.searchQuery());
   }
 
   protected setSort(sort: SortOption): void {

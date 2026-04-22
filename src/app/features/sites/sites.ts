@@ -7,10 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed, toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { forkJoin, of, switchMap } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { SitesService } from '../../core/services/sites.service';
-import type { SiteConfigRead } from '../../core/api/model';
+import type { SiteConfigRead, SiteConfigScheduleInfo } from '../../core/api/model';
 import { SiteListComponent } from './components/site-list/site-list';
 import { Spinner } from "../../shared/components/spinner/spinner";
 
@@ -39,6 +41,25 @@ export class SitesComponent {
 
   protected readonly loading = computed<boolean>(
     () => this.sitesResource.isLoading()
+  );
+
+  private readonly enabledSites = computed(() =>
+    this.sites().filter((s) => s.schedule_enabled && s.is_active)
+  );
+
+  protected readonly scheduleInfoMap = toSignal(
+    toObservable(this.enabledSites).pipe(
+      switchMap((enabled) => {
+        if (!enabled.length) return of(new Map<string, SiteConfigScheduleInfo>());
+        return forkJoin(
+          Object.fromEntries(enabled.map((s) => [s.key, this.sitesService.getSchedule(s.key)]))
+        ).pipe(
+          map((result) => new Map<string, SiteConfigScheduleInfo>(Object.entries(result))),
+          catchError(() => of(new Map<string, SiteConfigScheduleInfo>()))
+        );
+      })
+    ),
+    { initialValue: new Map<string, SiteConfigScheduleInfo>() }
   );
 
   onNewSite(): void {

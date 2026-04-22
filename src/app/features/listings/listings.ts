@@ -13,10 +13,10 @@ import { ListingsFiltersComponent } from './components/listings-filters/listings
 import { ListingsTableComponent, SortField } from './components/listings-table/listings-table';
 import { ListingDetailComponent } from './components/listing-detail/listing-detail';
 import { ListingEditComponent } from './components/listing-edit/listing-edit';
-import { RealEstateService } from '../../core/services/listings.service';
+import { RealEstateService, PaginatedListings } from '../../core/services/listings.service';
 import { SitesService } from '../../core/services/sites.service';
 import { RealEstateFilters } from '../../core/models/listing.model';
-import type { ApiResponsePaginatedResponse, ListingListRead, ListingDetailRead, SiteConfigRead } from '../../core/api/model';
+import type { ListingListRead, ListingDetailRead, SiteConfigRead } from '../../core/api/model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 import { Spinner } from "../../shared/components/spinner/spinner";
@@ -57,7 +57,7 @@ export class ListingsComponent {
   });
 
   // Resources (automatic lifecycle � no manual subscribe for reads)
-  readonly realEstatesResource = rxResource<ApiResponsePaginatedResponse, RealEstateFilters>({
+  readonly realEstatesResource = rxResource<PaginatedListings, RealEstateFilters>({
     params: () => this.currentFilters(),
     stream: ({ params }) => this.realEstateService.getListings(params),
   });
@@ -72,7 +72,7 @@ export class ListingsComponent {
   });
 
   // Derived state
-  protected readonly realEstates = computed(() => this.realEstatesResource.value()?.data?.items ?? []);
+  protected readonly realEstates = computed(() => this.realEstatesResource.value()?.items ?? []);
   protected readonly isLoadingListings = computed(() => this.realEstatesResource.isLoading());
   protected readonly paginationData = computed(() => this.realEstatesResource.value());
   protected readonly selectedRealEstate = computed(() =>

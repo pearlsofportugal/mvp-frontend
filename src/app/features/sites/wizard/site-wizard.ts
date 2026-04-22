@@ -18,16 +18,18 @@ import { StepBasicComponent } from './steps/step-basic/step-basic';
 import { StepListingComponent } from './steps/step-listing/step-listing';
 import { StepSelectorsComponent } from './steps/step-selectors/step-selectors';
 import { StepTestScrapeComponent } from './steps/step-test-scrape/step-test-scrape';
+import { StepScheduleComponent } from './steps/step-schedule/step-schedule';
 import { StepDoneComponent } from './steps/step-done/step-done';
 
-type WizardStep = 1 | 2 | 3 | 4 | 5;
+type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 
 const STEP_LABELS: Record<WizardStep, string> = {
   1: 'Basic Config',
   2: 'Listing Page',
   3: 'Selectors',
   4: 'Test Scrape',
-  5: 'Done',
+  5: 'Scheduling',
+  6: 'Done',
 };
 
 @Component({
@@ -37,6 +39,7 @@ const STEP_LABELS: Record<WizardStep, string> = {
     StepListingComponent,
     StepSelectorsComponent,
     StepTestScrapeComponent,
+    StepScheduleComponent,
     StepDoneComponent,
   ],
   templateUrl: './site-wizard.html',
@@ -73,7 +76,7 @@ export class SiteWizardComponent {
   }
 
   protected readonly currentStep = signal<WizardStep>(1);
-  protected readonly steps: WizardStep[] = [1, 2, 3, 4, 5];
+  protected readonly steps: WizardStep[] = [1, 2, 3, 4, 5, 6];
   protected readonly stepLabels = STEP_LABELS;
 
   protected isStepUnlocked(step: WizardStep): boolean {
