@@ -1,0 +1,112 @@
+<div class="dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Partner Dashboard</h1>
+      <p class="dashboard-subtitle">
+        @if (loading()) {
+          A carregar...
+        } @else {
+          {{ totalPartners() }} active partners
+        }
+      </p>
+    </div>
+  </header>
+
+  @if (loading() && partners().length === 0) {
+    <div class="spinner-wrap">
+      <app-spinner />
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="partners-table" aria-label="Estatísticas por parceiro">
+        <thead>
+          <tr>
+            <th scope="col">
+              <button class="sort-btn" (click)="sort('source_partner')" type="button">
+                Partner <span aria-hidden="true">{{ sortIcon('source_partner') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="num-col">
+              <button class="sort-btn" (click)="sort('total_listings')" type="button">
+                Total <span aria-hidden="true">{{ sortIcon('total_listings') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="num-col">
+              <button class="sort-btn" (click)="sort('listings_updated_last_7_days')" type="button">
+                Last 7d <span aria-hidden="true">{{ sortIcon('listings_updated_last_7_days') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="num-col">
+              <button class="sort-btn" (click)="sort('avg_price')" type="button">
+                Average price <span aria-hidden="true">{{ sortIcon('avg_price') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="num-col">
+              <button class="sort-btn" (click)="sort('enriched_count')" type="button">
+                Enhanced <span aria-hidden="true">{{ sortIcon('enriched_count') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="num-col">
+              <button class="sort-btn" (click)="sort('exported_to_imodigi_count')" type="button">
+                Imodigi <span aria-hidden="true">{{ sortIcon('exported_to_imodigi_count') }}</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="sort-btn" (click)="sort('last_listing_updated_at')" type="button">
+                Last update<span aria-hidden="true">{{ sortIcon('last_listing_updated_at') }}</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="sort-btn" (click)="sort('last_job_at')" type="button">
+                Last Job <span aria-hidden="true">{{ sortIcon('last_job_at') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="center-col">Job state</th>
+            <th scope="col" class="num-col">Scraped</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of partners(); track p.source_partner) {
+            <tr>
+              <td class="partner-cell">
+                <span class="partner-slug">{{ p.source_partner }}</span>
+              </td>
+              <td class="num-col">{{ p.total_listings ?? '—' }}</td>
+              <td class="num-col">
+                @if ((p.listings_updated_last_7_days ?? 0) > 0) {
+                  <span class="pill pill--green">{{ p.listings_updated_last_7_days }}</span>
+                } @else {
+                  <span class="pill pill--dim">0</span>
+                }
+              </td>
+              <td class="num-col">{{ p.avg_price | formatPrice }}</td>
+              <td class="num-col">
+                <span
+                  class="enrichment-cell"
+                  [title]="(p.enriched_count ?? 0) + ' / ' + (p.total_listings ?? 0)"
+                >
+                  {{ enrichmentRate(p) }}
+                </span>
+              </td>
+              <td class="num-col">{{ p.exported_to_imodigi_count ?? '—' }}</td>
+              <td>{{ p.last_listing_updated_at | formatDate }}</td>
+              <td>{{ p.last_job_at | formatDate }}</td>
+              <td class="center-col">
+                @if (p.last_job_status) {
+                  <app-status-badge [status]="p.last_job_status" />
+                } @else {
+                  <span class="text-dim">—</span>
+                }
+              </td>
+              <td class="num-col">{{ p.last_job_scraped_count ?? '—' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="10" class="empty-state">Sem dados de parceiros disponíveis.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

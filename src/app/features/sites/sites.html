@@ -11,7 +11,7 @@
     @if (loading()) {
         <app-spinner size="md" message="Loading sites"></app-spinner>
     } @else {
-      <app-site-list [sites]="sites()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (addSite)="onNewSite()" />
+      <app-site-list [sites]="sites()" [scheduleInfoMap]="scheduleInfoMap()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (addSite)="onNewSite()" />
     }
   </div>
 </div>

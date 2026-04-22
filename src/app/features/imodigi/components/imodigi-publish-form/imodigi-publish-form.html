@@ -1,0 +1,64 @@
+<form aria-label="Imodigi bulk publish form">
+
+  <!-- ── ERROR ──────────────────────────────────────────────── -->
+  @if (error()) {
+  <div class="error-message" role="alert" aria-live="assertive">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+    {{ error() }}
+  </div>
+  }
+
+  <!-- ── PROGRESS ───────────────────────────────────────────── -->
+  @if (progress(); as p) {
+  <div class="progress-wrap" role="status" aria-live="polite" aria-label="Publish progress">
+    <div class="progress-bar" [style.width.%]="p.pct"></div>
+    <span class="progress-label">{{ p.done }} / {{ p.total }}&nbsp;·&nbsp;{{ p.pct | number:'1.0-0' }}%</span>
+  </div>
+  }
+
+  <!-- ── RESULT ─────────────────────────────────────────────── -->
+  @if (lastResult(); as r) {
+  <div class="result-strip" role="status" aria-live="polite">
+    <span class="result-item result-item--published">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      {{ r.published }} published
+    </span>
+    @if (r.skipped > 0) {
+      <span class="result-item result-item--skipped">{{ r.skipped }} skipped</span>
+    }
+    @if (r.failed > 0) {
+      <span class="result-item result-item--failed">{{ r.failed }} failed</span>
+    }
+    <span class="result-item result-item--duration">{{ r.duration | number:'1.1-1' }}s</span>
+  </div>
+  }
+
+  <!-- ── SUBMIT ─────────────────────────────────────────────── -->
+  <div class="form-footer">
+    <button
+      type="button"
+      class="btn-publish"
+      [disabled]="loading()"
+      [attr.aria-busy]="loading()"
+      (click)="onSubmit()"
+    >
+      @if (loading()) {
+        <span class="btn-spinner"></span>
+        Publishing {{ submittedCount() }} properties…
+      } @else {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+        Publish {{ selectedCount() }} properties
+      }
+    </button>
+  </div>
+
+</form>

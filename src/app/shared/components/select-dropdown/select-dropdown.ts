@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  PLATFORM_ID,
   computed,
   forwardRef,
   inject,
@@ -9,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface SelectOption {
   value: string;
@@ -41,6 +43,7 @@ export class SelectDropdownComponent implements ControlValueAccessor {
   protected readonly opensUp = signal(false);
   private readonly isDisabled = signal(false);
   private readonly el = inject(ElementRef<HTMLElement>);
+  private readonly platformId = inject(PLATFORM_ID);
 
   private onChange: (v: string) => void = () => {};
   private onTouched: () => void = () => {};
@@ -60,10 +63,8 @@ protected toggle(): void {
 
   if (opening) {
     const rect = this.el.nativeElement.getBoundingClientRect();
-
-    const spaceBelow = typeof window !== 'undefined' ? window.innerHeight - rect.bottom : 0;
-    const spaceAbove = typeof window !== 'undefined' ? rect.top : 0;
-
+    const spaceBelow = isPlatformBrowser(this.platformId) ? window.innerHeight - rect.bottom : 0;
+    const spaceAbove = isPlatformBrowser(this.platformId) ? rect.top : 0;
     this.opensUp.set(spaceAbove > spaceBelow && spaceBelow < 240);
   }
 

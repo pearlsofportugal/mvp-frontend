@@ -118,6 +118,8 @@ export interface RealEstateFilters {
   has_garage?: boolean;
   has_pool?: boolean;
   has_elevator?: boolean;
+  is_enriched?: boolean;
+  is_exported_to_imodigi?: boolean;
   search?: string;
   sort_by?: string;
   sort_order?: string;

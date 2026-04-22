@@ -18,12 +18,19 @@ export interface SiteConfigUpdate {
   base_url?: string | null;
   selectors?: SiteConfigUpdateSelectors;
   extraction_mode?: 'section' | 'direct' | null;
-  pagination_type?: 'html_next' | 'query_param' | 'incremental_path' | null;
+  pagination_type?: 'html_next' | 'query_param' | 'incremental_path' | 'sitemap' | null;
   pagination_param?: string | null;
   link_pattern?: string | null;
   image_filter?: string | null;
   image_exclude_filter?: string | null;
+  use_js_render?: boolean | null;
   is_active?: boolean | null;
   /** Per-field confidence scores (0.0–1.0). */
   confidence_scores?: SiteConfigUpdateConfidenceScores;
+  schedule_enabled?: boolean | null;
+  schedule_interval_minutes?: number | null;
+  schedule_start_at?: string | null;
+  schedule_timezone?: string | null;
+  schedule_start_url?: string | null;
+  schedule_max_pages?: number | null;
 }

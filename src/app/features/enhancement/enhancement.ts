@@ -8,7 +8,7 @@ import { EnrichmentService } from '../../core/services/enrichment.service';
 import { EnrichmentResult, EnrichmentStats } from '../../core/models/enrichment.model';
 import { DecimalPipe } from '@angular/common';
 import { Spinner } from '../../shared/components/spinner/spinner';
-import { ListingSelectorComponent } from '../listings/components/listing-selector/listing-selector';
+import { ListingSelectorComponent } from '../../shared/components/listing-selector/listing-selector';
 import type { ListingSearchItem } from '../../core/api/model';
 
 type Tab = 'enrich' | 'stats';

@@ -10,14 +10,19 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import type {
+  ApiResponseBulkJobAccepted,
+  ApiResponseBulkJobStatus,
+  ApiResponseDict,
   ApiResponseImodigiCatalogValues,
   ApiResponseImodigiExportRead,
   ApiResponseImodigiExportResponse,
   ApiResponseListImodigiExportRead,
   ApiResponseListImodigiLocationItem,
   ApiResponseListImodigiStoreRead,
+  ImodigiBulkExportRequest,
   ImodigiExportRequest,
   ImodigiListPublicationsParams,
+  ImodigiResetRequest,
   ImodigiSearchLocationsParams,
 } from '../../model';
 
@@ -83,6 +88,54 @@ export class ImodigiService {
     );
   }
   /**
+ * Start a background bulk export job to Imodigi and return immediately (HTTP 202).
+
+When ``listing_ids`` is provided, only those listings are exported.
+Otherwise, all listings not yet published (or previous failures) are queued up
+to ``limit``.
+
+Poll ``GET /publish/jobs/{job_id}`` or stream ``GET /publish/jobs/{job_id}/stream``
+to track progress.
+ * @summary Bulk Publish
+ */
+  imodigiBulkPublish<TData = ApiResponseBulkJobAccepted>(
+    imodigiBulkExportRequest: ImodigiBulkExportRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/imodigi/publish/bulk`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: imodigiBulkExportRequest,
+      },
+      this.http,
+    );
+  }
+  /**
+   * Poll the current status of a background bulk Imodigi export job.
+   * @summary Get Bulk Publish Job
+   */
+  imodigiGetBulkJob<TData = ApiResponseBulkJobStatus>(jobId: string) {
+    return customFetch<TData>(
+      { url: `/api/v1/imodigi/publish/jobs/${jobId}`, method: 'GET' },
+      this.http,
+    );
+  }
+  /**
+ * Stream the progress of a bulk Imodigi export job via Server-Sent Events.
+
+Events: ``progress``, ``status``, ``heartbeat``, ``done``, ``error``.
+
+The stream closes automatically when the job reaches a terminal state.
+ * @summary Stream bulk Imodigi export progress via SSE
+ */
+  imodigiStreamBulkJob<TData = unknown>(jobId: string) {
+    return customFetch<TData>(
+      { url: `/api/v1/imodigi/publish/jobs/${jobId}/stream`, method: 'GET' },
+      this.http,
+    );
+  }
+  /**
  * Publish (create or update) a listing in the Imodigi CRM.
 
 Uses settings.imodigi_client_id by default; pass `client_id` in the body
@@ -142,6 +195,40 @@ to override per-request.
           return filteredParams;
         })(),
       },
+      this.http,
+    );
+  }
+  /**
+ * Delete Imodigi export records so listings are re-created (POST) on the next export.
+
+Use this when a property was deleted in Imodigi after being exported — without
+resetting, the system would try to PATCH a non-existent property and fail.
+
+- Pass ``listing_ids`` to reset specific listings.
+- Pass an **empty list** to reset **all** export records.
+ * @summary Reset Publications
+ */
+  imodigiResetPublications<TData = ApiResponseDict>(imodigiResetRequest: ImodigiResetRequest) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/imodigi/publications/reset`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: imodigiResetRequest,
+      },
+      this.http,
+    );
+  }
+  /**
+ * Delete the Imodigi export record for a single listing.
+
+After reset, the next export will send a POST (create) instead of PATCH (update).
+Returns 404 if no export record exists for the listing.
+ * @summary Reset Publication
+ */
+  imodigiResetPublication<TData = ApiResponseDict>(listingId: string) {
+    return customFetch<TData>(
+      { url: `/api/v1/imodigi/publications/${listingId}`, method: 'DELETE' },
       this.http,
     );
   }

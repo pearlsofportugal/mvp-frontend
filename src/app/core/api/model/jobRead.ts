@@ -8,7 +8,7 @@
 import type { JobConfig } from './jobConfig';
 import type { JobLogEntry } from './jobLogEntry';
 import type { JobProgress } from './jobProgress';
-import type { JobReadStatus } from './jobReadStatus';
+import type { JobStatus } from './jobStatus';
 import type { JobUrlState } from './jobUrlState';
 
 /**
@@ -20,7 +20,7 @@ export interface JobRead {
   base_url?: string | null;
   start_url: string;
   max_pages: number;
-  status: JobReadStatus;
+  status: JobStatus;
   progress?: JobProgress | null;
   config?: JobConfig | null;
   /** Structured log entries produced during scraping. */

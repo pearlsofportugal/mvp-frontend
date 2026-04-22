@@ -34,8 +34,22 @@ export interface SiteConfigCreate {
   image_filter?: string | null;
   /** Regex pattern — images whose URL matches are excluded (e.g. banners, logos). */
   image_exclude_filter?: string | null;
+  /** Use a headless browser (Playwright) to render JavaScript before parsing. */
+  use_js_render?: boolean;
   /** Whether this site config is enabled for scraping. */
   is_active?: boolean;
+  /** Whether scheduled scraping is active for this site. */
+  schedule_enabled?: boolean;
+  /** Interval in minutes between scheduled runs. */
+  schedule_interval_minutes?: number | null;
+  /** When the first run should occur (None = start immediately). */
+  schedule_start_at?: string | null;
+  /** IANA timezone string for the schedule (e.g. 'Europe/Lisbon', 'UTC'). */
+  schedule_timezone?: string;
+  /** URL to begin scraping on scheduled runs (None = falls back to base_url). */
+  schedule_start_url?: string | null;
+  /** Max pages per scheduled run (None = uses server default). */
+  schedule_max_pages?: number | null;
   /**
    * Unique site identifier slug (lowercase alphanumeric, hyphens and underscores allowed).
    * @minLength 2

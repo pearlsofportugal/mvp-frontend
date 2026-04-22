@@ -97,17 +97,29 @@
 
             <!-- Filter pills -->
             <div class="filter-row" role="group" aria-label="Filters">
-                <button class="filter-pill" type="button" [class.active]="activeFilter() === 'all'"
+                <button class="filter-pill" type="button" [class.active]="isAllActive()"
                     (click)="setFilter('all')">All</button>
 
                 <button class="filter-pill filter-pill--green" type="button"
-                    [class.active]="activeFilter() === 'enriched'" (click)="setFilter('enriched')">
+                    [class.active]="activeEnrichedFilter() === 'enriched'" (click)="setFilter('enriched')">
                     <span class="pill-dot pill-dot--green"></span>Enhanced
                 </button>
 
                 <button class="filter-pill filter-pill--dim" type="button"
-                    [class.active]="activeFilter() === 'not_enriched'" (click)="setFilter('not_enriched')">
+                    [class.active]="activeEnrichedFilter() === 'not_enriched'" (click)="setFilter('not_enriched')">
                     <span class="pill-dot pill-dot--dim"></span>Not enhanced
+                </button>
+
+                <span class="filter-divider"></span>
+
+                <button class="filter-pill filter-pill--blue" type="button"
+                    [class.active]="activeExportedFilter() === 'exported'" (click)="setFilter('exported')">
+                    <span class="pill-dot pill-dot--blue"></span>Exported
+                </button>
+
+                <button class="filter-pill filter-pill--dim" type="button"
+                    [class.active]="activeExportedFilter() === 'not_exported'" (click)="setFilter('not_exported')">
+                    <span class="pill-dot pill-dot--dim"></span>Not exported
                 </button>
 
                 @if (allSourcePills().length > 0) {
@@ -115,7 +127,7 @@
                 }
 
                 @for (source of visibleSourcePills(); track source) {
-                <button class="filter-pill" type="button" [class.active]="activeFilter() === source"
+                <button class="filter-pill" type="button" [class.active]="activeSourceFilter() === source"
                     (click)="setFilter(source)">{{ source }}</button>
                 }
 

@@ -65,6 +65,19 @@
 
         <div class="site-footer">
           <span class="site-updated">{{ formatUpdatedAt(site.updated_at) }}</span>
+          @if (site.schedule_enabled) {
+            @if (getScheduleInfo(site); as info) {
+              <span class="schedule-badge schedule-on" title="Scheduled scraping active">
+                ⏱ {{ formatInterval(info.schedule_interval_minutes) }} · next {{ formatNextRun(info.next_run_at) }}
+              </span>
+            } @else {
+              <span class="schedule-badge schedule-on" title="Scheduled scraping active">
+                ⏱ {{ formatInterval(site.schedule_interval_minutes) }}
+              </span>
+            }
+          } @else {
+            <span class="schedule-badge schedule-off">Not scheduled</span>
+          }
         </div>
 
         <div class="site-actions">

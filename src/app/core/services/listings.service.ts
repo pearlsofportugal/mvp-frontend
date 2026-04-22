@@ -13,14 +13,21 @@ import type {
   ApiResponsePaginatedResponse,
 } from '../api/model';
 
+export interface PaginatedListings {
+  items: ListingListRead[];
+  meta: Meta;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class RealEstateService {
   private readonly api = inject(GeneratedListingsService);
 
-  getListings(filters: RealEstateFilters): Observable<ApiResponsePaginatedResponse> {
-    return this.api.listListings(this.normalizeFilters(filters));
+  getListings(filters: RealEstateFilters): Observable<PaginatedListings> {
+    return this.api.listListings(this.normalizeFilters(filters)).pipe(
+      map((r) => ({ items: r.data?.items ?? [], meta: r.meta! })),
+    );
   }
 
   getListingById(id: string): Observable<ListingDetailRead> {
@@ -60,6 +67,7 @@ export class RealEstateService {
     options: {
       source_partner?: string;
       is_enriched?: boolean;
+      is_exported_to_imodigi?: boolean;
       page?: number;
       page_size?: number;
     } = {},
@@ -71,6 +79,8 @@ export class RealEstateService {
         page_size: options.page_size ?? 20,
         source_partner: options.source_partner,
         is_enriched: options.is_enriched,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...(options.is_exported_to_imodigi !== undefined ? { is_exported_to_imodigi: options.is_exported_to_imodigi } as any : {}),
       })
       .pipe(
         map((r) => ({

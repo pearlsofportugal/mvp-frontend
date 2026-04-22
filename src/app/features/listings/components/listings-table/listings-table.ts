@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  OnDestroy,
   computed,
   inject,
   input,
@@ -33,7 +32,7 @@ const avatarColorCache = new Map<string, string>();
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ContextMenu, FormatPricePipe, FormatDatePipe, Avatar],
 })
-export class ListingsTableComponent implements OnDestroy {
+export class ListingsTableComponent {
   // ── Inputs ────────────────────────────────────────────────────────────────
   realEstates = input.required<ListingListRead[]>();
 
@@ -82,7 +81,6 @@ export class ListingsTableComponent implements OnDestroy {
   private closeTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    // Garante cleanup ao destruir o componente, mesmo que ngOnDestroy não seja chamado
     this.destroyRef.onDestroy(() => {
       this.removeScrollListener();
       if (this.closeTimer !== null) {
@@ -90,15 +88,6 @@ export class ListingsTableComponent implements OnDestroy {
         this.closeTimer = null;
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    // Mantido por compatibilidade e legibilidade — o destroyRef já garante o cleanup
-    this.removeScrollListener();
-    if (this.closeTimer !== null) {
-      clearTimeout(this.closeTimer);
-      this.closeTimer = null;
-    }
   }
 
   // ── Ações de linha ────────────────────────────────────────────────────────

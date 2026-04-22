@@ -7,17 +7,21 @@ import {
   input,
   output,
   signal,
+  PLATFORM_ID,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
+import { DecimalPipe } from '@angular/common';
 
 import { EnrichmentService } from '../../../../core/services/enrichment.service';
 import { EnrichmentResult } from '../../../../core/models/enrichment.model';
 import type {
   BulkEnrichmentRequestLocalesItem,
+  BulkJobStatus,
   ListingSearchItem,
 } from '../../../../core/api/model';
-import { finalize } from 'rxjs';
-import { DecimalPipe } from '@angular/common';
 
 type LocaleCode = BulkEnrichmentRequestLocalesItem;
 
@@ -41,6 +45,7 @@ const LOCALE_FLAGS: Record<LocaleCode, string> = {
 export class EnrichmentFormComponent {
   private readonly enrichmentService = inject(EnrichmentService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly listings = input.required<ListingSearchItem[]>();
   readonly success = output<EnrichmentResult>();
@@ -54,7 +59,10 @@ export class EnrichmentFormComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly lastResult = signal<{ enriched: number; skipped: number; failed: number; duration: number } | null>(null);
   protected readonly submittedCount = signal(0);
+  protected readonly progress = signal<{ done: number; total: number; pct: number } | null>(null);
   protected readonly selectedCount = computed(() => this.listings().length);
+
+  private submittedAt: number | null = null;
 
   protected toggleLocale(locale: LocaleCode): void {
     this.selectedLocales.update((set) => {
@@ -65,22 +73,19 @@ export class EnrichmentFormComponent {
     });
   }
 
-  private submittedAt: number | null = null;
-
   protected onSubmit(): void {
-    if (this.loading()) return;
-    this.submittedAt = Date.now();
-
-    this.error.set(null);
-    this.lastResult.set(null);
-
-    const listings = this.listings();
+    if (this.loading() || !isPlatformBrowser(this.platformId)) return;
 
     if (this.selectedLocales().size === 0) {
       this.error.set('Select at least one locale.');
       return;
     }
 
+    const listings = this.listings();
+    this.submittedAt = Date.now();
+    this.error.set(null);
+    this.lastResult.set(null);
+    this.progress.set(null);
     this.submittedCount.set(listings.length);
     this.loading.set(true);
 
@@ -91,26 +96,42 @@ export class EnrichmentFormComponent {
         force: this.force(),
       })
       .pipe(
+        switchMap((accepted) => {
+          this.progress.set({ done: 0, total: accepted.total, pct: 0 });
+          return this.enrichmentService.streamBulkEnrichJob(accepted.job_id);
+        }),
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (response) => {
-          const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
-          this.lastResult.set({
-            enriched: response.enriched,
-            skipped: response.skipped,
-            failed: response.failed,
-            duration,
+        next: (status: BulkJobStatus) => {
+          this.progress.set({
+            done: status.done,
+            total: status.total,
+            pct: status.progress_pct,
           });
-          this.success.emit({
-            total_processed: response.total_requested,
-            total_enriched: response.enriched,
-            total_errors: response.failed,
-            duration_seconds: duration,
-          });
+
+          if (status.status === 'completed' || status.status === 'failed') {
+            const duration = this.submittedAt ? (Date.now() - this.submittedAt) / 1000 : 0;
+            this.lastResult.set({
+              enriched: status.done - status.failed,
+              skipped: status.skipped,
+              failed: status.failed,
+              duration,
+            });
+            this.progress.set(null);
+            this.success.emit({
+              total_processed: status.total,
+              total_enriched: status.done - status.failed,
+              total_errors: status.failed,
+              duration_seconds: duration,
+            });
+          }
         },
-        error: (err: unknown) => this.error.set(extractErrorMessage(err)),
+        error: (err: unknown) => {
+          this.progress.set(null);
+          this.error.set(extractErrorMessage(err));
+        },
       });
   }
 }

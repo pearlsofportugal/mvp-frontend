@@ -15,6 +15,7 @@ import type {
   ApiResponseSelectorValidationReport,
   ApiResponseSiteConfigPreviewResponse,
   ApiResponseSiteConfigRead,
+  ApiResponseSiteConfigScheduleInfo,
   ApiResponseSiteConfigSuggestResponse,
   ApiResponseTestListingPageResponse,
   ApiResponseTestScrapeResponse,
@@ -189,6 +190,13 @@ Use permanent=true to permanently delete the record.
       },
       this.http,
     );
+  }
+  /**
+   * Get schedule configuration and next run time for a site.
+   * @summary Get Site Schedule
+   */
+  getSiteSchedule<TData = ApiResponseSiteConfigScheduleInfo>(key: string) {
+    return customFetch<TData>({ url: `/api/v1/sites/${key}/schedule`, method: 'GET' }, this.http);
   }
   /**
  * Dry-run scrape of a single listing URL using the site's current configuration.

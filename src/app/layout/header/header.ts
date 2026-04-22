@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed, PLATFORM_ID, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { HealthService } from '../../core/services/health.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timer, switchMap } from 'rxjs';
 import { NAV_ROUTES } from '../../app.routes';
-import { isPlatformBrowser } from '@angular/common';
 import { PollingService } from '../../core/services/polling-service';
 
 @Component({
@@ -18,18 +16,16 @@ import { PollingService } from '../../core/services/polling-service';
 export class HeaderComponent {
   private readonly healthService = inject(HealthService);
   protected readonly themeService = inject(ThemeService);
-  protected readonly isHealthy = signal(false);
-  protected readonly healthText = computed(() => (this.isHealthy() ? 'Online' : 'Offline'));
-  private readonly pollingService = inject(PollingService)
+  private readonly pollingService = inject(PollingService);
   protected readonly navItems = NAV_ROUTES;
 
-   constructor() {
-    effect(() => {
-    this.pollingService.tick(); // reativa sempre que o timer dispara
-    this.healthService.checkHealth().subscribe({
-      next: (status) => this.isHealthy.set(status?.status === 'healthy'),
-      error: () => this.isHealthy.set(false),
-    });
+  private readonly healthResource = rxResource({
+    params: () => this.pollingService.tick(),
+    stream: () => this.healthService.checkHealth(),
   });
-  }
+
+  protected readonly isHealthy = computed(
+    () => this.healthResource.value()?.status === 'healthy',
+  );
+  protected readonly healthText = computed(() => (this.isHealthy() ? 'Online' : 'Offline'));
 }

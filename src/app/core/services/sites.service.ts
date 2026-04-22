@@ -5,6 +5,7 @@ import type {
   SiteConfigRead,
   SiteConfigCreate,
   SiteConfigUpdate,
+  SiteConfigScheduleInfo,
   SiteConfigSuggestResponse,
   SiteConfigPreviewResponse,
   SelectorValidationReport,
@@ -89,5 +90,9 @@ export class SitesService {
         thumbnail_selector: thumbnailSelector ?? null,
       })
       .pipe(map((r) => r.data!));
+  }
+
+  getSchedule(key: string): Observable<SiteConfigScheduleInfo> {
+    return this.api.getSiteSchedule(key).pipe(map((r) => r.data!));
   }
 }

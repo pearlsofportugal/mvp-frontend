@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import type { ConfidenceMeta, SiteConfigRead } from '../../../../core/api/model';
+import type { ConfidenceMeta, SiteConfigRead, SiteConfigScheduleInfo } from '../../../../core/api/model';
 
 @Component({
   selector: 'app-site-list',
@@ -10,6 +10,7 @@ import type { ConfidenceMeta, SiteConfigRead } from '../../../../core/api/model'
 })
 export class SiteListComponent {
   sites = input.required<SiteConfigRead[]>();
+  scheduleInfoMap = input<Map<string, SiteConfigScheduleInfo>>(new Map());
   addSite = output<void>();
   edit = output<SiteConfigRead>();
   delete = output<string>();
@@ -61,6 +62,31 @@ export class SiteListComponent {
     const ago = this.relativeTime(meta.updated_at);
     const n = meta.sample_count;
     return `Based on ${n} listing${n !== 1 ? 's' : ''} · calculated ${ago}`;
+  }
+
+  protected getScheduleInfo(site: SiteConfigRead): SiteConfigScheduleInfo | null {
+    return this.scheduleInfoMap().get(site.key) ?? null;
+  }
+
+  protected formatInterval(minutes: number | null | undefined): string {
+    if (!minutes) return '';
+    if (minutes < 60) return `${minutes}min`;
+    const hours = Math.floor(minutes / 60);
+    const rem = minutes % 60;
+    if (rem === 0) return hours === 1 ? 'every hour' : `every ${hours}h`;
+    return `every ${hours}h ${rem}min`;
+  }
+
+  protected formatNextRun(isoStr: string | null | undefined): string {
+    if (!isoStr) return 'soon';
+    const date = new Date(isoStr);
+    const diffMs = date.getTime() - Date.now();
+    const diffMins = Math.round(diffMs / 60_000);
+    if (diffMins < 1) return 'now';
+    if (diffMins < 60) return `in ${diffMins}min`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `in ${diffHours}h`;
+    return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
   }
 
   private relativeTime(dateStr: string): string {

@@ -10,7 +10,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import type {
-  ApiResponseBulkEnrichmentResponse,
+  ApiResponseBulkJobAccepted,
+  ApiResponseBulkJobStatus,
   ApiResponseEnrichmentStats,
   ApiResponseListingTranslationResponse,
   BulkEnrichmentRequest,
@@ -64,14 +65,17 @@ export class EnrichmentService {
     );
   }
   /**
- * Enrich multiple listings in one call using the multi-locale translations endpoint.
+ * Start a background bulk enrichment job and return immediately (HTTP 202).
+
+Poll ``GET /bulk/jobs/{job_id}`` or stream ``GET /bulk/jobs/{job_id}/stream``
+to track progress.
 
 When ``listing_ids`` is provided, only those listings are processed.
 Otherwise, all unenriched listings (optionally filtered by ``source_partner``)
 are queued up to ``limit``.
  * @summary Bulk Enrich
  */
-  bulkEnrichListings<TData = ApiResponseBulkEnrichmentResponse>(
+  bulkEnrichListings<TData = ApiResponseBulkJobAccepted>(
     bulkEnrichmentRequest: BulkEnrichmentRequest,
   ) {
     return customFetch<TData>(
@@ -85,6 +89,31 @@ are queued up to ``limit``.
     );
   }
   /**
+   * Poll the current status of a background bulk enrichment job.
+   * @summary Get Bulk Job
+   */
+  getBulkEnrichJob<TData = ApiResponseBulkJobStatus>(jobId: string) {
+    return customFetch<TData>(
+      { url: `/api/v1/enrichment/ai/bulk/jobs/${jobId}`, method: 'GET' },
+      this.http,
+    );
+  }
+  /**
+ * Stream the progress of a bulk enrichment job via Server-Sent Events.
+
+Events: ``progress``, ``status``, ``heartbeat``, ``done``, ``error``.
+
+The stream closes automatically when the job reaches a terminal state
+(``completed`` or ``failed``).
+ * @summary Stream bulk enrichment progress via SSE
+ */
+  streamBulkEnrichJob<TData = unknown>(jobId: string) {
+    return customFetch<TData>(
+      { url: `/api/v1/enrichment/ai/bulk/jobs/${jobId}/stream`, method: 'GET' },
+      this.http,
+    );
+  }
+  /**
  * Generate multi-locale SEO content (EN, PT, ES, FR, DE) from original scraped data.
 
 All locales are generated independently in a single AI call — no chaining between languages.
@@ -94,6 +123,8 @@ All locales are generated independently in a single AI call — no chaining betw
 - **apply=True**: Persists the ``translation_values`` provided by the caller.
   AI is NOT called in this path — supply the output from a prior apply=False call.
 - **force=True**: Regenerates locales even if they already have stored translations.
+
+For a non-blocking variant (returns immediately), use ``POST /translations/async``.
  * @summary Translate Listing
  */
   translateListing<TData = ApiResponseListingTranslationResponse>(
@@ -102,6 +133,29 @@ All locales are generated independently in a single AI call — no chaining betw
     return customFetch<TData>(
       {
         url: `/api/v1/enrichment/ai/translations`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: listingTranslationRequest,
+      },
+      this.http,
+    );
+  }
+  /**
+ * Start a non-blocking single-listing enrichment job and return immediately (HTTP 202).
+
+Only valid for ``apply=False`` (AI generation path).  To persist caller-supplied
+translations, use the synchronous ``POST /translations`` with ``apply=True``.
+
+Poll ``GET /bulk/jobs/{job_id}`` or stream ``GET /bulk/jobs/{job_id}/stream``
+to track progress and retrieve the generated translations from ``job.result``.
+ * @summary Translate Listing Async
+ */
+  translateListingAsync<TData = ApiResponseBulkJobAccepted>(
+    listingTranslationRequest: ListingTranslationRequest,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/enrichment/ai/translations/async`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: listingTranslationRequest,

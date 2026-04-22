@@ -11,6 +11,10 @@ export type SelectorListingsParams = {
   source_partner?: string | null;
   is_enriched?: boolean | null;
   /**
+   * Filter by Imodigi export status (published or updated).
+   */
+  is_exported_to_imodigi?: boolean | null;
+  /**
    * @minimum 1
    */
   page?: number;

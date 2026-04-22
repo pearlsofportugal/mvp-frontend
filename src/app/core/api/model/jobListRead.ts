@@ -5,8 +5,8 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
-import type { JobListReadStatus } from './jobListReadStatus';
 import type { JobProgress } from './jobProgress';
+import type { JobStatus } from './jobStatus';
 
 /**
  * Compact scrape job schema for paginated list views.
@@ -14,7 +14,7 @@ import type { JobProgress } from './jobProgress';
 export interface JobListRead {
   id: string;
   site_key: string;
-  status: JobListReadStatus;
+  status: JobStatus;
   progress?: JobProgress | null;
   started_at?: string | null;
   last_heartbeat_at?: string | null;

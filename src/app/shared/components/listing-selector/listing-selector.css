@@ -344,6 +344,10 @@
     background: var(--green, #10b981);
 }
 
+.pill-dot--blue {
+    background: var(--accent, #6366f1);
+}
+
 .pill-dot--dim {
     background: var(--border-hi);
 }
