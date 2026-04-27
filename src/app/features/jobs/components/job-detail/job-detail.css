@@ -1,32 +1,16 @@
-/* ── Card override ────────────────────────────── */
-.detail-card {
-  margin-bottom: 0;
-}
-
-/* ── Header ───────────────────────────────── */
-.detail-header {
+/* ── Modal content wrapper ────────────────────── */
+.detail-content {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.detail-title {
-  font-size: 1rem;
-  font-weight: 600;
+/* ── Toolbar (live badge or refresh btn) ─────── */
+.detail-toolbar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 0;
-  color: var(--text);
-}
-
-.detail-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  flex-shrink: 0;
+  min-height: 2rem;
 }
 
 /* ── Live badge ────────────────────────────── */

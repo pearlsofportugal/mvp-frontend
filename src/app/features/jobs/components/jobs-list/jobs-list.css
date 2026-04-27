@@ -1,3 +1,51 @@
+.progress-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* ── Status cell with live dot ───────────────── */
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: live-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.35; transform: scale(0.75); }
+}
+
+/* ── Inline progress bar ──────────────────────── */
+.inline-progress {
+  height: 3px;
+  background: var(--border);
+  border-radius: 9999px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 120px;
+}
+
+.inline-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.inline-progress-fill--running {
+  background: var(--green);
+}
+
 /* ── Empty state ─────────────────────────────── */
 .empty-state {
   display: flex;

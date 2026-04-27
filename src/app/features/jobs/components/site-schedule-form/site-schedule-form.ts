@@ -20,8 +20,8 @@ import {
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
-import { SitesService } from '../../../../../core/services/sites.service';
-import type { SiteConfigRead, SiteConfigScheduleInfo, SiteConfigUpdate } from '../../../../../core/api/model';
+import { SitesService } from '../../../../core/services/sites.service';
+import type { SiteConfigRead, SiteConfigScheduleInfo, SiteConfigUpdate } from '../../../../core/api/model';
 
 const urlOrEmptyValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const v = (control.value as string)?.trim();
@@ -37,24 +37,23 @@ const positiveIntegerValidator: ValidatorFn = (control: AbstractControl): Valida
 };
 
 @Component({
-  selector: 'app-step-schedule',
+  selector: 'app-site-schedule-form',
   imports: [ReactiveFormsModule],
-  templateUrl: './step-schedule.html',
-  styleUrl: './step-schedule.css',
+  templateUrl: './site-schedule-form.html',
+  styleUrl: './site-schedule-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StepScheduleComponent {
+export class SiteScheduleFormComponent {
   private readonly sitesService = inject(SitesService);
   private readonly destroyRef = inject(DestroyRef);
 
   site = input<SiteConfigRead | null>(null);
-  back = output<void>();
-  skip = output<void>();
-  next = output<void>();
-  siteUpdated = output<SiteConfigRead>();
+  saved = output<SiteConfigRead>();
+  cancelled = output<void>();
 
   protected readonly submitting = signal(false);
   protected readonly scheduleInfo = signal<SiteConfigScheduleInfo | null>(null);
+  protected readonly showAdvanced = signal(false);
 
   protected readonly form = new FormGroup({
     schedule_enabled: new FormControl(false, { nonNullable: true }),
@@ -99,6 +98,15 @@ export class StepScheduleComponent {
     'Pacific/Auckland',
   ];
 
+  protected readonly presetIntervals: { label: string; minutes: number }[] = [
+    { label: '1h', minutes: 60 },
+    { label: '6h', minutes: 360 },
+    { label: '12h', minutes: 720 },
+    { label: '24h', minutes: 1440 },
+    { label: '2d', minutes: 2880 },
+    { label: '7d', minutes: 10080 },
+  ];
+
   constructor() {
     effect(() => {
       const s = this.site();
@@ -117,6 +125,15 @@ export class StepScheduleComponent {
         this.scheduleInfo.set(null);
       }
     });
+  }
+
+  protected setPreset(minutes: number): void {
+    this.form.controls.schedule_interval_minutes.setValue(minutes);
+    this.form.controls.schedule_interval_minutes.markAsTouched();
+  }
+
+  protected isPresetActive(minutes: number): boolean {
+    return this.form.controls.schedule_interval_minutes.value === minutes;
   }
 
   protected formatInterval(minutes: number | null | undefined): string {
@@ -155,10 +172,7 @@ export class StepScheduleComponent {
     }
 
     const site = this.site();
-    if (!site) {
-      this.next.emit();
-      return;
-    }
+    if (!site) return;
 
     this.submitting.set(true);
 
@@ -177,13 +191,12 @@ export class StepScheduleComponent {
       .subscribe({
         next: (updated) => {
           this.submitting.set(false);
-          this.siteUpdated.emit(updated);
+          this.saved.emit(updated);
           if (raw.schedule_enabled) {
             this.loadScheduleInfo(site.key);
           } else {
             this.scheduleInfo.set(null);
           }
-          this.next.emit();
         },
         error: () => {
           this.submitting.set(false);
@@ -191,12 +204,13 @@ export class StepScheduleComponent {
       });
   }
 
-  protected onBack(): void {
-    this.back.emit();
+  protected toggleEnabled(): void {
+    const ctrl = this.form.controls.schedule_enabled;
+    ctrl.setValue(!ctrl.value);
   }
 
-  protected onSkip(): void {
-    this.skip.emit();
+  protected onCancel(): void {
+    this.cancelled.emit();
   }
 
   private loadScheduleInfo(key: string): void {
@@ -220,20 +234,10 @@ export class StepScheduleComponent {
     return `${year}-${month}-${day}T${hours}:${mins}`;
   }
 
-  /**
-   * Convert a naive datetime-local string (e.g. "2026-04-21T17:11") interpreted as wall-clock
-   * time in `tz` into a full ISO-8601 string with UTC offset.
-   *
-   * Without this, the bare string "2026-04-21T17:11" would be sent to the backend which
-   * may treat it as UTC, causing a +1h shift for users in UTC+1 (Europe/Lisbon).
-   */
   private datetimeLocalToISO(localStr: string, tz: string): string | null {
     if (!localStr) return null;
-    // Normalise to "YYYY-MM-DDTHH:mm:ss"
     const normalised = localStr.length === 16 ? `${localStr}:00` : localStr;
-    // Treat the naïve string as UTC to get an approximate epoch
     const approxUtc = new Date(`${normalised}Z`);
-    // Format that epoch in the target timezone to see what wall-clock time it shows there
     const tzFormatted = new Intl.DateTimeFormat('sv-SE', {
       timeZone: tz,
       year: 'numeric',
@@ -244,11 +248,8 @@ export class StepScheduleComponent {
       second: '2-digit',
       hour12: false,
     }).format(approxUtc);
-    // 'sv-SE' gives "YYYY-MM-DD HH:mm:ss" — parse it back as UTC to measure the offset
     const tzAsUtc = new Date(`${tzFormatted.replace(' ', 'T')}Z`);
-    // diff = (TZ wall-clock as UTC) − approxUtc = the UTC offset in ms
     const offsetMs = tzAsUtc.getTime() - approxUtc.getTime();
-    // Subtract the offset to get the true UTC instant, then return as ISO
     return new Date(approxUtc.getTime() - offsetMs).toISOString();
   }
 }

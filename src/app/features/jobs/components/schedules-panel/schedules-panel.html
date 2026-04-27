@@ -1,0 +1,65 @@
+@if (displaySites().length === 0) {
+  <div class="empty-state">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    <p class="empty-title">No active sites</p>
+    <p class="empty-desc">Configure and activate a site first to set up scheduled scraping.</p>
+  </div>
+} @else {
+  <div class="schedules-header">
+    <p class="schedules-meta">
+      {{ scheduledCount() }} of {{ displaySites().length }} site{{ displaySites().length === 1 ? '' : 's' }} with scheduling enabled
+    </p>
+  </div>
+
+  <div class="schedules-list">
+    @for (site of displaySites(); track site.key) {
+      <div class="schedule-row" [class.schedule-row--active]="site.schedule_enabled">
+        <div class="site-info">
+          <span class="site-name">{{ site.name }}</span>
+          <span class="site-key">{{ site.key }}</span>
+        </div>
+
+        <div class="schedule-status">
+          @if (site.schedule_enabled) {
+            <span class="badge badge--on" role="status">
+              <span class="badge-dot" aria-hidden="true"></span>
+              Active
+            </span>
+            <span class="schedule-interval">{{ formatInterval(site.schedule_interval_minutes) }}</span>
+          } @else {
+            <span class="badge badge--off" role="status">Off</span>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="openDialog(site)"
+          [attr.aria-label]="'Configure schedule for ' + site.name"
+        >
+          Configure
+        </button>
+      </div>
+    }
+  </div>
+}
+
+<app-dialog
+  [open]="!!editingSite()"
+  [title]="'Schedule — ' + (editingSite()?.name ?? '')"
+  size="md"
+  (closed)="closeDialog()"
+>
+  @if (editingSite()) {
+    <app-site-schedule-form
+      [site]="editingSite()"
+      (saved)="onSaved($event)"
+      (cancelled)="closeDialog()"
+    />
+  }
+</app-dialog>

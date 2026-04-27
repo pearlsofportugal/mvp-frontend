@@ -23,7 +23,7 @@
         <span class="stepper-label">{{ stepLabels[step] }}</span>
       </button>
 
-      @if (step < 6) {
+      @if (step < 5) {
         <span class="stepper-divider" aria-hidden="true"></span>
       }
     }
@@ -67,15 +67,6 @@
         />
       }
       @case (5) {
-        <app-step-schedule
-          [site]="site()"
-          (back)="currentStep.set(4)"
-          (skip)="currentStep.set(6)"
-          (next)="currentStep.set(6)"
-          (siteUpdated)="onSiteUpdated($event)"
-        />
-      }
-      @case (6) {
         <app-step-done
           [site]="site()"
           (launchJob)="onLaunchJob()"
