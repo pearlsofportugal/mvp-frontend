@@ -3,14 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  PLATFORM_ID,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { EMPTY, timer } from 'rxjs';
-import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JobsService } from '../../core/services/jobs';
 import { SitesService } from '../../core/services/sites.service';
@@ -19,12 +16,16 @@ import { JobFormComponent } from './components/job-form/job-form';
 import { JobsListComponent } from './components/jobs-list/jobs-list';
 import { JobDetailComponent } from './components/job-detail/job-detail';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 import { Spinner } from "../../shared/components/spinner/spinner";
 import { PollingService } from '../../core/services/polling-service';
+import { SchedulesPanelComponent } from './components/schedules-panel/schedules-panel';
+
+type JobsTab = 'jobs' | 'schedules';
 
 @Component({
   selector: 'app-jobs',
-  imports: [JobFormComponent, JobsListComponent, JobDetailComponent, ConfirmDialogComponent, Spinner],
+  imports: [JobFormComponent, JobsListComponent, JobDetailComponent, ConfirmDialogComponent, AppDialogComponent, Spinner, SchedulesPanelComponent],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +47,7 @@ export class JobsComponent {
     stream: () => this.sitesService.list(),
   });
 
+  protected readonly activeTab = signal<JobsTab>('jobs');
   protected readonly selectedJob = signal<JobRead | null>(null);
   protected readonly confirmingDeleteJobId = signal<string | null>(null);
   protected readonly confirmingCancelJobId = signal<string | null>(null);
@@ -59,8 +61,20 @@ export class JobsComponent {
   );
 
   protected readonly loading = computed<boolean>(
-    () => this.jobsResource.isLoading() || this.sitesResource.isLoading(),
+    () =>
+      (this.jobsResource.isLoading() && this.jobsResource.value() === undefined) ||
+      (this.sitesResource.isLoading() && this.sitesResource.value() === undefined),
   );
+
+  protected readonly jobStats = computed(() => {
+    const list = this.jobs();
+    return {
+      total: list.length,
+      running: list.filter(j => j.status === 'running' || j.status === 'pending').length,
+      completed: list.filter(j => j.status === 'completed').length,
+      failed: list.filter(j => j.status === 'failed' || j.status === 'cancelled').length,
+    };
+  });
 
   onJobCreated(): void {
     this.jobsResource.reload();
@@ -106,5 +120,14 @@ export class JobsComponent {
 
   onCloseDetail(): void {
     this.selectedJob.set(null);
+  }
+
+  onRefreshJobDetail(): void {
+    const job = this.selectedJob();
+    if (!job) return;
+    this.jobsService.getById(job.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (full) => this.selectedJob.set(full),
+      error: () => {},
+    });
   }
 }

@@ -42,7 +42,6 @@ export class JobDetailComponent {
 
   /** Job inicial passado pelo componente pai (pode ser snapshot desatualizado) */
   readonly job = input.required<JobRead>();
-  readonly close = output<void>();
   /** Emitido quando o utilizador clica "Atualizar" (fallback para SSE) */
   readonly refresh = output<void>();
 
@@ -124,10 +123,6 @@ export class JobDetailComponent {
     }
     return `A processar ${progress.listings_scraped ?? 0}/${progress.listings_found ?? 0} listings`;
   });
-
-  protected onClose(): void {
-    this.close.emit();
-  }
 
   protected onRefresh(): void {
     this.refresh.emit();

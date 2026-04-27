@@ -1,0 +1,166 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="schedule-form">
+
+  <!-- Active schedule banner -->
+  @if (scheduleInfo(); as info) {
+    @if (info.schedule_enabled) {
+      <div class="schedule-status-banner" role="status">
+        <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div class="banner-text">
+          <strong>Scheduling active</strong>
+          <span>Runs {{ formatInterval(info.schedule_interval_minutes) }}@if (info.next_run_at) { · next {{ formatNextRun(info.next_run_at) }}}</span>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Toggle -->
+  <div class="toggle-row" (click)="toggleEnabled()" role="switch" [attr.aria-checked]="scheduleEnabled()" tabindex="0" (keydown.space)="toggleEnabled(); $event.preventDefault()" aria-label="Enable scheduled scraping">
+    <div class="toggle-info">
+      <span class="toggle-title">Enable scheduled scraping</span>
+      <span class="toggle-desc">Automatically run scrape jobs at a fixed interval</span>
+    </div>
+    <div class="toggle-switch" aria-hidden="true">
+      <input id="sf_schedule_enabled" type="checkbox" formControlName="schedule_enabled" class="toggle-input" tabindex="-1" />
+      <div class="toggle-track" [class.toggle-track--on]="scheduleEnabled()">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+  </div>
+
+  @if (scheduleEnabled()) {
+    <div class="schedule-fields">
+
+      <!-- RECURRENCE -->
+      <p class="section-label">Recurrence</p>
+
+      <div class="form-group">
+        <div class="preset-row" role="group" aria-label="Quick interval presets">
+          @for (preset of presetIntervals; track preset.minutes) {
+            <button
+              type="button"
+              class="preset-btn"
+              [class.preset-btn--active]="isPresetActive(preset.minutes)"
+              (click)="setPreset(preset.minutes)"
+              [title]="formatInterval(preset.minutes)"
+            >{{ preset.label }}</button>
+          }
+        </div>
+        <div class="interval-input-row">
+          <input
+            id="sf_schedule_interval_minutes"
+            type="number"
+            min="1"
+            step="1"
+            formControlName="schedule_interval_minutes"
+            placeholder="e.g. 360"
+            [class.error]="form.controls.schedule_interval_minutes.invalid && form.controls.schedule_interval_minutes.touched"
+          />
+          @if (intervalLabel()) {
+            <span class="interval-label">{{ intervalLabel() }}</span>
+          }
+        </div>
+        @if (form.controls.schedule_interval_minutes.invalid && form.controls.schedule_interval_minutes.touched) {
+          <span class="field-error" role="alert">
+            @if (form.controls.schedule_interval_minutes.errors?.['required']) {
+              Interval is required when scheduling is enabled.
+            } @else {
+              Must be a whole number ≥ 1.
+            }
+          </span>
+        }
+      </div>
+
+      <!-- TIMING -->
+      <p class="section-label">Timing</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sf_schedule_start_at">First run at</label>
+          <input
+            id="sf_schedule_start_at"
+            type="datetime-local"
+            formControlName="schedule_start_at"
+          />
+          <span class="field-hint">Leave blank to start immediately.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="sf_schedule_timezone">Timezone</label>
+          <select id="sf_schedule_timezone" formControlName="schedule_timezone">
+            @for (tz of commonTimezones; track tz) {
+              <option [value]="tz">{{ tz }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- ADVANCED toggle -->
+      <button
+        type="button"
+        class="advanced-toggle"
+        (click)="showAdvanced.set(!showAdvanced())"
+        [attr.aria-expanded]="showAdvanced()"
+      >
+        <svg class="chevron" [class.chevron--open]="showAdvanced()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        Advanced options
+      </button>
+
+      @if (showAdvanced()) {
+        <div class="advanced-fields">
+          <div class="form-group">
+            <label for="sf_schedule_start_url">Start URL <span class="label-optional">optional</span></label>
+            <input
+              id="sf_schedule_start_url"
+              type="url"
+              formControlName="schedule_start_url"
+              placeholder="Uses site base URL"
+              [class.error]="form.controls.schedule_start_url.invalid && form.controls.schedule_start_url.touched"
+            />
+            @if (form.controls.schedule_start_url.invalid && form.controls.schedule_start_url.touched) {
+              <span class="field-error" role="alert">Must be a valid http/https URL.</span>
+            }
+            <span class="field-hint">Overrides site base URL for scheduled runs (e.g. sorted by newest).</span>
+          </div>
+
+          <div class="form-group">
+            <label for="sf_schedule_max_pages">Max pages per run <span class="label-optional">optional · 1–500</span></label>
+            <input
+              id="sf_schedule_max_pages"
+              type="number"
+              min="1"
+              max="500"
+              step="1"
+              formControlName="schedule_max_pages"
+              placeholder="Uses server default"
+              [class.error]="form.controls.schedule_max_pages.invalid && form.controls.schedule_max_pages.touched"
+            />
+            @if (form.controls.schedule_max_pages.invalid && form.controls.schedule_max_pages.touched) {
+              <span class="field-error" role="alert">Must be a whole number between 1 and 500.</span>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-ghost" (click)="onCancel()" [disabled]="submitting()">
+      Cancel
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="spinner" aria-hidden="true"></span>
+        Saving…
+      } @else {
+        Save Schedule
+      }
+    </button>
+  </div>
+
+</form>
