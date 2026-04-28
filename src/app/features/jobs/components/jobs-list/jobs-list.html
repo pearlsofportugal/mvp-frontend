@@ -34,7 +34,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (job of jobs(); track job.id) {
+        @for (job of liveJobs(); track job.id) {
           <tr>
             <td>
               <span class="job-site">{{ job.site_key }}</span>
@@ -49,26 +49,30 @@
               </div>
             </td>
             <td>
-              <div class="progress-cell">
-                <span class="progress-nums">
-                  <span title="Pages visited">{{ job.progress?.pages_visited ?? 0 }}&thinsp;pg</span>
-                  <span class="prog-sep">&middot;</span>
-                  <span title="Listings found">{{ job.progress?.listings_found ?? 0 }}&thinsp;found</span>
-                  <span class="prog-sep">&middot;</span>
-                  <span title="Listings saved">{{ job.progress?.listings_scraped ?? 0 }}&thinsp;saved</span>
-                </span>
-                @if ((job.progress?.listings_found ?? 0) > 0) {
-                  <div class="inline-progress" role="progressbar"
-                    [attr.aria-valuenow]="job.progress?.listings_scraped ?? 0"
-                    [attr.aria-valuemax]="job.progress?.listings_found ?? 1"
-                    aria-label="Scrape progress">
-                    <div class="inline-progress-fill"
-                      [class.inline-progress-fill--running]="job.status === 'running'"
-                      [style.width.%]="((job.progress?.listings_scraped ?? 0) / (job.progress?.listings_found ?? 1)) * 100">
+              @if (job.progress) {
+                <div class="progress-cell">
+                  <span class="progress-nums">
+                    <span title="Pages visited">{{ job.progress.pages_visited ?? 0 }}&thinsp;pg</span>
+                    <span class="prog-sep">&middot;</span>
+                    <span title="Listings found">{{ job.progress.listings_found ?? 0 }}&thinsp;found</span>
+                    <span class="prog-sep">&middot;</span>
+                    <span title="Listings saved">{{ job.progress.listings_scraped ?? 0 }}&thinsp;saved</span>
+                  </span>
+                  @if ((job.progress.listings_found ?? 0) > 0) {
+                    <div class="inline-progress" role="progressbar"
+                      [attr.aria-valuenow]="job.progress.listings_scraped ?? 0"
+                      [attr.aria-valuemax]="job.progress.listings_found ?? 1"
+                      aria-label="Scrape progress">
+                      <div class="inline-progress-fill"
+                        [class.inline-progress-fill--running]="job.status === 'running'"
+                        [style.width.%]="((job.progress.listings_scraped ?? 0) / (job.progress.listings_found ?? 1)) * 100">
+                      </div>
                     </div>
-                  </div>
-                }
-              </div>
+                  }
+                </div>
+              } @else {
+                <span class="prog-sep">—</span>
+              }
             </td>
             <td>
               <span [class.has-errors]="(job.progress?.errors ?? 0) > 0">
