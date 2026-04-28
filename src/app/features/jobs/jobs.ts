@@ -18,7 +18,6 @@ import { JobDetailComponent } from './components/job-detail/job-detail';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 import { Spinner } from "../../shared/components/spinner/spinner";
-import { PollingService } from '../../core/services/polling-service';
 import { SchedulesPanelComponent } from './components/schedules-panel/schedules-panel';
 
 type JobsTab = 'jobs' | 'schedules';
@@ -34,11 +33,9 @@ export class JobsComponent {
   private readonly jobsService = inject(JobsService);
   private readonly sitesService = inject(SitesService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly pollingService = inject(PollingService)
-
 
   readonly jobsResource = rxResource({
-    params: () => this.pollingService.tick(),
+    params: () => 0,
     stream: () => this.jobsService.getAll(),
   });
 
