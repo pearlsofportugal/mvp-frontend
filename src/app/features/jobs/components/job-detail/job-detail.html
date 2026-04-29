@@ -81,6 +81,61 @@
         <dd class="cell-error">{{ job.error_message }}</dd>
       }
     </dl>
+
+    @if (job.logs && job.logs.length > 0) {
+      <section class="detail-section">
+        <h3 class="section-title">Logs <span class="section-count">({{ job.logs.length }})</span></h3>
+        <ul class="log-list">
+          @for (entry of job.logs; track entry.timestamp) {
+            <li class="log-entry" [class.log-entry--warning]="entry.level === 'warning'" [class.log-entry--error]="entry.level === 'error'">
+              <span class="log-level">{{ entry.level }}</span>
+              <span class="log-message">{{ entry.message }}</span>
+              @if (entry.url) {
+                <a class="log-url" [href]="entry.url" target="_blank" rel="noopener noreferrer">{{ entry.url }}</a>
+              }
+              @if (entry.timestamp) {
+                <span class="log-time">{{ entry.timestamp | date:'HH:mm:ss' }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (job.urls) {
+      <section class="detail-section">
+        <h3 class="section-title">URLs</h3>
+        <div class="url-stats">
+          <div class="url-stat">
+            <span class="url-stat-value">{{ job.urls.discovered?.length ?? 0 }}</span>
+            <span class="url-stat-label">Discovered</span>
+          </div>
+          <div class="url-stat url-stat--visited">
+            <span class="url-stat-value">{{ job.urls.visited?.length ?? 0 }}</span>
+            <span class="url-stat-label">Visited</span>
+          </div>
+          @if ((job.urls.failed?.length ?? 0) > 0) {
+            <div class="url-stat url-stat--failed">
+              <span class="url-stat-value">{{ job.urls.failed!.length }}</span>
+              <span class="url-stat-label">Failed</span>
+            </div>
+          }
+        </div>
+
+        @if ((job.urls.failed?.length ?? 0) > 0) {
+          <div class="url-group">
+            <p class="url-group-title">Failed URLs</p>
+            <ul class="url-list url-list--failed">
+              @for (url of job.urls.failed!; track url) {
+                <li class="url-item">
+                  <a [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+    }
   }
 
 </div>
