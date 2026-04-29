@@ -50,8 +50,12 @@ export class JobDetailComponent {
   protected readonly streaming = signal(false);
   protected readonly streamError = signal<string | null>(null);
 
-  /** Job efetivo a mostrar na UI — liveJob se disponível, senão o input */
-  protected readonly displayJob = computed(() => this.liveJob() ?? this.job());
+  /** Job efetivo a mostrar na UI — merge do input com os campos live do SSE */
+  protected readonly displayJob = computed<JobRead>(() => {
+    const live = this.liveJob();
+    if (!live) return this.job();
+    return { ...this.job(), ...live };
+  });
 
   constructor() {
     // Quando o job input muda, decidir se deve abrir/fechar stream SSE

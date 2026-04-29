@@ -4,10 +4,12 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { JobsService } from '../../core/services/jobs';
 import { SitesService } from '../../core/services/sites.service';
@@ -33,6 +35,8 @@ export class JobsComponent {
   private readonly jobsService = inject(JobsService);
   private readonly sitesService = inject(SitesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly jobsResource = rxResource({
     params: () => 0,
@@ -48,6 +52,30 @@ export class JobsComponent {
   protected readonly selectedJob = signal<JobRead | null>(null);
   protected readonly confirmingDeleteJobId = signal<string | null>(null);
   protected readonly confirmingCancelJobId = signal<string | null>(null);
+
+  constructor() {
+    // Sync selectedJob <-> URL query param ?jobId=
+    effect(() => {
+      const job = this.selectedJob();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: job ? { jobId: job.id } : {},
+        queryParamsHandling: job ? 'merge' : '',
+        replaceUrl: true,
+      });
+    });
+
+    // On load, open job detail if ?jobId= is present in URL
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const jobId = params['jobId'];
+      if (jobId && !this.selectedJob()) {
+        this.jobsService.getById(jobId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (full) => this.selectedJob.set(full),
+          error: () => {},
+        });
+      }
+    });
+  }
 
   protected readonly jobs = computed<JobListRead[]>(
     () => this.jobsResource.value() ?? [],
