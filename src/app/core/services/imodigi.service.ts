@@ -71,7 +71,7 @@ export class ImodigiService {
 
       isTerminal: (data) => {
         return (
-          data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled'
+          data.status === 'completed' || data.status === 'failed' 
         );
       },
       maxRetries: 5,

@@ -62,15 +62,26 @@ export class ListingsComponent {
     stream: ({ params }) => this.realEstateService.getListings(params),
   });
   readonly sitesResource = rxResource<SiteConfigRead[], number>({
-    params: () => 0,
     stream: () => this.sitesService.list(),
   });
-  readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
-    params: () => this.selectedListingId() ?? this.editingListingId(),
-    stream: ({ params }) =>
-      params ? this.realEstateService.getListingById(params) : of(null),
-  });
+private readonly activeDetailId = computed<string | null>(() => {
+  const selectedId = this.selectedListingId();
+  const editingId = this.editingListingId();
 
+  if (selectedId && editingId) {
+    // Estado inválido — não devia acontecer, mas se acontecer, editing tem precedência
+    console.warn('[ListingsComponent] selectedListingId e editingListingId ambos setados simultaneamente');
+    return editingId;
+  }
+
+  return selectedId ?? editingId;
+});
+
+readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
+  params: () => this.activeDetailId(),
+  stream: ({ params }) =>
+    params ? this.realEstateService.getListingById(params) : of(null),
+});
   // Derived state
   protected readonly realEstates = computed(() => this.realEstatesResource.value()?.items ?? []);
   protected readonly isLoadingListings = computed(() => this.realEstatesResource.isLoading());
@@ -145,10 +156,48 @@ export class ListingsComponent {
     this.selectedListingId.set(null);
   }
 
+  // onEditSaved(updated: ListingDetailRead): void {
+  //   this.editingListingId.set(null);
+  //   this.realEstatesResource.reload();
+  // }
   onEditSaved(updated: ListingDetailRead): void {
     this.editingListingId.set(null);
-    this.realEstatesResource.reload();
+    console.log(updated)
+    // Atualiza o item na lista local sem round-trip ao servidor
+    this.realEstatesResource.value.update((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        items: current.items.map((item) =>
+          item.id === updated.id
+            ? { ...item, ...updated } 
+            : item,
+        ),
+      };
+    });
   }
+  // onEditSaved(updated: ListingDetailRead): void {
+  //   this.editingListingId.set(null);
+
+  //   // Atualiza o item na lista local sem round-trip ao servidor
+  //   this.realEstatesResource.value.update((current) => {
+  //     if (!current) return current;
+  //     return {
+  //       ...current,
+  //       items: current.items.map((item) =>
+  //         item.id === updated.id
+  //           ? {
+  //               ...item,
+  //               title: updated.title,
+  //               price: updated.price_amount,
+  //               status: updated.is_enriched,
+  //               // só os campos relevantes para ListingListRead
+  //             }
+  //           : item,
+  //       ),
+  //     };
+  //   });
+  // }
 
   onCloseEdit(): void {
     this.editingListingId.set(null);
