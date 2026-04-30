@@ -16,6 +16,7 @@ import type {
   BulkJobStatus,
 } from '../api/model';
 import { environment } from '../../../environments/environment';
+import { createSseObservable } from './sse.utl';
 
 @Injectable({ providedIn: 'root' })
 export class ImodigiService {
@@ -58,77 +59,26 @@ export class ImodigiService {
   getBulkPublishJob(jobId: string): Observable<BulkJobStatus> {
     return this.api.imodigiGetBulkJob(jobId).pipe(map((r) => r.data!));
   }
-
-  /**
-   * Stream progress of a bulk Imodigi publish job via SSE.
-   * Emits `BulkJobStatus` updates; completes when status = completed/failed.
-   */
   streamBulkPublishJob(jobId: string): Observable<BulkJobStatus> {
-    const subject = new Subject<BulkJobStatus>();
-    const abortController = new AbortController();
-    const url = `${environment.apiUrl}${this.basePath}/publish/jobs/${jobId}/stream`;
-
     if (!isPlatformBrowser(this.platformId)) {
       return new Observable((observer) => observer.complete());
     }
 
-    fetchEventSource(url, {
-      method: 'GET',
-      headers: {
-        'X-API-Key': environment.apiKey ?? '',
-        Accept: 'text/event-stream',
+    const url = `${environment.apiUrl}${this.basePath}/publish/jobs/${jobId}/stream`;
+
+    return createSseObservable<BulkJobStatus>(url, {
+      apiKey: environment.apiKey ?? '',
+
+      isTerminal: (data) => {
+        return (
+          data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled'
+        );
       },
-      signal: abortController.signal,
-
-      onopen: async (response) => {
-        if (!response.ok) {
-          subject.error(new Error(`SSE falhou com status ${response.status}`));
-          abortController.abort();
-        }
-      },
-
-      onmessage: (event) => {
-        if (!event.data) return;
-        try {
-          const data = JSON.parse(event.data) as BulkJobStatus;
-
-          if (event.event === 'done') {
-            subject.next(data);
-            subject.complete();
-            abortController.abort();
-            return;
-          }
-
-          if (event.event === 'error') {
-            subject.error(new Error((data as unknown as { message?: string }).message ?? 'Erro no stream SSE'));
-            abortController.abort();
-            return;
-          }
-
-          if (event.event === 'heartbeat') return;
-
-          subject.next(data);
-        } catch (e) {
-          console.warn('[SSE] Erro a parsear evento:', event.data, e);
-        }
-      },
-
-      onerror: (err) => {
-        subject.error(err);
-        throw err;
-      },
-
-      onclose: () => {
-        if (!subject.closed) subject.complete();
-      },
-    });
-
-    return new Observable<BulkJobStatus>((observer) => {
-      const subscription = subject.subscribe(observer);
-      return () => {
-        subscription.unsubscribe();
-        abortController.abort();
-      };
+      maxRetries: 5,
+      baseRetryDelayMs: 500,
+      maxRetryDelayMs: 10_000,
+      idleTimeoutMs: 60_000,
+      dedup: true,
     });
   }
 }

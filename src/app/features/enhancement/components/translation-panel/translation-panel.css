@@ -295,7 +295,6 @@
   background: var(--surface2);
   border-bottom: 1px solid var(--border);
   padding: 0 0.75rem;
-  overflow-x: auto;
   flex-wrap: nowrap;
 }
 
