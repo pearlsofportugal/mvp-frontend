@@ -6,166 +6,112 @@
       <p class="jobs-subtitle">Launch and monitor real estate data scraping jobs</p>
     </div>
     @if (activeTab() === 'jobs') {
-      <button class="btn btn-ghost btn-sm" type="button" (click)="onJobCreated()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="23 4 23 10 17 10"/>
-          <polyline points="1 20 1 14 7 14"/>
-          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-        </svg>
-        Refresh
-      </button>
+    <button class="btn btn-ghost btn-sm" type="button" (click)="onJobCreated()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+      </svg>
+      Refresh
+    </button>
     }
   </header>
 
   <nav class="jobs-tabs" aria-label="Jobs sections">
-    <button
-      type="button"
-      class="tab-btn"
-      [class.tab-btn--active]="activeTab() === 'jobs'"
-      (click)="activeTab.set('jobs')"
-      aria-controls="panel-jobs"
-      [attr.aria-selected]="activeTab() === 'jobs'"
-    >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="2" y="7" width="20" height="14" rx="2"/>
-        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+    <button type="button" class="tab-btn" [class.tab-btn--active]="activeTab() === 'jobs'"
+      (click)="activeTab.set('jobs')" aria-controls="panel-jobs" [attr.aria-selected]="activeTab() === 'jobs'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="7" width="20" height="14" rx="2" />
+        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
       </svg>
       Jobs
       @if (jobStats().running > 0) {
-        <span class="tab-badge tab-badge--running">{{ jobStats().running }}</span>
+      <span class="tab-badge tab-badge--running">{{ jobStats().running }}</span>
       }
     </button>
-    <button
-      type="button"
-      class="tab-btn"
-      [class.tab-btn--active]="activeTab() === 'schedules'"
-      (click)="activeTab.set('schedules')"
-      aria-controls="panel-schedules"
-      [attr.aria-selected]="activeTab() === 'schedules'"
-    >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
+    <button type="button" class="tab-btn" [class.tab-btn--active]="activeTab() === 'schedules'"
+      (click)="activeTab.set('schedules')" aria-controls="panel-schedules"
+      [attr.aria-selected]="activeTab() === 'schedules'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
       </svg>
       Schedules
     </button>
   </nav>
 
   @if (activeTab() === 'jobs') {
-    <div id="panel-jobs" role="tabpanel" aria-label="Jobs">
-      @if (!loading() && jobStats().total > 0) {
-        <div class="jobs-stats" role="status" aria-label="Job statistics">
-          <div class="stat-item">
-            <span class="stat-value">{{ jobStats().total }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          @if (jobStats().running > 0) {
-            <div class="stat-item stat-item--running">
-              <span class="stat-dot" aria-hidden="true"></span>
-              <span class="stat-value">{{ jobStats().running }}</span>
-              <span class="stat-label">Running</span>
-            </div>
-          }
-          <div class="stat-item stat-item--completed">
-            <span class="stat-value">{{ jobStats().completed }}</span>
-            <span class="stat-label">Completed</span>
-          </div>
-          @if (jobStats().failed > 0) {
-            <div class="stat-item stat-item--failed">
-              <span class="stat-value">{{ jobStats().failed }}</span>
-              <span class="stat-label">Failed / Cancelled</span>
-            </div>
-          }
-        </div>
-      }
-
-      <div class="jobs-layout">
-        <aside class="card jobs-form-panel" aria-label="New job form">
-          <h2 class="panel-title">New Job</h2>
-          <app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
-        </aside>
-
-        <main class="jobs-main">
-          @if (loading()) {
-            <app-spinner size="lg" message="Loading jobs"></app-spinner>
-          } @else {
-            <app-jobs-list
-              [jobs]="jobs()"
-              (view)="onViewJob($event)"
-              (cancel)="onCancelJob($event)"
-              (delete)="onDeleteJob($event)"
-            />
-          }
-        </main>
+  <div id="panel-jobs" role="tabpanel" aria-label="Jobs">
+    @if (!loading() && jobStats().total > 0) {
+    <div class="jobs-stats" role="status" aria-label="Job statistics">
+      <div class="stat-item">
+        <span class="stat-value">{{ jobStats().total }}</span>
+        <span class="stat-label">Total</span>
       </div>
+      @if (jobStats().running > 0) {
+      <div class="stat-item stat-item--running">
+        <span class="stat-dot" aria-hidden="true"></span>
+        <span class="stat-value">{{ jobStats().running }}</span>
+        <span class="stat-label">Running</span>
+      </div>
+      }
+      <div class="stat-item stat-item--completed">
+        <span class="stat-value">{{ jobStats().completed }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      @if (jobStats().failed > 0) {
+      <div class="stat-item stat-item--failed">
+        <span class="stat-value">{{ jobStats().failed }}</span>
+        <span class="stat-label">Failed / Cancelled</span>
+      </div>
+      }
     </div>
+    }
+
+    <div class="jobs-layout">
+      <aside class="card jobs-form-panel" aria-label="New job form">
+        <h2 class="panel-title">New Job</h2>
+        <app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
+      </aside>
+
+      <main class="jobs-main">
+        @if (loading()) {
+        <app-spinner size="lg" message="Loading jobs"></app-spinner>
+        } @else {
+        <app-jobs-list [jobs]="jobs()" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
+          (delete)="onDeleteJob($event)" />
+        }
+      </main>
+    </div>
+  </div>
   }
 
   @if (activeTab() === 'schedules') {
-    <div id="panel-schedules" role="tabpanel" aria-label="Schedules">
-      @if (loading()) {
-        <app-spinner size="lg" message="Loading sites"></app-spinner>
-      } @else {
-        <app-schedules-panel [sites]="sites()" />
-      }
-    </div>
+  <div id="panel-schedules" role="tabpanel" aria-label="Schedules">
+    @if (loading()) {
+    <app-spinner size="lg" message="Loading sites"></app-spinner>
+    } @else {
+    <app-schedules-panel [sites]="sites()" />
+    }
+  </div>
   }
 
 </div>
 
-<app-dialog
-  [open]="!!selectedJob()"
-  title="Job Detail"
-  size="lg"
-  (closed)="onCloseDetail()"
->
+<app-dialog [open]="!!selectedJob()" title="Job Detail" size="lg" (closed)="onCloseDetail()">
   @if (selectedJob()) {
-    <app-job-detail
-      [job]="selectedJob()!"
-      (refresh)="onRefreshJobDetail()"
-    />
+  <app-job-detail [job]="selectedJob()!" (refresh)="onRefreshJobDetail()" />
   }
 </app-dialog>
 
 @if (confirmingCancelJobId()) {
-  <app-confirm-dialog
-    message="Cancel this job?"
-    confirmLabel="Yes, cancel"
-    cancelLabel="No"
-    (confirmed)="onConfirmCancelJob()"
-    (cancelled)="confirmingCancelJobId.set(null)"
-  />
+<app-confirm-dialog message="Cancel this job?" confirmLabel="Yes, cancel" cancelLabel="No"
+  (confirmed)="onConfirmCancelJob()" (cancelled)="confirmingCancelJobId.set(null)" />
 }
-
 @if (confirmingDeleteJobId()) {
-  <app-confirm-dialog
-    message="Delete this job permanently?"
-    confirmLabel="Delete"
-    cancelLabel="Cancel"
-    [danger]="true"
-    (confirmed)="onConfirmDeleteJob()"
-    (cancelled)="confirmingDeleteJobId.set(null)"
-  />
-}
-
-
-@if (confirmingCancelJobId()) {
-  <app-confirm-dialog
-    message="Cancel this job?"
-    confirmLabel="Yes, cancel"
-    cancelLabel="No"
-    (confirmed)="onConfirmCancelJob()"
-    (cancelled)="confirmingCancelJobId.set(null)"
-  />
-}
-
-@if (confirmingDeleteJobId()) {
-  <app-confirm-dialog
-    message="Delete this job permanently?"
-    confirmLabel="Delete"
-    cancelLabel="Cancel"
-    [danger]="true"
-    (confirmed)="onConfirmDeleteJob()"
-    (cancelled)="confirmingDeleteJobId.set(null)"
-  />
+<app-confirm-dialog message="Delete this job permanently?" confirmLabel="Delete" cancelLabel="Cancel" [danger]="true"
+  (confirmed)="onConfirmDeleteJob()" (cancelled)="confirmingDeleteJobId.set(null)" />
 }

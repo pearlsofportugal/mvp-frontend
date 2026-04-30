@@ -25,7 +25,8 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { JobRead } from '../../../../core/api/model';
 import { JobsService } from '../../../../core/services/jobs';
-import { StatusBadge } from "../../../../shared/components/status-badge/status-badge";
+import { StatusBadge } from '../../../../shared/components/status-badge/status-badge';
+import { Subscription } from 'rxjs';
 
 const TERMINAL_STATUSES = new Set(['completed', 'failed', 'cancelled']);
 
@@ -73,14 +74,19 @@ export class JobDetailComponent {
       this.startStreaming(job.id);
     });
   }
-
+  private currentStreamingJobId: string | null = null;
+  private streamSubscription: Subscription | null = null;
   private startStreaming(jobId: string): void {
-    if (this.streaming()) return; // já está a fazer stream deste job
+    if (this.currentStreamingJobId === jobId) return; // mesmo job, não reabrir
 
+    // cancelar stream anterior se existir
+    this.streamSubscription?.unsubscribe();
+
+    this.currentStreamingJobId = jobId;
     this.streaming.set(true);
     this.streamError.set(null);
 
-    this.jobsService
+    this.streamSubscription = this.jobsService
       .streamJobProgress(jobId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -88,13 +94,13 @@ export class JobDetailComponent {
           this.liveJob.set(updatedJob);
         },
         error: (err: unknown) => {
+          this.currentStreamingJobId = null; // permite retry manual, mas não automático
           this.streaming.set(false);
           const message = err instanceof Error ? err.message : 'Erro no stream de progresso';
           this.streamError.set(message);
-          // Fallback automático: polling já está ativo no JobsComponent pai,
-          // por isso o utilizador ainda verá atualizações (mais lentas)
         },
         complete: () => {
+          this.currentStreamingJobId = null;
           this.streaming.set(false);
         },
       });
