@@ -5,7 +5,7 @@ WORKDIR /app
 
 
 COPY package*.json ./
-RUN npm ci --quiet
+RUN npm ci --quiet --legacy-peer-deps --omit=dev
 
 COPY . .
 RUN npx ng build --configuration production
@@ -25,6 +25,6 @@ ENV PORT=8080
 ENV NODE_ENV=production
 
 
-ENV NODE_OPTIONS="--max-old-space-size=900"
+ENV NODE_OPTIONS="--max-old-space-size=400"
 
 CMD ["node", "dist/frontend/server/server.mjs"]
