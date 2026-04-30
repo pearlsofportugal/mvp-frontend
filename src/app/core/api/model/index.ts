@@ -41,6 +41,7 @@ export * from './bulkEnrichmentRequest';
 export * from './bulkEnrichmentRequestLocalesItem';
 export * from './bulkJobAccepted';
 export * from './bulkJobStatus';
+export * from './bulkStatus';
 export * from './confidenceMeta';
 export * from './deleteSiteParams';
 export * from './detectDuplicatesParams';

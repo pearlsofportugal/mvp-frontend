@@ -98,7 +98,7 @@ export class ListingEditComponent{
       contacts: l.contacts ?? null,
       description: l.description ?? null,
     });
-  }, { allowSignalWrites: true });
+  });
 }
 
   onSubmit(): void {

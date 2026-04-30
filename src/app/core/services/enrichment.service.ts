@@ -43,7 +43,7 @@ export class EnrichmentService {
       apiKey: environment.apiKey ?? '',
 
       isTerminal: (data) =>
-        data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled',
+        data.status === 'completed' || data.status === 'failed' ,
 
       maxRetries: 5,
       baseRetryDelayMs: 500,

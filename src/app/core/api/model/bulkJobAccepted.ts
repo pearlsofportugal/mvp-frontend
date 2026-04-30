@@ -5,6 +5,7 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
+import type { BulkStatus } from './bulkStatus';
 
 /**
  * Returned immediately when a background bulk job is accepted (HTTP 202).
@@ -12,7 +13,7 @@
 export interface BulkJobAccepted {
   job_id: string;
   job_type: string;
-  status?: string;
+  status?: BulkStatus;
   /**
    * Number of items to process.
    * @minimum 0
