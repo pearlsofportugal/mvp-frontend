@@ -1,112 +1,279 @@
 <div class="dashboard-page">
-  <header class="dashboard-header">
+  <!-- ── Page Header ─────────────────────────────────────────────────── -->
+  <header class="dash-header">
     <div>
-      <h1 class="dashboard-title">Partner Dashboard</h1>
-      <p class="dashboard-subtitle">
-        @if (loading()) {
-          A carregar...
-        } @else {
-          {{ totalPartners() }} active partners
-        }
-      </p>
+      <h1 class="dash-title">Partner Dashboard</h1>
+      <p class="dash-subtitle">Análise consolidada e monitorização de dados imobiliários em tempo real.</p>
     </div>
   </header>
 
-  @if (loading() && partners().length === 0) {
+  @if (loading() && rawPartners().length === 0) {
     <div class="spinner-wrap">
       <app-spinner />
     </div>
   } @else {
-    <div class="table-wrap">
-      <table class="partners-table" aria-label="Estatísticas por parceiro">
-        <thead>
-          <tr>
-            <th scope="col">
-              <button class="sort-btn" (click)="sort('source_partner')" type="button">
-                Partner <span aria-hidden="true">{{ sortIcon('source_partner') }}</span>
-              </button>
-            </th>
-            <th scope="col" class="num-col">
-              <button class="sort-btn" (click)="sort('total_listings')" type="button">
-                Total <span aria-hidden="true">{{ sortIcon('total_listings') }}</span>
-              </button>
-            </th>
-            <th scope="col" class="num-col">
-              <button class="sort-btn" (click)="sort('listings_updated_last_7_days')" type="button">
-                Last 7d <span aria-hidden="true">{{ sortIcon('listings_updated_last_7_days') }}</span>
-              </button>
-            </th>
-            <th scope="col" class="num-col">
-              <button class="sort-btn" (click)="sort('avg_price')" type="button">
-                Average price <span aria-hidden="true">{{ sortIcon('avg_price') }}</span>
-              </button>
-            </th>
-            <th scope="col" class="num-col">
-              <button class="sort-btn" (click)="sort('enriched_count')" type="button">
-                Enhanced <span aria-hidden="true">{{ sortIcon('enriched_count') }}</span>
-              </button>
-            </th>
-            <th scope="col" class="num-col">
-              <button class="sort-btn" (click)="sort('exported_to_imodigi_count')" type="button">
-                Imodigi <span aria-hidden="true">{{ sortIcon('exported_to_imodigi_count') }}</span>
-              </button>
-            </th>
-            <th scope="col">
-              <button class="sort-btn" (click)="sort('last_listing_updated_at')" type="button">
-                Last update<span aria-hidden="true">{{ sortIcon('last_listing_updated_at') }}</span>
-              </button>
-            </th>
-            <th scope="col">
-              <button class="sort-btn" (click)="sort('last_job_at')" type="button">
-                Last Job <span aria-hidden="true">{{ sortIcon('last_job_at') }}</span>
-              </button>
-            </th>
-            <th scope="col" class="center-col">Job state</th>
-            <th scope="col" class="num-col">Scraped</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (p of partners(); track p.source_partner) {
-            <tr>
-              <td class="partner-cell">
-                <span class="partner-slug">{{ p.source_partner }}</span>
-              </td>
-              <td class="num-col">{{ p.total_listings ?? '—' }}</td>
-              <td class="num-col">
-                @if ((p.listings_updated_last_7_days ?? 0) > 0) {
-                  <span class="pill pill--green">{{ p.listings_updated_last_7_days }}</span>
-                } @else {
-                  <span class="pill pill--dim">0</span>
-                }
-              </td>
-              <td class="num-col">{{ p.avg_price | formatPrice }}</td>
-              <td class="num-col">
-                <span
-                  class="enrichment-cell"
-                  [title]="(p.enriched_count ?? 0) + ' / ' + (p.total_listings ?? 0)"
-                >
-                  {{ enrichmentRate(p) }}
-                </span>
-              </td>
-              <td class="num-col">{{ p.exported_to_imodigi_count ?? '—' }}</td>
-              <td>{{ p.last_listing_updated_at | formatDate }}</td>
-              <td>{{ p.last_job_at | formatDate }}</td>
-              <td class="center-col">
-                @if (p.last_job_status) {
-                  <app-status-badge [status]="p.last_job_status" />
-                } @else {
-                  <span class="text-dim">—</span>
-                }
-              </td>
-              <td class="num-col">{{ p.last_job_scraped_count ?? '—' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="10" class="empty-state">Sem dados de parceiros disponíveis.</td>
-            </tr>
+
+    <!-- ── KPI Cards ──────────────────────────────────────────────────── -->
+    <div class="kpi-row">
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon kpi-icon--accent">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <ellipse cx="12" cy="5" rx="9" ry="3"/>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+            </svg>
+          </div>
+          @if (last7dListings() > 0) {
+            <span class="kpi-badge">+{{ last7dListings() }} esta semana</span>
           }
-        </tbody>
-      </table>
+        </div>
+        <div class="kpi-value">{{ totalListings() }}</div>
+        <div class="kpi-label">Total de Imóveis</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon kpi-icon--green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+              <polyline points="17 6 23 6 23 12"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value kpi-value--green">{{ last7dListings() }}</div>
+        <div class="kpi-label">Capturados (7d)</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icon kpi-icon--purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value">{{ globalEnrichmentPct() }}<span class="kpi-pct">%</span></div>
+        <div class="kpi-label">Taxa de Otimização</div>
+        <div class="kpi-progress-wrap">
+          <div class="kpi-progress-track">
+            <div class="kpi-progress-fill" [style.width.%]="globalEnrichmentPct()"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="scraper-status-dot" aria-hidden="true">
+            <span class="scraper-ping"></span>
+            <span class="scraper-core"></span>
+          </div>
+        </div>
+        <div class="kpi-value">
+          <span class="kpi-value--green">{{ activeScrapers() }}</span><span class="kpi-value-sep"> / </span>{{ totalPartners() }}
+        </div>
+        <div class="kpi-label">Scrapers Ativos</div>
+      </div>
+
     </div>
+
+    <!-- ── Charts Row ─────────────────────────────────────────────────── -->
+    <div class="charts-row">
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h2 class="chart-card-title">Volume de Captura Semanal</h2>
+            <p class="chart-card-sub">Imóveis capturados por semana &middot; Últimas 6 semanas</p>
+          </div>
+          <span class="chart-badge">Exemplo</span>
+        </div>
+        <div class="area-chart-wrap">
+          <svg viewBox="0 0 700 160" preserveAspectRatio="none" class="area-svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="dashAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" style="stop-color: var(--accent); stop-opacity: 0.2;"/>
+                <stop offset="100%" style="stop-color: var(--accent); stop-opacity: 0;"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="40" x2="700" y2="40" class="area-grid"/>
+            <line x1="0" y1="80" x2="700" y2="80" class="area-grid"/>
+            <line x1="0" y1="120" x2="700" y2="120" class="area-grid"/>
+            <path
+              d="M0,130 C60,120 90,112 133,95 C175,78 200,108 233,95 C270,80 300,50 350,42 C400,33 430,52 470,48 C510,42 560,18 610,14 C645,10 675,11 700,7 L700,160 L0,160 Z"
+              style="fill: url(#dashAreaGrad);"/>
+            <path
+              d="M0,130 C60,120 90,112 133,95 C175,78 200,108 233,95 C270,80 300,50 350,42 C400,33 430,52 470,48 C510,42 560,18 610,14 C645,10 675,11 700,7"
+              class="area-line"/>
+          </svg>
+          <div class="area-x-labels" aria-hidden="true">
+            <span>Sem 1</span>
+            <span>Sem 2</span>
+            <span>Sem 3</span>
+            <span>Sem 4</span>
+            <span>Sem 5</span>
+            <span>Sem 6</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card chart-card--donut">
+        <div class="chart-card-header">
+          <div>
+            <h2 class="chart-card-title">Qualidade dos Dados</h2>
+            <p class="chart-card-sub">Proporção de imóveis por nível</p>
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <div class="donut-svg-wrap">
+            <svg viewBox="0 0 160 160" class="donut-svg" aria-hidden="true">
+              <circle class="donut-track" cx="80" cy="80" r="56"/>
+              <circle class="donut-progress" cx="80" cy="80" r="56"
+                [attr.stroke-dasharray]="donutDashLength() + ' 351.86'"
+                transform="rotate(-90 80 80)"/>
+              <text class="donut-center-pct" x="80" y="76" text-anchor="middle">{{ globalEnrichmentPct() }}%</text>
+              <text class="donut-center-lbl" x="80" y="92" text-anchor="middle">Enhanced</text>
+            </svg>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-row">
+              <span class="legend-dot ld--accent"></span>
+              <div class="legend-meta">
+                <span class="legend-name">Enhanced</span>
+                <span class="legend-val">{{ globalEnrichmentPct() }}%</span>
+              </div>
+            </div>
+            <div class="legend-row">
+              <span class="legend-dot ld--purple"></span>
+              <div class="legend-meta">
+                <span class="legend-name">Imodigi</span>
+                <span class="legend-val">{{ imodigiPct() }}%</span>
+              </div>
+            </div>
+            <div class="legend-row">
+              <span class="legend-dot ld--gray"></span>
+              <div class="legend-meta">
+                <span class="legend-name">Standard</span>
+                <span class="legend-val">{{ 100 - globalEnrichmentPct() }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Partners Table ─────────────────────────────────────────────── -->
+    <div class="table-card">
+      <div class="table-card-head">
+        <div>
+          <h2 class="table-card-title">Desempenho por Parceiro</h2>
+          <p class="table-card-sub">{{ filteredPartners().length }} de {{ totalPartners() }} parceiros</p>
+        </div>
+        <div class="table-search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="search-icon" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="table-search-input" type="text" placeholder="Filtrar parceiro..."
+            [value]="filterQuery()" (input)="filterQuery.set($any($event.target).value)" />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="partners-table" aria-label="Desempenho por parceiro">
+          <thead>
+            <tr>
+              <th scope="col">
+                <button class="sort-btn" (click)="sort('source_partner')" type="button">
+                  Parceiro <span aria-hidden="true">{{ sortIcon('source_partner') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="num-col">
+                <button class="sort-btn" (click)="sort('total_listings')" type="button">
+                  Total <span aria-hidden="true">{{ sortIcon('total_listings') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="num-col">
+                <button class="sort-btn" (click)="sort('listings_updated_last_7_days')" type="button">
+                  Last 7d <span aria-hidden="true">{{ sortIcon('listings_updated_last_7_days') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="num-col">
+                <button class="sort-btn" (click)="sort('avg_price')" type="button">
+                  Average Price <span aria-hidden="true">{{ sortIcon('avg_price') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="num-col">
+                <button class="sort-btn" (click)="sort('enriched_count')" type="button">
+                  Enhanced (%) <span aria-hidden="true">{{ sortIcon('enriched_count') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="center-col">Job State</th>
+              <th scope="col" class="actions-col" aria-label="Ações"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of filteredPartners(); track p.source_partner) {
+              <tr>
+                <td class="partner-cell">
+                  <span class="partner-name">{{ p.source_partner }}</span>
+                </td>
+                <td class="num-col td-numeric">{{ p.total_listings ?? '—' }}</td>
+                <td class="num-col">
+                  @if ((p.listings_updated_last_7_days ?? 0) > 0) {
+                    <span class="pill pill--green">{{ p.listings_updated_last_7_days }}</span>
+                  } @else {
+                    <span class="td-dim">0</span>
+                  }
+                </td>
+                <td class="num-col td-numeric">{{ p.avg_price | formatPrice }}</td>
+                <td class="num-col">
+                  <span class="enhanced-badge"
+                    [title]="(p.enriched_count ?? 0) + ' / ' + (p.total_listings ?? 0)">
+                    {{ enrichmentRate(p) }}
+                  </span>
+                </td>
+                <td class="center-col">
+                  @if (p.last_job_status) {
+                    <app-status-badge [status]="p.last_job_status" />
+                  } @else {
+                    <span class="td-dim">—</span>
+                  }
+                  </td>
+                <td class="actions-col">
+                  <button class="kbk-btn" type="button"
+                    [attr.aria-label]="'Opções para ' + p.source_partner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="5" r="1"/>
+                      <circle cx="12" cy="12" r="1"/>
+                      <circle cx="12" cy="19" r="1"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">
+                  @if (filterQuery()) {
+                    Nenhum parceiro encontrado para "{{ filterQuery() }}".
+                  } @else {
+                    Sem dados de parceiros disponíveis.
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   }
 </div>

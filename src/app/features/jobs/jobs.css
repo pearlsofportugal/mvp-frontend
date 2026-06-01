@@ -1,66 +1,29 @@
-.jobs-form-panel h2,
-.panel-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0 0 1rem;
+/* ── Page ───────────────────────────────────── */
+.jobs-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-/* ── Stats bar ──────────────────────────────── */
-.jobs-stats {
+.jobs-header {
   display: flex;
   align-items: center;
-  gap: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1.1rem;
-  border-right: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.stat-item:last-child {
-  border-right: none;
-}
-
-.stat-value {
-  font-size: 1rem;
+.jobs-title {
+  font-size: 1.1875rem;
   font-weight: 700;
   color: var(--text);
-  line-height: 1;
+  line-height: 1.2;
 }
 
-.stat-label {
-  font-size: 0.72rem;
+.jobs-subtitle {
+  font-size: 0.8125rem;
   color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin-top: 0.2rem;
 }
-
-.stat-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: stat-pulse 1.6s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes stat-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-.stat-item--running .stat-value { color: var(--green); }
-.stat-item--completed .stat-value { color: var(--text-dim); }
-.stat-item--failed .stat-value { color: var(--red); }
 
 /* ── Tabs ────────────────────────────────────── */
 .jobs-tabs {
@@ -113,46 +76,151 @@
   color: var(--green);
 }
 
-/* ── Page ───────────────────────────────────── */
-.jobs-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.jobs-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.jobs-title {
-  font-size: 1.1875rem;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.2;
-}
-
-.jobs-subtitle {
-  font-size: 0.8125rem;
-  color: var(--text-dim);
-  margin-top: 0.2rem;
-}
-
-/* ── Two-column layout ───────────────────────── */
-.jobs-layout {
+/* ── Two-column body ─────────────────────────── */
+.jobs-body {
   display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 1rem;
+  grid-template-columns: 264px 1fr;
+  gap: 1.25rem;
   align-items: start;
 }
 
-.jobs-form-panel {
+/* ── KPI column ──────────────────────────────── */
+.jobs-kpi-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   position: sticky;
   top: calc(3rem + 1rem);
 }
 
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-light);
+}
+
+.kpi-card--completed {
+  border-left: 3px solid var(--green);
+}
+
+.kpi-card--failed {
+  border-left: 3px solid var(--red);
+}
+
+.kpi-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.kpi-icon--total {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.kpi-icon--completed {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.kpi-icon--failed {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.kpi-data {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.kpi-value--completed { color: var(--green); }
+.kpi-value--failed    { color: var(--red); }
+
+.kpi-label {
+  font-size: 0.69rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.kpi-live-dot {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: kpi-dot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes kpi-dot-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ── Create Job primary button ───────────────── */
+.create-job-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-top: 0.25rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--gradient-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-glow);
+  transition: opacity var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  letter-spacing: 0.01em;
+}
+
+.create-job-btn:hover {
+  opacity: 0.91;
+  box-shadow: 0 6px 20px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.create-job-btn:active {
+  transform: translateY(0);
+  opacity: 1;
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+/* ── Jobs main (right column) ────────────────── */
 .jobs-main {
   display: flex;
   flex-direction: column;
@@ -160,19 +228,137 @@
   min-width: 0;
 }
 
+/* ── Sidebar overlay ─────────────────────────── */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: overlay-in var(--transition-normal) ease;
+}
 
-@keyframes jobs-spin {
-  to { transform: rotate(360deg); }
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Sidebar drawer ──────────────────────────── */
+.sidebar-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 470px;
+  max-width: 92vw;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.18);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: drawer-in var(--transition-slow) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface2);
+}
+
+.drawer-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.drawer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: var(--accent-light);
+  color: var(--accent);
+  width: fit-content;
+}
+
+.drawer-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.drawer-close:hover {
+  background: var(--surface3);
+  color: var(--text);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
 }
 
 /* ── Responsive ──────────────────────────────── */
-@media (max-width: 960px) {
-  .jobs-layout {
+@media (max-width: 1024px) {
+  .jobs-body {
+    grid-template-columns: 240px 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .jobs-body {
     grid-template-columns: 1fr;
   }
 
-  .jobs-form-panel {
+  .jobs-kpi-col {
     position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .kpi-card {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .create-job-btn {
+    width: auto;
+    flex: 0 0 auto;
+    align-self: stretch;
+    padding: 0.75rem 1.25rem;
   }
 }
 
@@ -181,5 +367,14 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  .sidebar-drawer {
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  .kpi-card {
+    min-width: 100%;
   }
 }

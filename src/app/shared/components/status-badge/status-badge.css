@@ -1,0 +1,15 @@
+/* Override global badge text transform — use CamelCase for clarity */
+.badge {
+  text-transform: none;
+  letter-spacing: 0;
+  gap: 0.35rem;
+}
+
+/* Spinning icon for 'running' status */
+@keyframes badge-icon-spin {
+  to { transform: rotate(360deg); }
+}
+
+.badge-icon-spin {
+  animation: badge-icon-spin 1.1s linear infinite;
+}

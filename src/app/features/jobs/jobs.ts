@@ -54,6 +54,7 @@ export class JobsComponent {
   protected readonly selectedJob            = signal<JobRead | null>(null);
   protected readonly confirmingDeleteJobId  = signal<string | null>(null);
   protected readonly confirmingCancelJobId  = signal<string | null>(null);
+  protected readonly showJobForm            = signal(false);
 
   constructor() {
     this.restoreJobFromUrl();
@@ -92,6 +93,7 @@ export class JobsComponent {
   // ─── Handlers ────────────────────────────────────────────────────────────────
   onJobCreated(): void {
     this.jobsResource.reload();
+    this.showJobForm.set(false);
   }
 
   onViewJob(job: JobListRead): void {

@@ -45,47 +45,75 @@
 
   @if (activeTab() === 'jobs') {
   <div id="panel-jobs" role="tabpanel" aria-label="Jobs">
-    @if (!initialLoading() && jobStats().total > 0) {
-    <div class="jobs-stats" role="status" aria-label="Job statistics">
-      <div class="stat-item">
-        <span class="stat-value">{{ jobStats().total }}</span>
-        <span class="stat-label">Total</span>
-      </div>
-      @if (jobStats().running > 0) {
-      <div class="stat-item stat-item--running">
-        <span class="stat-dot" aria-hidden="true"></span>
-        <span class="stat-value">{{ jobStats().running }}</span>
-        <span class="stat-label">Running</span>
-      </div>
-      }
-      <div class="stat-item stat-item--completed">
-        <span class="stat-value">{{ jobStats().completed }}</span>
-        <span class="stat-label">Completed</span>
-      </div>
-      @if (jobStats().failed > 0) {
-      <div class="stat-item stat-item--failed">
-        <span class="stat-value">{{ jobStats().failed }}</span>
-        <span class="stat-label">Failed / Cancelled</span>
-      </div>
-      }
-    </div>
-    }
+    @if (initialLoading()) {
+    <app-spinner size="lg" message="Loading jobs"></app-spinner>
+    } @else {
+    <div class="jobs-body">
 
-    <div class="jobs-layout">
-      <aside class="card jobs-form-panel" aria-label="New job form">
-        <h2 class="panel-title">New Job</h2>
-        <app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
+      <!-- ── Left: KPI cards + New Job button ─────────────────────── -->
+      <aside class="jobs-kpi-col" aria-label="Job statistics">
+
+        <div class="kpi-card" role="status" aria-label="Total jobs: {{ jobStats().total }}">
+          <div class="kpi-icon kpi-icon--total" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+            </svg>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-value">{{ jobStats().total }}</span>
+            <span class="kpi-label">Total Jobs</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-card--completed" role="status" aria-label="Completed: {{ jobStats().completed }}">
+          <div class="kpi-icon kpi-icon--completed" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-value kpi-value--completed">{{ jobStats().completed }}</span>
+            <span class="kpi-label">Completed</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-card--failed" role="status" aria-label="Failed: {{ jobStats().failed }}">
+          <div class="kpi-icon kpi-icon--failed" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-value kpi-value--failed">{{ jobStats().failed }}</span>
+            <span class="kpi-label">Failed / Cancelled</span>
+          </div>
+        </div>
+
+        <button class="create-job-btn" type="button" (click)="showJobForm.set(true)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          New Scrape Job
+        </button>
+
       </aside>
 
+      <!-- ── Right: Jobs table ─────────────────────────────────────── -->
       <main class="jobs-main">
-        @if (initialLoading()) {
-        <app-spinner size="lg" message="Loading jobs"></app-spinner>
-        } @else {
-        <app-jobs-list [jobs]="jobs()" [selectedJobId]="selectedJob()?.id ?? null" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
-          (delete)="onDeleteJob($event)" />
-        }
+        <app-jobs-list [jobs]="jobs()" [selectedJobId]="selectedJob()?.id ?? null"
+          (view)="onViewJob($event)" (cancel)="onCancelJob($event)" (delete)="onDeleteJob($event)" />
       </main>
+
     </div>
+    }
   </div>
   }
 
@@ -114,4 +142,27 @@
 @if (confirmingDeleteJobId()) {
 <app-confirm-dialog message="Delete this job permanently?" confirmLabel="Delete" cancelLabel="Cancel" [danger]="true"
   (confirmed)="onConfirmDeleteJob()" (cancelled)="confirmingDeleteJobId.set(null)" />
+}
+
+<!-- ── New Job sidebar drawer ────────────────────────────────────────────── -->
+@if (showJobForm()) {
+<div class="sidebar-overlay" (click)="showJobForm.set(false)" aria-hidden="true"></div>
+<aside class="sidebar-drawer" role="complementary" aria-label="New Job Wizard">
+  <div class="drawer-header">
+    <div class="drawer-title-group">
+      <span class="drawer-badge">Wizard</span>
+      <h2 class="drawer-title">New Scrape Job</h2>
+    </div>
+    <button class="drawer-close" type="button" (click)="showJobForm.set(false)" aria-label="Close wizard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <app-job-form [sites]="sites()" (jobCreated)="onJobCreated()" />
+  </div>
+</aside>
 }
