@@ -40,12 +40,16 @@ export class DashboardComponent {
 
   protected readonly sortColumn = signal<SortColumn>('source_partner');
   protected readonly sortDir = signal<'asc' | 'desc'>('asc');
+  protected readonly filterQuery = signal('');
+
+  protected readonly rawPartners = computed<PartnerStats[]>(
+    () => this.statsResource.value()?.partners ?? [],
+  );
 
   protected readonly partners = computed<PartnerStats[]>(() => {
-    const rows = this.statsResource.value()?.partners ?? [];
+    const rows = this.rawPartners();
     const col = this.sortColumn();
     const dir = this.sortDir() === 'asc' ? 1 : -1;
-
     return [...rows].sort((a, b) => {
       const av = a[col] ?? '';
       const bv = b[col] ?? '';
@@ -55,11 +59,54 @@ export class DashboardComponent {
     });
   });
 
+  protected readonly filteredPartners = computed<PartnerStats[]>(() => {
+    const q = this.filterQuery().toLowerCase().trim();
+    return q
+      ? this.partners().filter((p) => p.source_partner.toLowerCase().includes(q))
+      : this.partners();
+  });
+
   protected readonly totalPartners = computed<number>(
     () => this.statsResource.value()?.total_partners ?? 0,
   );
 
   protected readonly loading = computed<boolean>(() => this.statsResource.isLoading());
+
+  // ── KPI Aggregates ───────────────────────────────────────────────────────────
+
+  protected readonly totalListings = computed<number>(() =>
+    this.rawPartners().reduce((s, p) => s + (p.total_listings ?? 0), 0),
+  );
+
+  protected readonly last7dListings = computed<number>(() =>
+    this.rawPartners().reduce((s, p) => s + (p.listings_updated_last_7_days ?? 0), 0),
+  );
+
+  protected readonly globalEnrichmentPct = computed<number>(() => {
+    const total = this.totalListings();
+    const enriched = this.rawPartners().reduce((s, p) => s + (p.enriched_count ?? 0), 0);
+    if (!total) return 0;
+    return Math.round((enriched / total) * 100);
+  });
+
+  protected readonly activeScrapers = computed<number>(() =>
+    this.rawPartners().filter((p) => p.last_job_status === 'completed').length,
+  );
+
+  protected readonly imodigiPct = computed<number>(() => {
+    const total = this.totalListings();
+    const imodigi = this.rawPartners().reduce(
+      (s, p) => s + (p.exported_to_imodigi_count ?? 0),
+      0,
+    );
+    if (!total) return 0;
+    return Math.round((imodigi / total) * 100);
+  });
+
+  // r=56 → circumference = 2 * π * 56 ≈ 351.86
+  protected readonly donutDashLength = computed<number>(
+    () => (this.globalEnrichmentPct() / 100) * 351.86,
+  );
 
   sort(col: SortColumn): void {
     if (this.sortColumn() === col) {
@@ -79,6 +126,6 @@ export class DashboardComponent {
     const total = partner.total_listings ?? 0;
     const enriched = partner.enriched_count ?? 0;
     if (!total) return '—';
-    return `${Math.round((enriched / total) * 100)} %`;
+    return `${Math.round((enriched / total) * 100)}%`;
   }
 }

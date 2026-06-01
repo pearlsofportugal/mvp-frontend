@@ -1,14 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, HostListener, inject, output, PLATFORM_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, inject, OnDestroy, output, PLATFORM_ID, signal } from '@angular/core';
 
 @Component({
   selector: 'app-context-menu',
   imports: [],
   templateUrl: './context-menu.html',
   styleUrl: './context-menu.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContextMenu {
- opened = output<void>();
+  opened = output<void>();
   closed = output<void>();
 
   isOpen = signal(false);
@@ -18,34 +19,47 @@ export class ContextMenu {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private scrollHandler = () => this.close();
-  private closeTimer: any;
+  private closeTimer: ReturnType<typeof setTimeout> | undefined;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      if (this.isBrowser) {
+        window.removeEventListener('scroll', this.scrollHandler, { capture: true });
+        document.removeEventListener('click', this.clickHandler, { capture: true });
+      }
+      clearTimeout(this.closeTimer);
+    });
+  }
+
+  private clickHandler = (e: MouseEvent) => {
+    if (!this.el.nativeElement.contains(e.target)) this.close();
+  };
 
   toggle(event: MouseEvent): void {
-    if (this.isOpen()) {
-      this.close();
-    } else {
-      this.open(event);
-    }
+    this.isOpen() ? this.close() : this.open(event);
   }
 
   private open(event: MouseEvent): void {
     const btn = (event.currentTarget as HTMLElement).getBoundingClientRect();
     this.menuPos.set({
       top: btn.bottom + 4,
-      right: this.isBrowser ? window.innerWidth - btn.right : 0
+      right: this.isBrowser ? document.documentElement.clientWidth - btn.right : 0
     });
     this.isOpen.set(true);
     this.opened.emit();
     if (this.isBrowser) {
       window.addEventListener('scroll', this.scrollHandler, { passive: true, capture: true });
+      document.addEventListener('click', this.clickHandler, { capture: true });
     }
   }
 
   close(): void {
+    clearTimeout(this.closeTimer);
     this.isOpen.set(false);
     this.closed.emit();
     if (this.isBrowser) {
       window.removeEventListener('scroll', this.scrollHandler, { capture: true });
+      document.removeEventListener('click', this.clickHandler, { capture: true });
     }
   }
 
@@ -54,20 +68,6 @@ export class ContextMenu {
   }
 
   cancelClose(): void {
-    clearTimeout(this.closeTimer);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.isOpen() && !this.el.nativeElement.contains(event.target)) {
-      this.close();
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.isBrowser) {
-      window.removeEventListener('scroll', this.scrollHandler, { capture: true });
-    }
     clearTimeout(this.closeTimer);
   }
 }

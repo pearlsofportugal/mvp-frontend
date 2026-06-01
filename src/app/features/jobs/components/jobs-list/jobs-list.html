@@ -42,9 +42,6 @@
             </td>
             <td>
               <div class="status-cell">
-                @if (job.status === 'running' || job.status === 'pending') {
-                  <span class="live-dot" aria-hidden="true"></span>
-                }
                 <app-status-badge [status]="job.status"></app-status-badge>
               </div>
             </td>
