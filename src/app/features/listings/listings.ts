@@ -41,7 +41,6 @@ export class ListingsComponent {
   private readonly sitesService = inject(SitesService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // State
   protected readonly selectedListingId = signal<string | null>(null);
   protected readonly confirmingDeleteListingId = signal<string | null>(null);
   protected readonly editingListingId = signal<string | null>(null);
@@ -49,14 +48,12 @@ export class ListingsComponent {
   protected readonly sortField = signal<SortField | null>(null);
   protected readonly sortOrder = signal<'asc' | 'desc'>('asc');
 
-  // Effective filters = user filters + sort
   private readonly currentFilters = computed<RealEstateFilters>(() => {
     const f = this.userFilters();
     const sf = this.sortField();
     return sf ? { ...f, sort_by: sf, sort_order: this.sortOrder() } : f;
   });
 
-  // Resources (automatic lifecycle � no manual subscribe for reads)
   readonly realEstatesResource = rxResource<PaginatedListings, RealEstateFilters>({
     params: () => this.currentFilters(),
     stream: ({ params }) => this.realEstateService.getListings(params),
@@ -69,7 +66,6 @@ private readonly activeDetailId = computed<string | null>(() => {
   const editingId = this.editingListingId();
 
   if (selectedId && editingId) {
-    // Estado inválido — não devia acontecer, mas se acontecer, editing tem precedência
     console.warn('[ListingsComponent] selectedListingId e editingListingId ambos setados simultaneamente');
     return editingId;
   }
@@ -82,7 +78,6 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
   stream: ({ params }) =>
     params ? this.realEstateService.getListingById(params) : of(null),
 });
-  // Derived state
   protected readonly realEstates = computed(() => this.realEstatesResource.value()?.items ?? []);
   protected readonly isLoadingListings = computed(() => this.realEstatesResource.isLoading());
   protected readonly paginationData = computed(() => this.realEstatesResource.value());
@@ -97,14 +92,12 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
     () => (this.sitesResource.value() ?? []).filter((s) => s.is_active),
   );
 
-  // Pagination derived
   protected readonly totalListings = computed(() => this.paginationData()?.meta?.total ?? 0);
   protected readonly currentPage = computed(() => this.paginationData()?.meta?.page ?? 1);
   protected readonly totalPages = computed(() => this.paginationData()?.meta?.pages ?? 1);
   protected readonly hasNextPage = computed(() => this.currentPage() < this.totalPages());
   protected readonly hasPrevPage = computed(() => this.currentPage() > 1);
 
-  // Filter actions
   onFiltersChange(filters: RealEstateFilters): void {
     this.userFilters.set({ ...filters, page: 1, page_size: 20 });
   }
@@ -115,7 +108,6 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
     this.userFilters.update((f) => ({ ...f, page: 1 }));
   }
 
-  // Pagination actions
   onNextPage(): void {
     if (!this.hasNextPage()) return;
     this.updatePage(this.currentPage() + 1);
@@ -126,7 +118,6 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
     this.updatePage(this.currentPage() - 1);
   }
 
-  // Listing actions
   onViewRealEstate(realEstate: ListingListRead): void {
     this.selectedListingId.set(realEstate.id);
   }
@@ -151,19 +142,13 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
     });
   }
 
-  // Modal actions
   onCloseDetail(): void {
     this.selectedListingId.set(null);
   }
 
-  // onEditSaved(updated: ListingDetailRead): void {
-  //   this.editingListingId.set(null);
-  //   this.realEstatesResource.reload();
-  // }
   onEditSaved(updated: ListingDetailRead): void {
     this.editingListingId.set(null);
-    console.log(updated)
-    // Atualiza o item na lista local sem round-trip ao servidor
+
     this.realEstatesResource.value.update((current) => {
       if (!current) return current;
       return {
@@ -176,28 +161,6 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
       };
     });
   }
-  // onEditSaved(updated: ListingDetailRead): void {
-  //   this.editingListingId.set(null);
-
-  //   // Atualiza o item na lista local sem round-trip ao servidor
-  //   this.realEstatesResource.value.update((current) => {
-  //     if (!current) return current;
-  //     return {
-  //       ...current,
-  //       items: current.items.map((item) =>
-  //         item.id === updated.id
-  //           ? {
-  //               ...item,
-  //               title: updated.title,
-  //               price: updated.price_amount,
-  //               status: updated.is_enriched,
-  //               // só os campos relevantes para ListingListRead
-  //             }
-  //           : item,
-  //       ),
-  //     };
-  //   });
-  // }
 
   onCloseEdit(): void {
     this.editingListingId.set(null);

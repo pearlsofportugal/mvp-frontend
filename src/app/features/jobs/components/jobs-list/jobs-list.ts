@@ -23,6 +23,8 @@ export class JobsListComponent {
   private readonly platformId = inject(PLATFORM_ID);
 
   jobs = input.required<JobListRead[]>();
+  /** Id do job atualmente aberto no detail — evita SSE duplicado com JobDetailComponent */
+  selectedJobId = input<string | null>(null);
   view = output<JobListRead>();
   cancel = output<string>();
   delete = output<string>();
@@ -55,11 +57,15 @@ export class JobsListComponent {
 
     effect(() => {
       const currentJobs = this.jobs();
+      const detailJobId = this.selectedJobId(); // lido para re-trigger quando muda
+      // Não abrir stream para o job aberto no detail — ele faz streaming próprio
       const activeIds = new Set(
-        currentJobs.filter(j => !TERMINAL_STATUSES.has(j.status)).map(j => j.id)
+        currentJobs
+          .filter(j => !TERMINAL_STATUSES.has(j.status) && j.id !== detailJobId)
+          .map(j => j.id)
       );
 
-      // Close streams for jobs no longer active
+      // Fechar streams de jobs terminados ou delegados ao detail
       for (const [id, sub] of this.activeStreams.entries()) {
         if (!activeIds.has(id)) {
           sub.unsubscribe();
@@ -67,7 +73,7 @@ export class JobsListComponent {
         }
       }
 
-      // Open streams for new active jobs (browser only)
+      // Abrir streams para novos jobs ativos (browser only)
       if (isPlatformBrowser(this.platformId)) {
         for (const job of currentJobs) {
           if (activeIds.has(job.id) && !this.activeStreams.has(job.id)) {
@@ -104,7 +110,7 @@ export class JobsListComponent {
   }
 
   private removeScrollListener(): void {
-    if (this.scrollListener) {
+    if (this.scrollListener && isPlatformBrowser(this.platformId)) {
       window.removeEventListener('scroll', this.scrollListener, { capture: true });
       this.scrollListener = null;
     }

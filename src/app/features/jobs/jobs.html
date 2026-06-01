@@ -6,7 +6,7 @@
       <p class="jobs-subtitle">Launch and monitor real estate data scraping jobs</p>
     </div>
     @if (activeTab() === 'jobs') {
-    <button class="btn btn-ghost btn-sm" type="button" (click)="onJobCreated()">
+    <button class="btn btn-ghost btn-sm" type="button" (click)="onJobCreated()" [disabled]="refreshing()" [class.btn--loading]="refreshing()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="23 4 23 10 17 10" />
@@ -45,7 +45,7 @@
 
   @if (activeTab() === 'jobs') {
   <div id="panel-jobs" role="tabpanel" aria-label="Jobs">
-    @if (!loading() && jobStats().total > 0) {
+    @if (!initialLoading() && jobStats().total > 0) {
     <div class="jobs-stats" role="status" aria-label="Job statistics">
       <div class="stat-item">
         <span class="stat-value">{{ jobStats().total }}</span>
@@ -78,10 +78,10 @@
       </aside>
 
       <main class="jobs-main">
-        @if (loading()) {
+        @if (initialLoading()) {
         <app-spinner size="lg" message="Loading jobs"></app-spinner>
         } @else {
-        <app-jobs-list [jobs]="jobs()" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
+        <app-jobs-list [jobs]="jobs()" [selectedJobId]="selectedJob()?.id ?? null" (view)="onViewJob($event)" (cancel)="onCancelJob($event)"
           (delete)="onDeleteJob($event)" />
         }
       </main>
@@ -91,7 +91,7 @@
 
   @if (activeTab() === 'schedules') {
   <div id="panel-schedules" role="tabpanel" aria-label="Schedules">
-    @if (loading()) {
+    @if (initialLoading()) {
     <app-spinner size="lg" message="Loading sites"></app-spinner>
     } @else {
     <app-schedules-panel [sites]="sites()" />

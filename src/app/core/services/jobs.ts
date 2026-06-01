@@ -1,6 +1,5 @@
 ﻿import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, map } from 'rxjs';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { Observable, map } from 'rxjs';
 import { JobsService as GeneratedJobsService } from '../api/generated/jobs/jobs.service';
 import { type JobCreate, type JobRead, type JobListRead, JobStatus } from '../api/model';
 import { environment } from '../../../environments/environment';

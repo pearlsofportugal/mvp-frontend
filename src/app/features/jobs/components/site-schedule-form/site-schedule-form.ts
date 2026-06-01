@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  PLATFORM_ID,
   computed,
   effect,
   inject,
@@ -9,6 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import {
   AbstractControl,
   FormControl,
@@ -46,6 +48,7 @@ const positiveIntegerValidator: ValidatorFn = (control: AbstractControl): Valida
 export class SiteScheduleFormComponent {
   private readonly sitesService = inject(SitesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   site = input<SiteConfigRead | null>(null);
   saved = output<SiteConfigRead>();
@@ -148,6 +151,9 @@ export class SiteScheduleFormComponent {
   protected formatNextRun(isoStr: string | null | undefined): string {
     if (!isoStr) return 'soon';
     const date = new Date(isoStr);
+    if (!isPlatformBrowser(this.platformId)) {
+      return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
     const diffMs = date.getTime() - Date.now();
     const diffMins = Math.round(diffMs / 60_000);
     if (diffMins < 1) return 'now';
