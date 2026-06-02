@@ -1,5 +1,4 @@
 <div class="dashboard-page">
-  <!-- ── Page Header ─────────────────────────────────────────────────── -->
   <header class="dash-header">
     <div>
       <h1 class="dash-title">Partner Dashboard</h1>
@@ -13,7 +12,6 @@
     </div>
   } @else {
 
-    <!-- ── KPI Cards ──────────────────────────────────────────────────── -->
     <div class="kpi-row">
 
       <div class="kpi-card">
@@ -27,11 +25,11 @@
             </svg>
           </div>
           @if (last7dListings() > 0) {
-            <span class="kpi-badge">+{{ last7dListings() }} esta semana</span>
+            <span class="kpi-badge">+{{ last7dListings() }} this week</span>
           }
         </div>
         <div class="kpi-value">{{ totalListings() }}</div>
-        <div class="kpi-label">Total de Imóveis</div>
+        <div class="kpi-label">Total listings</div>
       </div>
 
       <div class="kpi-card">
@@ -45,7 +43,7 @@
           </div>
         </div>
         <div class="kpi-value kpi-value--green">{{ last7dListings() }}</div>
-        <div class="kpi-label">Capturados (7d)</div>
+        <div class="kpi-label">Scraped (7d)</div>
       </div>
 
       <div class="kpi-card">
@@ -59,7 +57,7 @@
           </div>
         </div>
         <div class="kpi-value">{{ globalEnrichmentPct() }}<span class="kpi-pct">%</span></div>
-        <div class="kpi-label">Taxa de Otimização</div>
+        <div class="kpi-label">Enhancement rate</div>
         <div class="kpi-progress-wrap">
           <div class="kpi-progress-track">
             <div class="kpi-progress-fill" [style.width.%]="globalEnrichmentPct()"></div>
@@ -77,22 +75,26 @@
         <div class="kpi-value">
           <span class="kpi-value--green">{{ activeScrapers() }}</span><span class="kpi-value-sep"> / </span>{{ totalPartners() }}
         </div>
-        <div class="kpi-label">Scrapers Ativos</div>
+        <div class="kpi-label">Active scrapers</div>
       </div>
 
     </div>
 
-    <!-- ── Charts Row ─────────────────────────────────────────────────── -->
     <div class="charts-row">
 
       <div class="chart-card">
         <div class="chart-card-header">
           <div>
-            <h2 class="chart-card-title">Volume de Captura Semanal</h2>
-            <p class="chart-card-sub">Imóveis capturados por semana &middot; Últimas 6 semanas</p>
+            <h2 class="chart-card-title">Volume de Captura Recente</h2>
+            <p class="chart-card-sub">Evolução do número de imóveis nas últimas semanas</p>
           </div>
-          <span class="chart-badge">Exemplo</span>
+          @if (loading()) {
+            <span class="chart-badge">Atualizando...</span>
+          } @else {
+            <span class="chart-badge">Tempo Real</span>
+          }
         </div>
+        
         <div class="area-chart-wrap">
           <svg viewBox="0 0 700 160" preserveAspectRatio="none" class="area-svg" aria-hidden="true">
             <defs>
@@ -101,23 +103,35 @@
                 <stop offset="100%" style="stop-color: var(--accent); stop-opacity: 0;"/>
               </linearGradient>
             </defs>
+            
             <line x1="0" y1="40" x2="700" y2="40" class="area-grid"/>
             <line x1="0" y1="80" x2="700" y2="80" class="area-grid"/>
             <line x1="0" y1="120" x2="700" y2="120" class="area-grid"/>
-            <path
-              d="M0,130 C60,120 90,112 133,95 C175,78 200,108 233,95 C270,80 300,50 350,42 C400,33 430,52 470,48 C510,42 560,18 610,14 C645,10 675,11 700,7 L700,160 L0,160 Z"
-              style="fill: url(#dashAreaGrad);"/>
-            <path
-              d="M0,130 C60,120 90,112 133,95 C175,78 200,108 233,95 C270,80 300,50 350,42 C400,33 430,52 470,48 C510,42 560,18 610,14 C645,10 675,11 700,7"
-              class="area-line"/>
+            
+            @if (chartAreaPath()) {
+              <path [attr.d]="chartAreaPath()" style="fill: url(#dashAreaGrad);"/>
+            }
+            
+            @if (chartLinePath()) {
+              <path [attr.d]="chartLinePath()" class="area-line"/>
+            }
+
+            <g class="chart-interactive-points">
+              @for (pt of chartPoints(); track $index) {
+                <g class="chart-point-group">
+                  <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="12" class="chart-point-trigger">
+                    <title>{{ pt.value }} imóveis</title>
+                  </circle>
+                  <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" class="chart-point-dot" />
+                </g>
+              }
+            </g>
           </svg>
+          
           <div class="area-x-labels" aria-hidden="true">
-            <span>Sem 1</span>
-            <span>Sem 2</span>
-            <span>Sem 3</span>
-            <span>Sem 4</span>
-            <span>Sem 5</span>
-            <span>Sem 6</span>
+            @for (label of chartLabels(); track $index) {
+              <span>{{ label }}</span>
+            }
           </div>
         </div>
       </div>
@@ -168,7 +182,6 @@
 
     </div>
 
-    <!-- ── Partners Table ─────────────────────────────────────────────── -->
     <div class="table-card">
       <div class="table-card-head">
         <div>
@@ -246,7 +259,7 @@
                   } @else {
                     <span class="td-dim">—</span>
                   }
-                  </td>
+                </td>
                 <td class="actions-col">
                   <button class="kbk-btn" type="button"
                     [attr.aria-label]="'Opções para ' + p.source_partner">

@@ -99,6 +99,19 @@ export class JobsService {
     return customFetch<TData>({ url: `/api/v1/jobs/${jobId}/cancel`, method: 'POST' }, this.http);
   }
   /**
+ * Trigger a scheduled scrape job for a site.
+
+Called by Google Cloud Scheduler. Uses the site's schedule_start_url and
+schedule_max_pages (falling back to base_url and default_max_pages).
+ * @summary Trigger Scheduled Job
+ */
+  triggerScheduledJob<TData = ApiResponseJobRead>(siteKey: string) {
+    return customFetch<TData>(
+      { url: `/api/v1/jobs/trigger/${siteKey}`, method: 'POST' },
+      this.http,
+    );
+  }
+  /**
  * Stream do progresso de um scraping job via Server-Sent Events (SSE).
 
 O cliente recebe eventos em tempo real sem necessidade de polling.
