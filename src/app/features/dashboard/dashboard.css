@@ -77,7 +77,7 @@
 }
 
 .kpi-icon--accent { background: var(--accent-light); color: var(--accent); }
-.kpi-icon--green  { background: var(--green-light);  color: var(--green);  }
+.kpi-icon--green   { background: var(--green-light);  color: var(--green);  }
 .kpi-icon--purple { background: var(--purple-light); color: var(--purple); }
 
 .kpi-badge {
@@ -92,7 +92,8 @@
 
 .kpi-value {
   font-size: 2.1rem;
-  font-weight: 800;
+  font-weight: 700;
+  
   color: var(--text);
   line-height: 1;
   letter-spacing: -0.05em;
@@ -107,6 +108,7 @@
 }
 
 .kpi-pct {
+  margin-left: 4px;
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--text-dim);
@@ -255,6 +257,27 @@
 .area-x-labels span {
   font-size: 0.7rem;
   color: var(--text-muted);
+}
+
+/* Interatividade dos Vértices do Gráfico */
+.chart-point-trigger {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.chart-point-dot {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  transition: r var(--transition-fast), stroke-width var(--transition-fast), fill var(--transition-fast);
+  pointer-events: none; /* Ignora eventos para o hover fixar no trigger maior invisível */
+}
+
+.chart-point-group:hover .chart-point-dot {
+  r: 6px;
+  stroke-width: 3.5;
+  fill: var(--accent);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
 /* Donut chart */

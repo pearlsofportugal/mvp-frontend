@@ -116,6 +116,48 @@ export class JobsListComponent {
     }
   }
 
+  // ── Lógica de Cálculo do Progresso Inabalável ──────────────────────────
+  protected getJobProgressPercentage(job: JobListRead): number {
+    // Se o job já estiver terminado, força visualmente os 100%
+    if (TERMINAL_STATUSES.has(job.status)) {
+      return 100;
+    }
+
+    const progress = job.progress;
+    if (!progress) return 0;
+
+    // Adaptação caso o teu payload use max_pages dinâmico (ex: vindo da config do scraper)
+    // Se não vier, assume o teu padrão que são 3 ou 10 páginas.
+    const maxPages = (progress as any).max_pages ?? 3; 
+    const pagesVisited = progress.pages_visited ?? 1;
+    const found = progress.listings_found ?? 0;
+    const saved = progress.listings_scraped ?? 0;
+    const errors = (progress as any).errors ?? 0;
+
+    // Itens processados = Guardados com sucesso + Itens que falharam
+    const totalProcessedOnPage = saved + errors;
+
+    if (maxPages <= 1) {
+      if (found === 0) return 0;
+      return Math.min(100, Math.round((totalProcessedOnPage / found) * 100));
+    }
+
+    // 1. Calcular a fatia fixa que as páginas anteriores já garantiram
+    const progressFromPastPages = ((pagesVisited - 1) / maxPages) * 100;
+
+    // 2. Calcular o avanço fino dentro da página atual
+    let progressWithinCurrentPage = 0;
+    if (found > 0) {
+      progressWithinCurrentPage = (totalProcessedOnPage / found) * (100 / maxPages);
+    }
+
+    const finalPercentage = progressFromPastPages + progressWithinCurrentPage;
+
+    // Retorna arredondado, garantindo que nunca passa dos 99% enquanto estiver 'running'
+    const rounded = Math.round(finalPercentage);
+    return Math.min(99, Math.max(0, rounded));
+  }
+
   // ── Row actions ─────────────────────────────────────────────────────────
   protected onView(job: JobListRead): void {
     this.closeMenu();

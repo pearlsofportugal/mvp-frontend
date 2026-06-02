@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { Injectable, inject } from '@angular/core';
 
-import type { ApiResponsePartnerStatsResponse } from '../../model';
+import type { ApiResponsePartnerStatsResponse, ApiResponseWeeklyStatsResponse } from '../../model';
 
 import { customFetch } from '../../custom-fetch';
 
@@ -22,5 +22,13 @@ export class DashboardService {
    */
   partnerStats<TData = ApiResponsePartnerStatsResponse>() {
     return customFetch<TData>({ url: `/api/v1/dashboard/partners`, method: 'GET' }, this.http);
+  }
+  /**
+ * Retorna o histórico de crescimento de imóveis agrupado pelas últimas 6 semanas
+para alimentar o gráfico de área do Dashboard.
+ * @summary Weekly Stats
+ */
+  weeklyStats<TData = ApiResponseWeeklyStatsResponse>() {
+    return customFetch<TData>({ url: `/api/v1/dashboard/weekly-stats`, method: 'GET' }, this.http);
   }
 }
