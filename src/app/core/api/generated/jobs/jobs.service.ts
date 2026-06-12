@@ -101,8 +101,8 @@ export class JobsService {
   /**
  * Trigger a scheduled scrape job for a site.
 
-Called by Google Cloud Scheduler. Uses the site's schedule_start_url and
-schedule_max_pages (falling back to base_url and default_max_pages).
+Called by Google Cloud Scheduler. This endpoint blocks until the scraping is
+fully completed so that Cloud Run allocates full CPU for the task.
  * @summary Trigger Scheduled Job
  */
   triggerScheduledJob<TData = ApiResponseJobRead>(siteKey: string) {

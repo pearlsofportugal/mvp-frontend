@@ -5,47 +5,45 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
+import type { SiteIdentity } from './siteIdentity';
 
 /**
- * Statistics row for a single source partner.
+ * Estatísticas agregadas de um partner, com o site associado embutido.
  */
 export interface PartnerStats {
-  /** Partner slug (e.g. 'pearls', 'habinedita'). */
-  source_partner: string;
+  /** Site config associado a este partner (join por site.key = source_partner). */
+  site: SiteIdentity;
   /**
-   * Total listings currently in the DB.
+   * Total de imóveis actualmente na DB.
    * @minimum 0
    */
   total_listings?: number;
   /**
-   * Listings updated in the past 7 days.
+   * Imóveis actualizados nos últimos 7 dias.
    * @minimum 0
    */
   listings_updated_last_7_days?: number;
-  /** Average listing price. */
-  avg_price?: number | null;
-  /** Minimum listing price. */
-  min_price?: number | null;
-  /** Maximum listing price. */
-  max_price?: number | null;
+  avg_price?: string | null;
+  min_price?: string | null;
+  max_price?: string | null;
   /**
-   * Listings with AI enrichment.
+   * Imóveis com enriquecimento AI.
    * @minimum 0
    */
   enriched_count?: number;
   /**
-   * Listings successfully exported to Imodigi.
+   * Imóveis exportados para Imodigi.
    * @minimum 0
    */
   exported_to_imodigi_count?: number;
-  /** Most recent updated_at across all listings of this partner. */
+  /** updated_at mais recente entre todos os imóveis deste partner. */
   last_listing_updated_at?: string | null;
-  /** UUID of the most recent scrape job. */
+  /** UUID do job de scraping mais recente. */
   last_job_id?: string | null;
-  /** Status of the most recent scrape job. */
+  /** Status do job mais recente. */
   last_job_status?: string | null;
-  /** created_at of the most recent scrape job. */
+  /** created_at do job mais recente. */
   last_job_at?: string | null;
-  /** Listings scraped in the last job. */
+  /** Imóveis scraped no último job. */
   last_job_scraped_count?: number | null;
 }
