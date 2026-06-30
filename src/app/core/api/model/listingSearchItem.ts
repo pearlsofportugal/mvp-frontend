@@ -25,7 +25,7 @@ export interface ListingSearchItem {
   area_useful_m2?: number | null;
   district?: string | null;
   county?: string | null;
-  listing_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | null;
   price_amount?: string | null;
   /** ISO 4217 currency code. */
   price_currency?: string | null;

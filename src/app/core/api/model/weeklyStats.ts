@@ -10,15 +10,15 @@
  * Estatísticas consolidadas para uma determinada semana.
  */
 export interface WeeklyStats {
-  /** Nome de exibição da semana (ex: 'Semana 1' ou '04/05 - 11/05'). */
+  /** Nome de exibição (ex: '04/05 - 11/05'). */
   label: string;
   /**
-   * Volume total acumulado de imóveis até ao fim dessa semana.
+   * Volume acumulado até ao fim dessa semana.
    * @minimum 0
    */
   total_listings?: number;
   /**
-   * Quantidade de novos imóveis capturados especificamente nessa semana.
+   * Novos imóveis capturados nessa semana.
    * @minimum 0
    */
   listings_captured?: number;

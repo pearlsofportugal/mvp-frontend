@@ -12,7 +12,7 @@ export type ExportJsonParams = {
   parish?: string | null;
   property_type?: string | null;
   typology?: string | null;
-  listing_type?: string | null;
+  business_type?: string | null;
   source_partner?: string | null;
   scrape_job_id?: string | null;
   price_min?: number | string | null;
@@ -21,9 +21,14 @@ export type ExportJsonParams = {
   area_max?: number | null;
   bedrooms_min?: number | null;
   bedrooms_max?: number | null;
+  bathrooms_min?: number | null;
+  bathrooms_max?: number | null;
+  energy_certificate?: string | null;
   has_garage?: boolean | null;
   has_pool?: boolean | null;
   has_elevator?: boolean | null;
+  has_balcony?: boolean | null;
+  has_air_conditioning?: boolean | null;
   created_after?: string | null;
   created_before?: string | null;
   search?: string | null;

@@ -8,7 +8,7 @@
 import type { PartnerStats } from './partnerStats';
 
 /**
- * Response body for GET /api/v1/dashboard/partners.
+ * Resposta para GET /api/v1/dashboard/partners.
  */
 export interface PartnerStatsResponse {
   partners?: PartnerStats[];

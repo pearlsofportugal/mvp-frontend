@@ -14,6 +14,10 @@ export interface ImodigiBulkExportRequest {
   listing_ids?: string[];
   /** Imodigi store ID. Overrides the IMODIGI_CLIENT_ID setting when provided. */
   client_id?: number | null;
+  /** Only export listings from this source partner. */
+  source_partner?: string | null;
+  /** Only export listings that are enriched (true) or not enriched (false). */
+  is_enriched?: boolean | null;
   /**
    * Maximum number of listings to process when listing_ids is empty.
    * @minimum 1

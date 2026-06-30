@@ -16,14 +16,19 @@ import type {
   ApiResponseImodigiCatalogValues,
   ApiResponseImodigiExportRead,
   ApiResponseImodigiExportResponse,
+  ApiResponseImodigiSyncReport,
   ApiResponseListImodigiExportRead,
+  ApiResponseListImodigiGetProperty,
   ApiResponseListImodigiLocationItem,
   ApiResponseListImodigiStoreRead,
   ImodigiBulkExportRequest,
   ImodigiExportRequest,
+  ImodigiGetPropertiesParams,
   ImodigiListPublicationsParams,
   ImodigiResetRequest,
   ImodigiSearchLocationsParams,
+  ImodigiSyncCheckParams,
+  TriggerImodigiSyncParams,
 } from '../../model';
 
 import { customFetch } from '../../custom-fetch';
@@ -37,6 +42,48 @@ export class ImodigiService {
    */
   imodigiListStores<TData = ApiResponseListImodigiStoreRead>() {
     return customFetch<TData>({ url: `/api/v1/imodigi/stores`, method: 'GET' }, this.http);
+  }
+  /**
+   * Lista todas as propriedades publicadas no Imodigi para um dado client_id.
+   * @summary List Imodigi Properties
+   */
+  imodigiGetProperties<TData = ApiResponseListImodigiGetProperty>(
+    params: ImodigiGetPropertiesParams,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/imodigi/properties`,
+        method: 'GET',
+        params: (() => {
+          const requiredNullableParamKeys = new Set<string>([]);
+          const filteredParams: Record<
+            string,
+            string | number | boolean | Array<string | number | boolean>
+          > = {};
+          for (const [key, value] of Object.entries(params ?? {})) {
+            if (Array.isArray(value)) {
+              const filtered = value.filter(
+                (item) =>
+                  item != null &&
+                  (typeof item === 'string' ||
+                    typeof item === 'number' ||
+                    typeof item === 'boolean'),
+              ) as Array<string | number | boolean>;
+              if (filtered.length) {
+                filteredParams[key] = filtered;
+              }
+            } else if (
+              value != null &&
+              (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+            ) {
+              filteredParams[key] = value;
+            }
+          }
+          return filteredParams;
+        })(),
+      },
+      this.http,
+    );
   }
   /**
    * Proxy GET /crm-property-values.php — allowed values for property fields.
@@ -239,6 +286,102 @@ Returns 404 if no export record exists for the listing.
   imodigiGetPublication<TData = ApiResponseImodigiExportRead>(listingId: string) {
     return customFetch<TData>(
       { url: `/api/v1/imodigi/publications/${listingId}`, method: 'GET' },
+      this.http,
+    );
+  }
+  /**
+ * Sync check completo entre listings locais e o Imodigi CRM.
+
+Compara por `partner_id` (= reference enviada no POST e devolvida no GET).
+
+**Grupos devolvidos:**
+- `in_both` — sincronizados, existem nos dois lados
+- `only_in_db` — exportados mas já não existem no CRM (apagados manualmente)
+- `only_in_crm` — existem no CRM sem registo local (criados directamente no CRM)
+- `never_exported` — listings locais que nunca foram publicados no Imodigi
+- `property_id_mismatches` — subconjunto de `in_both` onde o `property_id` diverge
+
+Endpoint **read-only**. Para corrigir divergências:
+- `only_in_db` → `DELETE /publications/{listing_id}` + `POST /publish/{listing_id}`
+- `property_id_mismatch` → mesmo fluxo acima (reset + re-export actualiza o property_id)
+ * @summary Sync Check
+ */
+  imodigiSyncCheck<TData = ApiResponseImodigiSyncReport>(params: ImodigiSyncCheckParams) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/imodigi/publications/sync`,
+        method: 'GET',
+        params: (() => {
+          const requiredNullableParamKeys = new Set<string>([]);
+          const filteredParams: Record<
+            string,
+            string | number | boolean | Array<string | number | boolean>
+          > = {};
+          for (const [key, value] of Object.entries(params ?? {})) {
+            if (Array.isArray(value)) {
+              const filtered = value.filter(
+                (item) =>
+                  item != null &&
+                  (typeof item === 'string' ||
+                    typeof item === 'number' ||
+                    typeof item === 'boolean'),
+              ) as Array<string | number | boolean>;
+              if (filtered.length) {
+                filteredParams[key] = filtered;
+              }
+            } else if (
+              value != null &&
+              (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+            ) {
+              filteredParams[key] = value;
+            }
+          }
+          return filteredParams;
+        })(),
+      },
+      this.http,
+    );
+  }
+  /**
+ * Chamado pelo Cloud Scheduler — exporta listings pendentes para o Imodigi.
+
+Bloqueia até conclusão para que o Cloud Run mantenha CPU activo.
+Igual ao padrão de trigger_scheduled_job em scrape_jobs.py.
+ * @summary Trigger Imodigi Sync
+ */
+  triggerImodigiSync<TData = ApiResponseDict>(params?: TriggerImodigiSyncParams) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/imodigi/trigger/sync`,
+        method: 'POST',
+        params: (() => {
+          const requiredNullableParamKeys = new Set<string>([]);
+          const filteredParams: Record<
+            string,
+            string | number | boolean | Array<string | number | boolean>
+          > = {};
+          for (const [key, value] of Object.entries(params ?? {})) {
+            if (Array.isArray(value)) {
+              const filtered = value.filter(
+                (item) =>
+                  item != null &&
+                  (typeof item === 'string' ||
+                    typeof item === 'number' ||
+                    typeof item === 'boolean'),
+              ) as Array<string | number | boolean>;
+              if (filtered.length) {
+                filteredParams[key] = filtered;
+              }
+            } else if (
+              value != null &&
+              (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+            ) {
+              filteredParams[key] = value;
+            }
+          }
+          return filteredParams;
+        })(),
+      },
       this.http,
     );
   }

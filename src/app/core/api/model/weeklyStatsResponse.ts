@@ -8,14 +8,10 @@
 import type { WeeklyStats } from './weeklyStats';
 
 /**
- * Corpo da resposta para GET /api/v1/dashboard/weekly-stats.
+ * Resposta para GET /api/v1/dashboard/weekly-stats.
  */
 export interface WeeklyStatsResponse {
-  /** Histórico cronológico das últimas semanas. */
   history?: WeeklyStats[];
-  /**
-   * Total de semanas retornadas (normalmente 6).
-   * @minimum 0
-   */
+  /** @minimum 0 */
   total_weeks?: number;
 }

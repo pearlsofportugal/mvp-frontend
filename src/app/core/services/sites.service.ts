@@ -1,4 +1,4 @@
-﻿import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { SitesService as GeneratedSitesService } from '../api/generated/sites/sites.service';
 import type {
@@ -13,9 +13,7 @@ import type {
   TestListingPageResponse,
 } from '../api/model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class SitesService {
   private readonly api = inject(GeneratedSitesService);
 

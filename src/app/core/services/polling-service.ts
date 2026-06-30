@@ -1,11 +1,9 @@
 import { isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, Service } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { timer, EMPTY } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class PollingService {
   private readonly platformId = inject(PLATFORM_ID);
   readonly tick = toSignal(

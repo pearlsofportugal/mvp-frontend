@@ -1,13 +1,11 @@
-﻿import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { JobsService as GeneratedJobsService } from '../api/generated/jobs/jobs.service';
 import { type JobCreate, type JobRead, type JobListRead, JobStatus } from '../api/model';
 import { environment } from '../../../environments/environment';
 import { createSseObservable } from './sse.utl';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class JobsService {
   private readonly api = inject(GeneratedJobsService);
   private readonly basePath = '/api/v1/jobs';

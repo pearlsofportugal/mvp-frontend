@@ -1,12 +1,10 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, Service } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { ExportFilters } from '../models/export-filter.model';
 
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ExportService {
   private readonly baseUrl = `${environment.apiUrl}/api/v1/export`;
   private readonly platformId = inject(PLATFORM_ID);

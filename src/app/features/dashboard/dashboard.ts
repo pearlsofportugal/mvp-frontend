@@ -10,13 +10,12 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { DashboardService } from '../../core/services/dashboard.service';
 import type { PartnerStats } from '../../core/api/model';
 import { FormatPricePipe } from '../../shared/pipes/format-price-pipe';
-import { FormatDatePipe } from '../../shared/pipes/format-date-pipe';
 import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { Spinner } from '../../shared/components/spinner/spinner';
 
 type SortColumn =
-  | 'source_partner'
   | 'total_listings'
+  | 'site_name'
   | 'listings_updated_last_7_days'
   | 'avg_price'
   | 'enriched_count'
@@ -38,8 +37,12 @@ export class DashboardComponent {
     stream: () => this.dashboardService.partnerStats(),
   });
 
-  protected readonly sortColumn = signal<SortColumn>('source_partner');
-  protected readonly sortDir = signal<'asc' | 'desc'>('asc');
+  readonly weeklyResource = rxResource({
+    stream: () => this.dashboardService.weeklyStats(),
+  });
+
+  protected readonly sortColumn = signal<SortColumn>('total_listings');
+  protected readonly sortDir = signal<'asc' | 'desc'>('desc');
   protected readonly filterQuery = signal('');
 
   protected readonly rawPartners = computed<PartnerStats[]>(
@@ -47,22 +50,45 @@ export class DashboardComponent {
   );
 
   protected readonly partners = computed<PartnerStats[]>(() => {
-    const rows = this.rawPartners();
-    const col = this.sortColumn();
-    const dir = this.sortDir() === 'asc' ? 1 : -1;
-    return [...rows].sort((a, b) => {
-      const av = a[col] ?? '';
-      const bv = b[col] ?? '';
-      if (av < bv) return -dir;
-      if (av > bv) return dir;
-      return 0;
-    });
+  const rows = this.rawPartners();
+  const col = this.sortColumn();
+  const dir = this.sortDir() === 'asc' ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const av = this.getSortValue(a, col);
+    const bv = this.getSortValue(b, col);
+    if (av < bv) return -dir;
+    if (av > bv) return dir;
+    return 0;
   });
-
+});
+private getSortValue(partner: PartnerStats, col: SortColumn): string | number {
+  switch (col) {
+    case 'site_name':
+      return partner.site.name?.toLowerCase() ?? '';
+    case 'total_listings':
+      return partner.total_listings ?? 0;
+    case 'listings_updated_last_7_days':
+      return partner.listings_updated_last_7_days ?? 0;
+    case 'avg_price':
+      return partner.avg_price != null ? Number(partner.avg_price) : 0;
+    case 'enriched_count':
+      return partner.enriched_count ?? 0;
+    case 'exported_to_imodigi_count':
+      return partner.exported_to_imodigi_count ?? 0;
+    case 'last_listing_updated_at':
+      return partner.last_listing_updated_at ?? '';
+    case 'last_job_at':
+      return partner.last_job_at ?? '';
+  }
+}
   protected readonly filteredPartners = computed<PartnerStats[]>(() => {
     const q = this.filterQuery().toLowerCase().trim();
     return q
-      ? this.partners().filter((p) => p.source_partner.toLowerCase().includes(q))
+      ? this.partners().filter(
+          (p) =>
+            p.site.name.toLowerCase().includes(q) ||
+            p.site.key.toLowerCase().includes(q),
+        )
       : this.partners();
   });
 
@@ -70,8 +96,9 @@ export class DashboardComponent {
     () => this.statsResource.value()?.total_partners ?? 0,
   );
 
-  protected readonly loading = computed<boolean>(() => this.statsResource.isLoading());
-
+protected readonly loading = computed<boolean>(
+  () => this.statsResource.isLoading() || this.weeklyResource.isLoading()
+);
   // ── KPI Aggregates ───────────────────────────────────────────────────────────
 
   protected readonly totalListings = computed<number>(() =>
@@ -89,8 +116,9 @@ export class DashboardComponent {
     return Math.round((enriched / total) * 100);
   });
 
+  // is_active vive agora em p.site.is_active — sem merge necessário
   protected readonly activeScrapers = computed<number>(() =>
-    this.rawPartners().filter((p) => p.last_job_status === 'completed').length,
+    this.rawPartners().filter((p) => p.site.is_active).length,
   );
 
   protected readonly imodigiPct = computed<number>(() => {
@@ -103,71 +131,46 @@ export class DashboardComponent {
     return Math.round((imodigi / total) * 100);
   });
 
-  // r=56 → circumference = 2 * π * 56 ≈ 351.86
   protected readonly donutDashLength = computed<number>(
     () => (this.globalEnrichmentPct() / 100) * 351.86,
   );
-readonly weeklyResource = rxResource({
-  stream: () => this.dashboardService.weeklyStats(),
-});
-  // ── Lógica do Gráfico por Semanas (Mock Data) ───────────────────────────────
 
-protected readonly chartData = computed<number[]>(() => {
-  // Se weeklyResource.value() for undefined, faz o fallback para um array vazio
-  const response = this.weeklyResource.value();
-  const history = response?.history ?? [];
-  
-  if (history.length === 0) return [0, 0, 0, 0, 0, 0];
-  
-  // Agora sim, acedemos com segurança ao array de objetos mapeando o total_listings
-  return history.map(item => item.listings_captured ?? 0);
-});
-protected readonly chartLabels = computed<string[]>(() => {
-  const response = this.weeklyResource.value();
-  const history = response?.history ?? [];
-  
-  if (history.length === 0) return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'];
-  
-  // Mapeia as labels (ex: 'Semana 1', 'Semana 2'...) vindas do backend
-  return history.map(item => item.label);
-});
+  // ── Chart ────────────────────────────────────────────────────────────────────
+
+  protected readonly chartData = computed<number[]>(() => {
+    const history = this.weeklyResource.value()?.history ?? [];
+    if (history.length === 0) return [0, 0, 0, 0, 0, 0];
+    return history.map((item) => item.listings_captured ?? 0);
+  });
+
+  protected readonly chartLabels = computed<string[]>(() => {
+    const history = this.weeklyResource.value()?.history ?? [];
+    if (history.length === 0) return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'];
+    return history.map((item) => item.label);
+  });
+
   private readonly svgWidth = 700;
   private readonly svgHeight = 160;
 
-  /**
-   * Calcula as coordenadas de cada vértice: X (Tempo) e Y (Volume de baixo para cima)
-   */
   protected readonly chartPoints = computed<{ x: number; y: number; value: number }[]>(() => {
     const data = this.chartData();
     const maxVal = Math.max(...data, 1);
     const totalPoints = data.length;
-
     return data.map((val, index) => {
-      // Distribui na horizontal (X)
       const x = totalPoints > 1 ? (index / (totalPoints - 1)) * this.svgWidth : 0;
-      
-      // Margem de 15px em cima e abaixo para evitar cortes no stroke da linha
       const usableHeight = this.svgHeight - 30;
-      // Inverte o Y porque no SVG o zero começa no topo
       const y = this.svgHeight - 15 - (val / maxVal) * usableHeight;
-      
       return { x, y, value: val };
     });
   });
 
-  /**
-   * String de comando para o path da linha do SVG
-   */
-  protected readonly chartLinePath = computed<string>(() => {
-    const points = this.chartPoints();
-    return points.reduce((path, pt, i) => {
-      return i === 0 ? `M ${pt.x},${pt.y}` : `${path} L ${pt.x},${pt.y}`;
-    }, '');
-  });
+  protected readonly chartLinePath = computed<string>(() =>
+    this.chartPoints().reduce(
+      (path, pt, i) => (i === 0 ? `M ${pt.x},${pt.y}` : `${path} L ${pt.x},${pt.y}`),
+      '',
+    ),
+  );
 
-  /**
-   * String de comando para fechar o polígono da área no fundo do SVG
-   */
   protected readonly chartAreaPath = computed<string>(() => {
     const linePath = this.chartLinePath();
     if (!linePath) return '';

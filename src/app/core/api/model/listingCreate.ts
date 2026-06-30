@@ -14,7 +14,7 @@ import type { MediaAssetCreate } from './mediaAssetCreate';
  */
 export interface ListingCreate {
   /** Listing transaction type. */
-  listing_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | null;
   /** Property type (e.g. 'apartment', 'house'). */
   property_type?: string | null;
   /** Portuguese typology code (e.g. 'T2', 'T3+1'). */

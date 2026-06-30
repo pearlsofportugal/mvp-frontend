@@ -18,7 +18,7 @@ substituted into the canonical title/description/meta_description fields.
  */
 export interface ListingDetailRead {
   /** Listing transaction type. */
-  listing_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | null;
   /** Property type (e.g. 'apartment', 'house'). */
   property_type?: string | null;
   /** Portuguese typology code (e.g. 'T2', 'T3+1'). */

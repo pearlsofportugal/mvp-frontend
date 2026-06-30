@@ -13,7 +13,7 @@ export interface ListingListRead {
   id: string;
   title?: string | null;
   source_partner: string;
-  listing_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | null;
   property_type?: string | null;
   typology?: string | null;
   price_amount?: string | null;

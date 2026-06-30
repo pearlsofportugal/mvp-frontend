@@ -14,7 +14,7 @@ Intentionally omits scraper-internal fields (``page_title``,
 Only supplied fields are applied.
  */
 export interface ListingUpdate {
-  listing_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | null;
   property_type?: string | null;
   typology?: string | null;
   title?: string | null;

@@ -93,18 +93,7 @@ export class RealEstateService {
       );
   }
 
-  private normalizeFilters(filters: RealEstateFilters): ListListingsParams {
-    const normalized: ListListingsParams = { ...filters } as ListListingsParams;
-
-    if (
-      filters.bedrooms !== undefined &&
-      filters.bedrooms !== null &&
-      filters.bedrooms_min === undefined &&
-      filters.bedrooms_max === undefined
-    ) {
-      normalized.bedrooms_min = filters.bedrooms;
-      normalized.bedrooms_max = filters.bedrooms;
-    }
-    return normalized;
-  }
+ private normalizeFilters(filters: RealEstateFilters): ListListingsParams {
+  return { ...filters } as ListListingsParams;
+}
 }

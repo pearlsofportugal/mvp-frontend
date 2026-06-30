@@ -1,5 +1,4 @@
 @if (realEstates().length === 0) {
-<!-- aria-hidden no SVG decorativo: não deve ser lido por leitores de ecrã -->
 <div class="empty" role="status">
   <svg class="empty-icon" aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
@@ -11,20 +10,14 @@
 </div>
 } @else {
 <div class="table-wrap">
-  <!--
-      caption visualmente oculto mas lido por leitores de ecrã —
-      fornece contexto semântico essencial para a tabela
-    -->
+
   <table aria-label="Listagens imobiliárias">
     <caption class="sr-only">
       Listagens imobiliárias
     </caption>
     <thead>
       <tr>
-        <!--
-            aria-sort comunica o estado de ordenação a tecnologias assistivas.
-            Valores: "ascending" | "descending" | "none"
-          -->
+
         <th class="th-sortable" [class.th-sorted]="isSortActive('title')" [attr.aria-sort]="
               isSortActive('title') ? (sortOrder() === 'asc' ? 'ascending' : 'descending') : 'none'
             " (click)="onSort('title')" scope="col">
@@ -92,15 +85,13 @@
               </span>
               <div class="listing-tags">
                 <span class="tag-source">{{ realEstate.source_partner }}</span>
-                @if (realEstate.listing_type) {
-                <span class="tag-listing-type">{{ realEstate.listing_type }}</span>
+                @if (realEstate.business_type) {
+                <span class="tag-listing-type">{{ realEstate.business_type }}</span>
                 }
               </div>
             </div>
           </div>
         </td>
-
-        <!-- Tipo + Tipologia -->
         <td class="td-type">
           @if (realEstate.property_type || realEstate.typology) {
           <div class="type-stack">
