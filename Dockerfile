@@ -1,5 +1,5 @@
 # ── Estágio de Build ──────────────────────────────────────────────────────────
-FROM node:20 AS build
+FROM node:22 AS build
 WORKDIR /app
 
 COPY package*.json ./
@@ -9,7 +9,7 @@ COPY . .
 RUN npx ng build --configuration production
 
 # ── Estágio de Execução ───────────────────────────────────────────────────────
-FROM node:20-slim
+FROM node:22-slim
 WORKDIR /app
 
 USER node
