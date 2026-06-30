@@ -152,5 +152,6 @@ export * from './testScrapeNormalized';
 export * from './testScrapeRequest';
 export * from './testScrapeResponse';
 export * from './testScrapeResponseRaw';
+export * from './triggerImodigiSyncParams';
 export * from './weeklyStats';
 export * from './weeklyStatsResponse';

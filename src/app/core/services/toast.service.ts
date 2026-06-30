@@ -1,17 +1,4 @@
-// src/app/core/services/toast.service.ts
-//
-// MELHORIA: ToastService com:
-//   - Limite de toasts simultâneos (máx 5) — evita "pilha de erros" quando
-//     o polling falha repetidamente (ex: backend offline + polling a cada 3s)
-//   - Duração configurável por tipo (erros ficam mais tempo — 6s vs 4s)
-//   - Dismiss manual via remove(id)
-//   - Deduplicação: não mostra o mesmo toast duas vezes seguidas
-//     (útil quando o mesmo erro dispara várias vezes em polling)
-//
-// ANTES: timeout fixo de 4s, sem limite, sem deduplicação.
-// Os toasts acumulavam-se indefinidamente em cenários de erro contínuo.
-
-import { Injectable, signal } from '@angular/core';
+import { Injectable, Service, signal } from '@angular/core';
 
 export interface Toast {
   id: number;
@@ -29,9 +16,7 @@ const DEFAULT_DURATIONS: Record<Toast['type'], number> = {
   error: 6000, // erros ficam mais tempo — o utilizador precisa de ler
 };
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ToastService {
   private idCounter = 0;
   private lastMessage = '';  // para deduplicação

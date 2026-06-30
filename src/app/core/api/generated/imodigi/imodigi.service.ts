@@ -28,6 +28,7 @@ import type {
   ImodigiResetRequest,
   ImodigiSearchLocationsParams,
   ImodigiSyncCheckParams,
+  TriggerImodigiSyncParams,
 } from '../../model';
 
 import { customFetch } from '../../custom-fetch';
@@ -310,6 +311,49 @@ Endpoint **read-only**. Para corrigir divergências:
       {
         url: `/api/v1/imodigi/publications/sync`,
         method: 'GET',
+        params: (() => {
+          const requiredNullableParamKeys = new Set<string>([]);
+          const filteredParams: Record<
+            string,
+            string | number | boolean | Array<string | number | boolean>
+          > = {};
+          for (const [key, value] of Object.entries(params ?? {})) {
+            if (Array.isArray(value)) {
+              const filtered = value.filter(
+                (item) =>
+                  item != null &&
+                  (typeof item === 'string' ||
+                    typeof item === 'number' ||
+                    typeof item === 'boolean'),
+              ) as Array<string | number | boolean>;
+              if (filtered.length) {
+                filteredParams[key] = filtered;
+              }
+            } else if (
+              value != null &&
+              (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+            ) {
+              filteredParams[key] = value;
+            }
+          }
+          return filteredParams;
+        })(),
+      },
+      this.http,
+    );
+  }
+  /**
+ * Chamado pelo Cloud Scheduler — exporta listings pendentes para o Imodigi.
+
+Bloqueia até conclusão para que o Cloud Run mantenha CPU activo.
+Igual ao padrão de trigger_scheduled_job em scrape_jobs.py.
+ * @summary Trigger Imodigi Sync
+ */
+  triggerImodigiSync<TData = ApiResponseDict>(params?: TriggerImodigiSyncParams) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/imodigi/trigger/sync`,
+        method: 'POST',
         params: (() => {
           const requiredNullableParamKeys = new Set<string>([]);
           const filteredParams: Record<

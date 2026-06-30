@@ -18,7 +18,7 @@
       }
     </div>
     <div class="hero-badges">
-      @if (realEstate().listing_type) { <span class="hbadge hbadge--sale">{{ realEstate().listing_type }}</span> }
+      @if (realEstate().business_type) { <span class="hbadge hbadge--sale">{{ realEstate().business_type }}</span> }
       @if (realEstate().property_type) { <span class="hbadge hbadge--type">{{ realEstate().property_type }}</span> }
       @if (realEstate().typology) { <span class="hbadge hbadge--typology">{{ realEstate().typology }}</span> }
       @if (realEstate().is_enriched) { <span class="hbadge hbadge--ai">✦ AI enhanced</span> }

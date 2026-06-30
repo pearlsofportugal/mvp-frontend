@@ -105,19 +105,23 @@ export interface RealEstateFilters {
   source_partner?: string;
   property_type?: string;
   typology?: string;
+  business_type?: 'sale' | 'rent';
   district?: string;
   county?: string;
   parish?: string;
   price_min?: number;
   price_max?: number;
-  bedrooms_min?: number;
-  bedrooms_max?: number;
-  bedrooms?: number;
   area_min?: number;
   area_max?: number;
+  bedrooms_min?: number;
+  bedrooms_max?: number;
+  bathrooms_min?: number;
+  bathrooms_max?: number;
+  energy_certificate?: string;
   has_garage?: boolean;
   has_pool?: boolean;
   has_elevator?: boolean;
+  has_balcony?: boolean;
   is_enriched?: boolean;
   is_exported_to_imodigi?: boolean;
   search?: string;
@@ -126,7 +130,6 @@ export interface RealEstateFilters {
   page?: number;
   page_size?: number;
 }
-
 
 
 export interface RealEstateStats {

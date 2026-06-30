@@ -1,11 +1,9 @@
-﻿import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { SystemService } from '../api/generated/system/system.service';
 import { SystemHealth } from '../api/model/systemHealth';
 import { ApiResponseSystemHealth } from '../api/model';
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class HealthService {
   private readonly api = inject(SystemService);
 

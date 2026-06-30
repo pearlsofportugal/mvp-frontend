@@ -11,7 +11,7 @@
  */
 export interface TestScrapeNormalized {
   title?: string | null;
-  listing_type?: string | null;
+  business_type?: string | null;
   property_type?: string | null;
   typology?: string | null;
   bedrooms?: number | null;

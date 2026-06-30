@@ -17,14 +17,6 @@ import { Avatar } from "../../../../shared/components/avatar/avatar";
 
 export type SortField = 'title' | 'price' | 'area' | 'bedrooms' | 'district' | 'created_at';
 
-const AVATAR_COLORS = [
-  '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#f97316',
-  '#22c55e', '#06b6d4', '#a855f7', '#ef4444', '#eab308',
-];
-
-// Memoization cache: evita recalcular o hash a cada render
-const avatarColorCache = new Map<string, string>();
-
 @Component({
   selector: 'app-listings-table',
   templateUrl: './listings-table.html',

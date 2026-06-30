@@ -10,12 +10,12 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { DashboardService } from '../../core/services/dashboard.service';
 import type { PartnerStats } from '../../core/api/model';
 import { FormatPricePipe } from '../../shared/pipes/format-price-pipe';
-import { FormatDatePipe } from '../../shared/pipes/format-date-pipe';
 import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { Spinner } from '../../shared/components/spinner/spinner';
 
 type SortColumn =
   | 'total_listings'
+  | 'site_name'
   | 'listings_updated_last_7_days'
   | 'avg_price'
   | 'enriched_count'
@@ -50,18 +50,37 @@ export class DashboardComponent {
   );
 
   protected readonly partners = computed<PartnerStats[]>(() => {
-    const rows = this.rawPartners();
-    const col = this.sortColumn();
-    const dir = this.sortDir() === 'asc' ? 1 : -1;
-    return [...rows].sort((a, b) => {
-      const av = a[col] ?? '';
-      const bv = b[col] ?? '';
-      if (av < bv) return -dir;
-      if (av > bv) return dir;
-      return 0;
-    });
+  const rows = this.rawPartners();
+  const col = this.sortColumn();
+  const dir = this.sortDir() === 'asc' ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const av = this.getSortValue(a, col);
+    const bv = this.getSortValue(b, col);
+    if (av < bv) return -dir;
+    if (av > bv) return dir;
+    return 0;
   });
-
+});
+private getSortValue(partner: PartnerStats, col: SortColumn): string | number {
+  switch (col) {
+    case 'site_name':
+      return partner.site.name?.toLowerCase() ?? '';
+    case 'total_listings':
+      return partner.total_listings ?? 0;
+    case 'listings_updated_last_7_days':
+      return partner.listings_updated_last_7_days ?? 0;
+    case 'avg_price':
+      return partner.avg_price != null ? Number(partner.avg_price) : 0;
+    case 'enriched_count':
+      return partner.enriched_count ?? 0;
+    case 'exported_to_imodigi_count':
+      return partner.exported_to_imodigi_count ?? 0;
+    case 'last_listing_updated_at':
+      return partner.last_listing_updated_at ?? '';
+    case 'last_job_at':
+      return partner.last_job_at ?? '';
+  }
+}
   protected readonly filteredPartners = computed<PartnerStats[]>(() => {
     const q = this.filterQuery().toLowerCase().trim();
     return q
@@ -77,8 +96,9 @@ export class DashboardComponent {
     () => this.statsResource.value()?.total_partners ?? 0,
   );
 
-  protected readonly loading = computed<boolean>(() => this.statsResource.isLoading());
-
+protected readonly loading = computed<boolean>(
+  () => this.statsResource.isLoading() || this.weeklyResource.isLoading()
+);
   // ── KPI Aggregates ───────────────────────────────────────────────────────────
 
   protected readonly totalListings = computed<number>(() =>

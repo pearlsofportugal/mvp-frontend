@@ -21,7 +21,7 @@ interface NormalizedField {
 
 const NORMALIZED_LABELS: Record<keyof TestScrapeNormalized, string> = {
   title: 'Title',
-  listing_type: 'Listing Type',
+  business_type: 'Business Type',
   property_type: 'Property Type',
   typology: 'Typology',
   bedrooms: 'Bedrooms',
