@@ -16,6 +16,9 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "security": {
+              "allowedHosts": ["localhost","*.europe-west1.run.app"]
+            },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
