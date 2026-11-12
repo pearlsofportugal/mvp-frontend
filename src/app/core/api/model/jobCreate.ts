@@ -26,4 +26,6 @@ export interface JobCreate {
   max_pages?: number;
   /** Optional runtime configuration overrides. */
   config?: JobConfig | null;
+  /** Optional client key. Retried requests with the same key return the original job. */
+  idempotency_key?: string | null;
 }

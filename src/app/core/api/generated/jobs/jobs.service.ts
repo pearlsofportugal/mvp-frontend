@@ -11,8 +11,10 @@ import { Injectable, inject } from '@angular/core';
 
 import type {
   ApiResponseJobRead,
+  ApiResponseListDict,
   ApiResponseListJobListRead,
   ApiResponseNoneType,
+  GetJobEventsApiV1JobsJobIdEventsGetParams,
   JobCreate,
   ListJobsParams,
 } from '../../model';
@@ -101,13 +103,57 @@ export class JobsService {
   /**
  * Trigger a scheduled scrape job for a site.
 
-Called by Google Cloud Scheduler. This endpoint blocks until the scraping is
-fully completed so that Cloud Run allocates full CPU for the task.
+Called by Google Cloud Scheduler. Returns as soon as the job is dispatched: with
+``JOB_DISPATCH_MODE=cloud_tasks`` the scrape runs in a Cloud Run Job, with ``local`` it
+continues in this process (which then needs CPU allocated outside requests).
  * @summary Trigger Scheduled Job
  */
   triggerScheduledJob<TData = ApiResponseJobRead>(siteKey: string) {
     return customFetch<TData>(
       { url: `/api/v1/jobs/trigger/${siteKey}`, method: 'POST' },
+      this.http,
+    );
+  }
+  /**
+   * Return append-only operational events for a scrape job.
+   * @summary Get Job Events
+   */
+  getJobEventsApiV1JobsJobIdEventsGet<TData = ApiResponseListDict>(
+    jobId: string,
+    params?: GetJobEventsApiV1JobsJobIdEventsGetParams,
+  ) {
+    return customFetch<TData>(
+      {
+        url: `/api/v1/jobs/${jobId}/events`,
+        method: 'GET',
+        params: (() => {
+          const requiredNullableParamKeys = new Set<string>([]);
+          const filteredParams: Record<
+            string,
+            string | number | boolean | Array<string | number | boolean>
+          > = {};
+          for (const [key, value] of Object.entries(params ?? {})) {
+            if (Array.isArray(value)) {
+              const filtered = value.filter(
+                (item) =>
+                  item != null &&
+                  (typeof item === 'string' ||
+                    typeof item === 'number' ||
+                    typeof item === 'boolean'),
+              ) as Array<string | number | boolean>;
+              if (filtered.length) {
+                filteredParams[key] = filtered;
+              }
+            } else if (
+              value != null &&
+              (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+            ) {
+              filteredParams[key] = value;
+            }
+          }
+          return filteredParams;
+        })(),
+      },
       this.http,
     );
   }

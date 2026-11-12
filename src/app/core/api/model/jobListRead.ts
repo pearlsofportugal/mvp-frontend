@@ -16,6 +16,8 @@ export interface JobListRead {
   site_key: string;
   status: JobStatus;
   progress?: JobProgress | null;
+  attempt_count?: number;
+  dispatch_attempts?: number;
   started_at?: string | null;
   last_heartbeat_at?: string | null;
   cancel_requested_at?: string | null;

@@ -14,6 +14,6 @@ export interface LocaleEnrichmentOutput {
   title?: string | null;
   /** Enriched listing description. */
   description?: string | null;
-  /** SEO meta description (≤160 chars recommended). */
+  /** SEO meta description (155 chars target, never more). */
   meta_description?: string | null;
 }

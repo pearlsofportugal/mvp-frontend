@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ListingDetailReadEnrichedTranslations } from './listingDetailReadEnrichedTranslations';
+import type { ListingDetailReadStatus } from './listingDetailReadStatus';
 import type { MediaAssetRead } from './mediaAssetRead';
 import type { PriceHistoryRead } from './priceHistoryRead';
 
@@ -18,11 +19,15 @@ substituted into the canonical title/description/meta_description fields.
  */
 export interface ListingDetailRead {
   /** Listing transaction type. */
-  business_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | 'trespasse' | null;
   /** Property type (e.g. 'apartment', 'house'). */
   property_type?: string | null;
-  /** Portuguese typology code (e.g. 'T2', 'T3+1'). */
+  /** Property condition (e.g. 'New', 'Used', 'Renovated'). */
+  condition?: string | null;
+  /** Portuguese typology code: T0, T1, T2, ... (see GET /listings/vocabularies). */
   typology?: string | null;
+  /** Extra rooms of a T1+1 style typology, e.g. '+1'. */
+  typology_extra?: string | null;
   /** Listing headline. */
   title?: string | null;
   bedrooms?: number | null;
@@ -47,19 +52,30 @@ export interface ListingDetailRead {
   county?: string | null;
   parish?: string | null;
   full_address?: string | null;
+  /** Official district code (2 digits); null when the place could not be matched. */
+  district_code?: string | null;
+  /** Official municipality code, DICO (4 digits). */
+  county_code?: string | null;
+  /** Official parish code, DICOFRE (6 digits). */
+  parish_code?: string | null;
   /** WGS-84 latitude. */
   latitude?: number | null;
   /** WGS-84 longitude. */
   longitude?: number | null;
+  /** Precision of latitude/longitude: `exact` = declared by the source page. */
+  location_precision?: 'exact' | 'parish' | 'county' | null;
   has_garage?: boolean | null;
   has_elevator?: boolean | null;
   has_balcony?: boolean | null;
   has_air_conditioning?: boolean | null;
   has_pool?: boolean | null;
+  has_garden?: boolean | null;
   advertiser?: string | null;
   contacts?: string | null;
-  /** Cleaned / normalised description. */
+  /** Description as the partner wrote it (whitespace-normalised). */
   description?: string | null;
+  /** Display-ready description: agency boilerplate removed, formatting repaired. */
+  description_clean?: string | null;
   /** AI quality score (0–100). */
   description_quality_score?: number | null;
   /** SEO meta description (scraped). */
@@ -73,6 +89,11 @@ export interface ListingDetailRead {
   scrape_job_id?: string | null;
   created_at: string;
   updated_at: string;
+  /** Lifecycle: `removed` = gone from the source. */
+  status?: ListingDetailReadStatus;
+  first_seen_at?: string | null;
+  last_seen_at?: string | null;
+  removed_at?: string | null;
   media_assets?: MediaAssetRead[];
   price_history?: PriceHistoryRead[];
   /** True when enriched_translations contains at least one locale. */

@@ -159,9 +159,13 @@ to track progress.
     );
   }
   /**
-   * Poll the current status of a background bulk Imodigi export job.
-   * @summary Get Bulk Publish Job
-   */
+ * Poll the current status of a background bulk Imodigi export job.
+
+Falls back to the durable BackgroundJob row when this process instance
+no longer holds the job in memory (restart, TTL eviction, or a different
+instance behind the load balancer answered this request).
+ * @summary Get Bulk Publish Job
+ */
   imodigiGetBulkJob<TData = ApiResponseBulkJobStatus>(jobId: string) {
     return customFetch<TData>(
       { url: `/api/v1/imodigi/publish/jobs/${jobId}`, method: 'GET' },
@@ -187,6 +191,11 @@ The stream closes automatically when the job reaches a terminal state.
 
 Uses settings.imodigi_client_id by default; pass `client_id` in the body
 to override per-request.
+
+NOTE: this manual single-listing endpoint intentionally does NOT perform
+CRM reconciliation (see build_crm_reference_lookup) — that check is only
+applied to the automated Cloud Scheduler sync path (trigger_imodigi_sync)
+and the bulk export job, to keep this endpoint fast for interactive use.
  * @summary Publish Listing
  */
   imodigiPublishListing<TData = ApiResponseImodigiExportResponse>(
@@ -253,6 +262,11 @@ resetting, the system would try to PATCH a non-existent property and fail.
 
 - Pass ``listing_ids`` to reset specific listings.
 - Pass an **empty list** to reset **all** export records.
+
+NOTE: after a reset, the next automated Cloud Scheduler sync run will still
+catch listings that actually still exist in the CRM under the same
+partner_id, thanks to the reconciliation lookup in trigger_imodigi_sync —
+it will PATCH instead of creating a duplicate.
  * @summary Reset Publications
  */
   imodigiResetPublications<TData = ApiResponseDict>(imodigiResetRequest: ImodigiResetRequest) {
@@ -344,6 +358,13 @@ Endpoint **read-only**. Para corrigir divergências:
   }
   /**
  * Chamado pelo Cloud Scheduler — exporta listings pendentes para o Imodigi.
+
+Antes de exportar, sincroniza o estado actual do CRM com UMA única chamada
+a GET /crm-properties.php (ver build_crm_reference_lookup) e usa esse
+lookup para reconciliar listings que já existem no CRM mas não têm ligação
+local em imodigi_exports (nunca foram exportados por este sistema, ou o
+registo foi apagado via /publications/reset). Sem isto, o sistema criaria
+um duplicado no CRM em vez de actualizar o imóvel existente.
 
 Bloqueia até conclusão para que o Cloud Run mantenha CPU activo.
 Igual ao padrão de trigger_scheduled_job em scrape_jobs.py.

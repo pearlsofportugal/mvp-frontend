@@ -14,9 +14,11 @@ Intentionally omits scraper-internal fields (``page_title``,
 Only supplied fields are applied.
  */
 export interface ListingUpdate {
-  business_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | 'trespasse' | null;
   property_type?: string | null;
+  condition?: string | null;
   typology?: string | null;
+  typology_extra?: string | null;
   title?: string | null;
   bedrooms?: number | null;
   bathrooms?: number | null;
@@ -35,11 +37,13 @@ export interface ListingUpdate {
   full_address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  location_precision?: 'exact' | 'parish' | 'county' | null;
   has_garage?: boolean | null;
   has_elevator?: boolean | null;
   has_balcony?: boolean | null;
   has_air_conditioning?: boolean | null;
   has_pool?: boolean | null;
+  has_garden?: boolean | null;
   advertiser?: string | null;
   contacts?: string | null;
   description?: string | null;

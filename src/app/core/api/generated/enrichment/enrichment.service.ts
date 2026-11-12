@@ -89,9 +89,13 @@ are queued up to ``limit``.
     );
   }
   /**
-   * Poll the current status of a background bulk enrichment job.
-   * @summary Get Bulk Job
-   */
+ * Poll the current status of a background bulk enrichment job.
+
+Falls back to the durable BackgroundJob row when this process instance
+no longer holds the job in memory (restart, TTL eviction, or a different
+instance behind the load balancer answered this request).
+ * @summary Get Bulk Job
+ */
   getBulkEnrichJob<TData = ApiResponseBulkJobStatus>(jobId: string) {
     return customFetch<TData>(
       { url: `/api/v1/enrichment/ai/bulk/jobs/${jobId}`, method: 'GET' },

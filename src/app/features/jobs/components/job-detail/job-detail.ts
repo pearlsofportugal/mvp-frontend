@@ -25,6 +25,7 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { JobRead } from '../../../../core/api/model';
 import { JobsService } from '../../../../core/services/jobs';
+import type { JobStreamEvent } from '../../../../core/models/job-stream.model';
 import { StatusBadge } from '../../../../shared/components/status-badge/status-badge';
 import { Subscription } from 'rxjs';
 
@@ -47,7 +48,7 @@ export class JobDetailComponent {
   readonly refresh = output<void>();
 
   /** Job em tempo real — atualizado pelo stream SSE enquanto está a correr */
-  protected readonly liveJob = signal<JobRead | null>(null);
+  protected readonly liveJob = signal<JobStreamEvent | null>(null);
   protected readonly streaming = signal(false);
   protected readonly streamError = signal<string | null>(null);
 
@@ -55,7 +56,13 @@ export class JobDetailComponent {
   protected readonly displayJob = computed<JobRead>(() => {
     const live = this.liveJob();
     if (!live) return this.job();
-    return { ...this.job(), ...live };
+    const job = this.job();
+    return {
+      ...job,
+      status: live.status,
+      progress: live.progress ?? job.progress,
+      error_message: live.error_message ?? job.error_message,
+    };
   });
 
   constructor() {

@@ -14,6 +14,9 @@ import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { RealEstateService } from '../../../../core/services/listings.service';
 import type { ListingDetailRead, ListingUpdate } from '../../../../core/api/model';
 
+/** Valores aceites pelo backend (derivado do contrato gerado, inclui 'trespasse'). */
+type BusinessType = ListingUpdate['business_type'];
+
 @Component({
   selector: 'app-listing-edit',
   imports: [ReactiveFormsModule],
@@ -41,7 +44,7 @@ export class ListingEditComponent{
 
   protected readonly form = new FormGroup({
     title: new FormControl<string | null>(null),
-    business_type: new FormControl<'sale' | 'rent' | null>(null),
+    business_type: new FormControl<BusinessType>(null),
     property_type: new FormControl<string | null>(null),
     typology: new FormControl<string | null>(null),
     bedrooms: new FormControl<number | null>(null),
@@ -72,7 +75,7 @@ export class ListingEditComponent{
     const l = this.listing();
     this.form.patchValue({
       title: l.title ?? null,
-      business_type: (l.business_type as 'sale' | 'rent' | null) ?? null,
+      business_type: l.business_type ?? null,
       property_type: l.property_type ?? null,
       typology: l.typology ?? null,
       bedrooms: l.bedrooms ?? null,

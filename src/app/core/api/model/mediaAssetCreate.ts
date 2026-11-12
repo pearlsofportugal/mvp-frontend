@@ -18,4 +18,8 @@ export interface MediaAssetCreate {
   type?: 'photo' | 'floorplan' | 'video' | null;
   /** Display order (0-indexed). */
   position?: number | null;
+  /** Pixel width, when known. */
+  width?: number | null;
+  /** Pixel height, when known. */
+  height?: number | null;
 }

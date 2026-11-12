@@ -27,10 +27,19 @@ export interface SiteConfigUpdate {
   is_active?: boolean | null;
   /** Per-field confidence scores (0.0–1.0). */
   confidence_scores?: SiteConfigUpdateConfidenceScores;
+  /** Confidence fields to exclude from scoring for this partner (see SiteConfigBase). */
+  confidence_not_applicable_fields?: string[] | null;
   schedule_enabled?: boolean | null;
   schedule_interval_minutes?: number | null;
   schedule_start_at?: string | null;
   schedule_timezone?: string | null;
   schedule_start_url?: string | null;
   schedule_max_pages?: number | null;
+  logo_url?: string | null;
+  legal_name?: string | null;
+  ami_licence?: string | null;
+  website?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
 }

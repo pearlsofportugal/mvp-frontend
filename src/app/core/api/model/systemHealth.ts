@@ -16,6 +16,8 @@ export interface SystemHealth {
   status: SystemHealthStatus;
   /** Application version string. */
   version: string;
+  /** Version of the listing contract served under /api/v2. */
+  schema_version?: string | null;
   /** Database connectivity status. */
   database?: SystemHealthDatabase;
 }

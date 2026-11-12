@@ -234,7 +234,9 @@ export class ListingSelectorComponent {
         this.searchResults.set(items);
         this.hasMore.set(items.length === PAGE_SIZE);
         this.isSearching.set(false);
-        this.accumulateSources(items);
+this.realEstateService.getSourcePartners().subscribe({
+  next: partners => this.knownSources.set(partners),
+});        
       });
 
     effect(() => {

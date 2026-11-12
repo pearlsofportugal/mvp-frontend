@@ -2,7 +2,7 @@ import { PLATFORM_ID, ChangeDetectionStrategy, Component, DestroyRef, computed, 
 import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
-import type { JobListRead, JobRead } from '../../../../core/api/model';
+import type { JobListRead } from '../../../../core/api/model';
 import { JobsService } from '../../../../core/services/jobs';
 import { StatusBadge } from "../../../../shared/components/status-badge/status-badge";
 import { ContextMenu } from "../../../../shared/components/context-menu/context-menu";
@@ -30,7 +30,7 @@ export class JobsListComponent {
   delete = output<string>();
 
   // ── SSE live updates ─────────────────────────────────────────────────────
-  private readonly liveUpdates = signal<Record<string, JobRead>>({});
+  private readonly liveUpdates = signal<Record<string, Pick<JobListRead, 'status' | 'progress'>>>({});
   private readonly activeStreams = new Map<string, Subscription>();
 
   protected readonly liveJobs = computed<JobListRead[]>(() =>
@@ -90,10 +90,12 @@ export class JobsListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
-          // Ensure id is always present — some SSE events may omit it
-          const safe: JobRead = updated?.id ? updated : { ...updated, id: jobId };
-          this.liveUpdates.update(m => ({ ...m, [jobId]: safe }));
-          if (TERMINAL_STATUSES.has(safe.status)) {
+          // O stream traz só status/progress (ver JobStreamEvent) — merge feito em liveJobs.
+          this.liveUpdates.update(m => ({
+            ...m,
+            [jobId]: { status: updated.status, progress: updated.progress },
+          }));
+          if (TERMINAL_STATUSES.has(updated.status)) {
             this.activeStreams.get(jobId)?.unsubscribe();
             this.activeStreams.delete(jobId);
           }
