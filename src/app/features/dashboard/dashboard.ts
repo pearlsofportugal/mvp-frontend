@@ -12,6 +12,8 @@ import type { PartnerStats } from '../../core/api/model';
 import { FormatPricePipe } from '../../shared/pipes/format-price-pipe';
 import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { Spinner } from '../../shared/components/spinner/spinner';
+import { safeValue } from '../../core/utils/resource.util';
+import { ErrorStateComponent } from '../../shared/components/error-state/error-state';
 
 type SortColumn =
   | 'total_listings'
@@ -25,7 +27,7 @@ type SortColumn =
 
 @Component({
   selector: 'app-dashboard',
-  imports: [FormatPricePipe, StatusBadge, Spinner],
+  imports: [FormatPricePipe, StatusBadge, Spinner, ErrorStateComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,12 +43,22 @@ export class DashboardComponent {
     stream: () => this.dashboardService.weeklyStats(),
   });
 
+  /** O pedido principal falhou e não há dados anteriores para mostrar. */
+  protected readonly hasError = computed<boolean>(
+    () => !!this.statsResource.error() && !this.statsResource.hasValue(),
+  );
+
+  protected reload(): void {
+    this.statsResource.reload();
+    this.weeklyResource.reload();
+  }
+
   protected readonly sortColumn = signal<SortColumn>('total_listings');
   protected readonly sortDir = signal<'asc' | 'desc'>('desc');
   protected readonly filterQuery = signal('');
 
   protected readonly rawPartners = computed<PartnerStats[]>(
-    () => this.statsResource.value()?.partners ?? [],
+    () => safeValue(this.statsResource)?.partners ?? [],
   );
 
   protected readonly partners = computed<PartnerStats[]>(() => {
@@ -93,7 +105,7 @@ private getSortValue(partner: PartnerStats, col: SortColumn): string | number {
   });
 
   protected readonly totalPartners = computed<number>(
-    () => this.statsResource.value()?.total_partners ?? 0,
+    () => safeValue(this.statsResource)?.total_partners ?? 0,
   );
 
 protected readonly loading = computed<boolean>(
@@ -138,13 +150,13 @@ protected readonly loading = computed<boolean>(
   // ── Chart ────────────────────────────────────────────────────────────────────
 
   protected readonly chartData = computed<number[]>(() => {
-    const history = this.weeklyResource.value()?.history ?? [];
+    const history = safeValue(this.weeklyResource)?.history ?? [];
     if (history.length === 0) return [0, 0, 0, 0, 0, 0];
     return history.map((item) => item.listings_captured ?? 0);
   });
 
   protected readonly chartLabels = computed<string[]>(() => {
-    const history = this.weeklyResource.value()?.history ?? [];
+    const history = safeValue(this.weeklyResource)?.history ?? [];
     if (history.length === 0) return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'];
     return history.map((item) => item.label);
   });

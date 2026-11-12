@@ -21,6 +21,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 import { Spinner } from '../../shared/components/spinner/spinner';
 import { SchedulesPanelComponent } from './components/schedules-panel/schedules-panel';
+import { safeValue } from '../../core/utils/resource.util';
+import { ErrorStateComponent } from '../../shared/components/error-state/error-state';
 
 type JobsTab = 'jobs' | 'schedules';
 
@@ -34,6 +36,7 @@ type JobsTab = 'jobs' | 'schedules';
     AppDialogComponent,
     Spinner,
     SchedulesPanelComponent,
+    ErrorStateComponent,
   ],
   templateUrl: './jobs.html',
   styleUrl: './jobs.css',
@@ -61,23 +64,33 @@ export class JobsComponent {
   }
 
   protected readonly jobs = computed<JobListRead[]>(
-    () => this.jobsResource.value() ?? [],
+    () => safeValue(this.jobsResource) ?? [],
   );
 
   protected readonly sites = computed<SiteConfigRead[]>(
-    () => (this.sitesResource.value() ?? []).filter((s) => s.is_active),
+    () => (safeValue(this.sitesResource) ?? []).filter((s) => s.is_active),
   );
 
   protected readonly initialLoading = computed<boolean>(
     () =>
-      (this.jobsResource.isLoading()  && this.jobsResource.value()  === undefined) ||
-      (this.sitesResource.isLoading() && this.sitesResource.value() === undefined),
+      (this.jobsResource.isLoading()  && safeValue(this.jobsResource)  === undefined) ||
+      (this.sitesResource.isLoading() && safeValue(this.sitesResource) === undefined),
   );
+
+  /** A lista de jobs falhou e não há dados anteriores para mostrar. */
+  protected readonly jobsError = computed<boolean>(
+    () => !!this.jobsResource.error() && !this.jobsResource.hasValue(),
+  );
+
+  protected reloadAll(): void {
+    this.jobsResource.reload();
+    this.sitesResource.reload();
+  }
 
   protected readonly refreshing = computed<boolean>(
     () =>
-      (this.jobsResource.isLoading()  && this.jobsResource.value()  !== undefined) ||
-      (this.sitesResource.isLoading() && this.sitesResource.value() !== undefined),
+      (this.jobsResource.isLoading()  && safeValue(this.jobsResource)  !== undefined) ||
+      (this.sitesResource.isLoading() && safeValue(this.sitesResource) !== undefined),
   );
 
   protected readonly jobStats = computed(() => {

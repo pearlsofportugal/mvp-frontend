@@ -3,9 +3,9 @@
 	<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
 	<div class="page-header">
 		<div class="page-header-start">
-			<h1 class="page-title">Real Estate</h1>
+			<h1 class="page-title">Anúncios</h1>
 			@if (!isLoadingListings()) {
-				<span class="page-meta">{{ totalListings() }} listings · page {{ currentPage() }} / {{ totalPages() }}</span>
+				<span class="page-meta">{{ totalListings() }} {{ totalListings() === 1 ? 'anúncio' : 'anúncios' }} · página {{ currentPage() }} de {{ totalPages() }}</span>
 			}
 		</div>
 		<div class="page-header-end">
@@ -13,12 +13,12 @@
 				class="btn btn-outline btn-sm"
 				(click)="onPrevPage()"
 				[disabled]="!hasPrevPage() || isLoadingListings()"
-			>← Prev</button>
+			>← Anterior</button>
 			<button
 				class="btn btn-outline btn-sm"
 				(click)="onNextPage()"
 				[disabled]="!hasNextPage() || isLoadingListings()"
-			>Next →</button>
+			>Seguinte →</button>
 		</div>
 	</div>
 
@@ -29,8 +29,10 @@
 	/>
 
 	<!-- ── TABLE ───────────────────────────────────────────────── -->
-	@if (isLoadingListings()) {
-			<app-spinner size="md" message="Loading listings"></app-spinner>
+	@if (listingsError()) {
+		<app-error-state title="Não foi possível carregar os anúncios" (retry)="realEstatesResource.reload()" />
+	} @else if (isLoadingListings()) {
+			<app-spinner size="md" message="A carregar anúncios"></app-spinner>
 	} @else {
 		<app-listings-table
 			[realEstates]="realEstates()"
@@ -46,13 +48,13 @@
 	<!-- ── DETAIL DIALOG ───────────────────────────────────────── -->
 	<app-dialog
 		[open]="!!(selectedListingId())"
-		title="Listing Detail"
+		title="Detalhe do anúncio"
 		size="md"
 		(closed)="onCloseDetail()"
 	>
 		@if (isLoadingDetail()) {
 			<div class="table-loading">
-				<app-spinner size="sm" message="Loading detail"></app-spinner>
+				<app-spinner size="sm" message="A carregar detalhe"></app-spinner>
 			</div>
 		} @else if (selectedRealEstate()) {
 			<app-listing-detail
@@ -76,7 +78,7 @@
 	<!-- ── EDIT DIALOG ─────────────────────────────────────────── -->
 	<app-dialog
 		[open]="!!(editingListingId())"
-		title="Edit Listing"
+		title="Editar anúncio"
 		size="lg"
 		(closed)="onCloseEdit()"
 	>

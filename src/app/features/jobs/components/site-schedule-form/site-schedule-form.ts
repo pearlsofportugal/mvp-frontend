@@ -24,6 +24,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 import { SitesService } from '../../../../core/services/sites.service';
 import type { SiteConfigRead, SiteConfigScheduleInfo, SiteConfigUpdate } from '../../../../core/api/model';
+import { formatInterval, formatNextRun } from '../../../../core/utils/time.util';
 
 const urlOrEmptyValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const v = (control.value as string)?.trim();
@@ -139,29 +140,8 @@ export class SiteScheduleFormComponent {
     return this.form.controls.schedule_interval_minutes.value === minutes;
   }
 
-  protected formatInterval(minutes: number | null | undefined): string {
-    if (!minutes) return '';
-    if (minutes < 60) return `every ${minutes} minute${minutes !== 1 ? 's' : ''}`;
-    const hours = Math.floor(minutes / 60);
-    const rem = minutes % 60;
-    if (rem === 0) return hours === 1 ? 'every hour' : `every ${hours} hours`;
-    return `every ${hours}h ${rem}min`;
-  }
-
-  protected formatNextRun(isoStr: string | null | undefined): string {
-    if (!isoStr) return 'soon';
-    const date = new Date(isoStr);
-    if (!isPlatformBrowser(this.platformId)) {
-      return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-    const diffMs = date.getTime() - Date.now();
-    const diffMins = Math.round(diffMs / 60_000);
-    if (diffMins < 1) return 'now';
-    if (diffMins < 60) return `in ${diffMins} min`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `in ${diffHours}h`;
-    return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
+  protected readonly formatInterval = formatInterval;
+  protected readonly formatNextRun = formatNextRun;
 
   protected onSubmit(): void {
     const raw = this.form.getRawValue();

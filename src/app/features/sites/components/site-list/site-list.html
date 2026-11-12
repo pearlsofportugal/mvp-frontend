@@ -4,9 +4,9 @@
       <circle cx="12" cy="12" r="10"/>
       <path d="M12 8v4M12 16h.01"/>
     </svg>
-    <h3>No sites configured</h3>
-    <p>Add your first site to start scraping.</p>
-    <button class="btn btn-primary btn-sm" (click)="addSite.emit()">+ Add Site</button>
+    <h3>Ainda não há sites configurados</h3>
+    <p>Adiciona o primeiro site para começar a recolher anúncios.</p>
+    <button class="btn btn-primary btn-sm" (click)="addSite.emit()">+ Adicionar site</button>
   </div>
 } @else {
   <div class="sites-grid">
@@ -19,9 +19,9 @@
           </div>
           <div class="site-status">
             @if (site.is_active) {
-              <span class="badge badge-active">Active</span>
+              <span class="badge badge-active">Ativo</span>
             } @else {
-              <span class="badge badge-inactive">Inactive</span>
+              <span class="badge badge-inactive">Inativo</span>
             }
           </div>
         </div>
@@ -33,16 +33,16 @@
         
         <div class="site-meta">
           <div class="meta-item">
-            <span class="meta-label">Mode</span>
-            <span class="badge badge-{{ site.extraction_mode }}">{{ site.extraction_mode === 'section' ? 'Section' : 'Direct' }}</span>
+            <span class="meta-label">Modo</span>
+            <span class="badge badge-{{ site.extraction_mode }}">{{ site.extraction_mode === 'section' ? 'Por secção' : 'Direto' }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Selectors</span>
-            <span class="meta-value">{{ getSelectorCount(site) }} configured</span>
+            <span class="meta-label">Seletores</span>
+            <span class="meta-value">{{ getSelectorCount(site) }} configurados</span>
           </div>
           @if (site.pagination_type) {
             <div class="meta-item">
-              <span class="meta-label">Pagination</span>
+              <span class="meta-label">Paginação</span>
               <span class="badge badge-section">{{ site.pagination_type }}</span>
             </div>
           }
@@ -51,7 +51,7 @@
         @if (getAverageConfidence(site); as conf) {
           <div class="confidence-wrap">
             <div class="confidence-header">
-              <span class="confidence-label">Selector coverage</span>
+              <span class="confidence-label" title="Média da fiabilidade dos seletores nos últimos anúncios recolhidos">Cobertura dos seletores</span>
               <span class="confidence-value" [class]="getConfidenceClass(conf)">{{ conf }}%</span>
             </div>
             <div class="confidence-bar">
@@ -67,38 +67,38 @@
           <span class="site-updated">{{ formatUpdatedAt(site.updated_at) }}</span>
           @if (site.schedule_enabled) {
             @if (getScheduleInfo(site); as info) {
-              <span class="schedule-badge schedule-on" title="Scheduled scraping active">
-                ⏱ {{ formatInterval(info.schedule_interval_minutes) }} · next {{ formatNextRun(info.next_run_at) }}
+              <span class="schedule-badge schedule-on" title="Recolha agendada ativa">
+                ⏱ {{ formatInterval(info.schedule_interval_minutes) }} · próxima {{ formatNextRun(info.next_run_at) }}
               </span>
             } @else {
-              <span class="schedule-badge schedule-on" title="Scheduled scraping active">
+              <span class="schedule-badge schedule-on" title="Recolha agendada ativa">
                 ⏱ {{ formatInterval(site.schedule_interval_minutes) }}
               </span>
             }
           } @else {
-            <span class="schedule-badge schedule-off">Not scheduled</span>
+            <span class="schedule-badge schedule-off">Sem agendamento</span>
           }
         </div>
 
         <div class="site-actions">
-          <button class="btn btn-outline btn-sm" (click)="onEdit(site)" title="Edit site">
-            <span></span> Edit
+          <button class="btn btn-outline btn-sm" (click)="onEdit(site)" title="Editar site">
+            Editar
           </button>
           @if (site.is_active) {
             @if (pendingDeleteKey() === site.key) {
               <div class="confirm-delete">
-                <span class="confirm-label">Deactivate?</span>
-                <button class="btn btn-danger btn-sm" (click)="onConfirmDelete(site.key)">Yes</button>
-                <button class="btn btn-ghost btn-sm" (click)="onCancelDelete()">No</button>
+                <span class="confirm-label">Desativar este site?</span>
+                <button class="btn btn-danger btn-sm" (click)="onConfirmDelete(site.key)">Sim, desativar</button>
+                <button class="btn btn-ghost btn-sm" (click)="onCancelDelete()">Cancelar</button>
               </div>
             } @else {
-              <button class="btn btn-danger btn-sm" (click)="onRequestDelete(site.key)" title="Deactivate site">
-                <span>X</span>
+              <button class="btn btn-danger btn-sm" (click)="onRequestDelete(site.key)" title="Desativar site" aria-label="Desativar site">
+                Desativar
               </button>
             }
           } @else {
-            <button class="btn btn-outline btn-sm" (click)="onReactivate(site.key)" title="Reactivate site">
-              Reactivate
+            <button class="btn btn-outline btn-sm" (click)="onReactivate(site.key)" title="Reativar site">
+              Reativar
             </button>
           }
         </div>

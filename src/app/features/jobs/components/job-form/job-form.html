@@ -4,25 +4,25 @@
     <div class="step-header">
       <span class="step-num" aria-hidden="true">1</span>
       <div>
-        <p class="step-title">Select site</p>
-        <p class="step-desc">Choose the site configuration to use.</p>
+        <p class="step-title">Escolher o site</p>
+        <p class="step-desc">Escolhe a configuração do site a usar.</p>
       </div>
     </div>
     <div class="form-group">
       <label>Site *</label>
       <app-select-dropdown
         formControlName="site_key"
-        placeholder="Select site"
+        placeholder="Escolher site"
         [options]="siteOptions()"
       />
       @if (form.controls.site_key.invalid && form.controls.site_key.touched) {
-        <span class="field-error" role="alert">Please select a website.</span>
+        <span class="field-error" role="alert">Escolhe um site.</span>
       }
     </div>
 
     @if (selectedSite(); as s) {
       <div class="site-context">
-        <span class="context-label">Base URL</span>
+        <span class="context-label">URL base</span>
         <span class="context-value">{{ s.base_url }}</span>
       </div>
     }
@@ -34,13 +34,13 @@
     <div class="step-header">
       <span class="step-num" aria-hidden="true">2</span>
       <div>
-        <p class="step-title">Listings Page</p>
-        <p class="step-desc">URL where the ad listings are available</p>
+        <p class="step-title">Página de anúncios</p>
+        <p class="step-desc">URL da página onde estão listados os anúncios</p>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="start_url">Listings URL *</label>
+      <label for="start_url">URL da página de anúncios *</label>
       <div class="url-input-row">
         <input
           id="start_url"
@@ -54,8 +54,8 @@
         />
         @if (form.controls.start_url.invalid && form.controls.start_url.touched) {
           <span class="field-error" role="alert">
-            @if (form.controls.start_url.errors?.['required']) { URL is required. }
-            @else { Invalid URL — must start with https:// }
+            @if (form.controls.start_url.errors?.['required']) { O URL é obrigatório. }
+            @else { URL inválido — tem de começar por https:// }
           </span>
         }
         <button
@@ -63,53 +63,52 @@
           class="btn btn-secondary"
           [disabled]="!canPreview()"
           (click)="onPreviewListings()"
-          aria-label="Preview how many ads exist on this page"
+          aria-label="Verificar quantos anúncios existem nesta página"
         >
           @if (previewLoading()) {
-            <app-spinner size="sm" message="Checking"></app-spinner>
+            <app-spinner size="sm" message="A verificar"></app-spinner>
           } @else {
-            Verify ads
+            Verificar anúncios
           }
         </button>
       </div>
       <span id="start_url_hint" class="field-hint">
-        The scraper will analyze this page, count the ads, and access each one individually.
+        O sistema analisa esta página, conta os anúncios e abre cada um individualmente.
       </span>
 
       @if (!listingLinkSelector() && selectedSite()) {
         <p class="field-hint field-hint-warn" role="status">
-          This site does not have a <strong>listing_link_selector</strong> configured — configure it first 
-          to enable preview.
+          Este site não tem o seletor <strong>listing_link_selector</strong> configurado — configura-o primeiro para poder verificar os anúncios.
         </p>
       }
     </div>
 
     @if (previewError()) {
       <p class="preview-error" role="alert">
-        Could not analyze the page. Check the URL and try again.
+        Não foi possível analisar a página. Verifica o URL e tenta novamente.
       </p>
     }
 
     @if (previewResult(); as r) {
-      <div class="preview-result" role="region" aria-live="polite" aria-label="Preview result">
+      <div class="preview-result" role="region" aria-live="polite" aria-label="Resultado da verificação">
         <div class="preview-meta">
           @if (r.matches > 0) {
             <span class="preview-badge preview-badge-ok">
-              {{ r.matches }} ad{{ r.matches === 1 ? '' : 's' }} found
+              {{ r.matches }} {{ r.matches === 1 ? 'anúncio encontrado' : 'anúncios encontrados' }}
             </span>
           } @else {
-            <span class="preview-badge preview-badge-zero">No ads found</span>
-            <span class="preview-warn-text">Check the <strong>listing_link_selector</strong></span>
+            <span class="preview-badge preview-badge-zero">Nenhum anúncio encontrado</span>
+            <span class="preview-warn-text">Verifica o seletor <strong>listing_link_selector</strong></span>
           }
         </div>
 
         @if (r.preview && r.preview.length > 0) {
-          <ul class="preview-urls" aria-label="Examples of found ad URLs">
+          <ul class="preview-urls" aria-label="Exemplos de URLs de anúncios encontrados">
             @for (url of r.preview.slice(0, 4); track url) {
               <li class="preview-url-item" [title]="url">{{ url }}</li>
             }
             @if (r.matches > 4) {
-              <li class="preview-more">+ {{ r.matches - 4 }} more</li>
+              <li class="preview-more">+ {{ r.matches - 4 }} outros</li>
             }
           </ul>
         }
@@ -123,13 +122,13 @@
     <div class="step-header">
       <span class="step-num" aria-hidden="true">3</span>
       <div>
-        <p class="step-title">Settings</p>
-        <p class="step-desc">Scraping limits and parameters</p>
+        <p class="step-title">Definições</p>
+        <p class="step-desc">Limites e parâmetros da recolha</p>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="max_pages">Maximum pages</label>
+      <label for="max_pages">Máximo de páginas</label>
       <input
         id="max_pages"
         formControlName="max_pages"
@@ -139,7 +138,7 @@
         aria-describedby="max_pages_hint"
       />
       <span id="max_pages_hint" class="field-hint">
-        Maximum number of listing pages to crawl (pagination).
+        Número máximo de páginas de resultados a percorrer (paginação).
       </span>
     </div>
   </div>
@@ -153,12 +152,12 @@
       type="submit"
       class="btn btn-primary btn-launch"
       [disabled]="submitting() || form.invalid"
-      aria-label="Start scraping"
+      aria-label="Iniciar recolha"
     >
       @if (submitting()) {
-        <app-spinner size="sm" variant="current" message="Launching"></app-spinner>
+        <app-spinner size="sm" variant="current" message="A iniciar"></app-spinner>
       } @else {
-        Launch Scraping
+        Iniciar recolha
       }
     </button>
   </div>

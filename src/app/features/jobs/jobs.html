@@ -2,8 +2,8 @@
 
   <header class="jobs-header">
     <div>
-      <h1 class="jobs-title">Scrape Jobs</h1>
-      <p class="jobs-subtitle">Launch and monitor real estate data scraping jobs</p>
+      <h1 class="jobs-title">Recolhas de anúncios</h1>
+      <p class="jobs-subtitle">Lança e acompanha as recolhas de anúncios dos sites configurados</p>
     </div>
     @if (activeTab() === 'jobs') {
     <button class="btn btn-ghost btn-sm" type="button" (click)="onJobCreated()" [disabled]="refreshing()" [class.btn--loading]="refreshing()">
@@ -13,12 +13,12 @@
         <polyline points="1 20 1 14 7 14" />
         <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
       </svg>
-      Refresh
+      Atualizar
     </button>
     }
   </header>
 
-  <nav class="jobs-tabs" aria-label="Jobs sections">
+  <nav class="jobs-tabs" aria-label="Secções das recolhas">
     <button type="button" class="tab-btn" [class.tab-btn--active]="activeTab() === 'jobs'"
       (click)="activeTab.set('jobs')" aria-controls="panel-jobs" [attr.aria-selected]="activeTab() === 'jobs'">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -26,9 +26,9 @@
         <rect x="2" y="7" width="20" height="14" rx="2" />
         <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
       </svg>
-      Jobs
+      Recolhas
       @if (jobStats().running > 0) {
-      <span class="tab-badge tab-badge--running">{{ jobStats().running }}</span>
+      <span class="tab-badge tab-badge--running" [title]="jobStats().running + ' em curso ou pendentes'">{{ jobStats().running }}</span>
       }
     </button>
     <button type="button" class="tab-btn" [class.tab-btn--active]="activeTab() === 'schedules'"
@@ -39,21 +39,23 @@
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 6 12 12 16 14" />
       </svg>
-      Schedules
+      Agendamentos
     </button>
   </nav>
 
   @if (activeTab() === 'jobs') {
-  <div id="panel-jobs" role="tabpanel" aria-label="Jobs">
-    @if (initialLoading()) {
-    <app-spinner size="lg" message="Loading jobs"></app-spinner>
+  <div id="panel-jobs" role="tabpanel" aria-label="Recolhas">
+    @if (jobsError()) {
+    <app-error-state title="Não foi possível carregar as recolhas" (retry)="reloadAll()" />
+    } @else if (initialLoading()) {
+    <app-spinner size="lg" message="A carregar recolhas"></app-spinner>
     } @else {
     <div class="jobs-body">
 
       <!-- ── Left: KPI cards + New Job button ─────────────────────── -->
-      <aside class="jobs-kpi-col" aria-label="Job statistics">
+      <aside class="jobs-kpi-col" aria-label="Estatísticas das recolhas">
 
-        <div class="kpi-card" role="status" aria-label="Total jobs: {{ jobStats().total }}">
+        <div class="kpi-card" role="status" aria-label="Total de recolhas: {{ jobStats().total }}">
           <div class="kpi-icon kpi-icon--total" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
@@ -63,11 +65,25 @@
           </div>
           <div class="kpi-data">
             <span class="kpi-value">{{ jobStats().total }}</span>
-            <span class="kpi-label">Total Jobs</span>
+            <span class="kpi-label">Total de recolhas</span>
           </div>
         </div>
 
-        <div class="kpi-card kpi-card--completed" role="status" aria-label="Completed: {{ jobStats().completed }}">
+        <div class="kpi-card" role="status" aria-label="Em curso: {{ jobStats().running }}">
+          <div class="kpi-icon kpi-icon--total" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-value">{{ jobStats().running }}</span>
+            <span class="kpi-label">Em curso ou pendentes</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-card--completed" role="status" aria-label="Concluídas: {{ jobStats().completed }}">
           <div class="kpi-icon kpi-icon--completed" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
               stroke-linecap="round" stroke-linejoin="round">
@@ -76,11 +92,11 @@
           </div>
           <div class="kpi-data">
             <span class="kpi-value kpi-value--completed">{{ jobStats().completed }}</span>
-            <span class="kpi-label">Completed</span>
+            <span class="kpi-label">Concluídas</span>
           </div>
         </div>
 
-        <div class="kpi-card kpi-card--failed" role="status" aria-label="Failed: {{ jobStats().failed }}">
+        <div class="kpi-card kpi-card--failed" role="status" aria-label="Falhadas ou canceladas: {{ jobStats().failed }}">
           <div class="kpi-icon kpi-icon--failed" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
               stroke-linecap="round" stroke-linejoin="round">
@@ -91,7 +107,7 @@
           </div>
           <div class="kpi-data">
             <span class="kpi-value kpi-value--failed">{{ jobStats().failed }}</span>
-            <span class="kpi-label">Failed / Cancelled</span>
+            <span class="kpi-label">Falhadas ou canceladas</span>
           </div>
         </div>
 
@@ -101,7 +117,7 @@
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          New Scrape Job
+          Nova recolha
         </button>
 
       </aside>
@@ -118,9 +134,9 @@
   }
 
   @if (activeTab() === 'schedules') {
-  <div id="panel-schedules" role="tabpanel" aria-label="Schedules">
+  <div id="panel-schedules" role="tabpanel" aria-label="Agendamentos">
     @if (initialLoading()) {
-    <app-spinner size="lg" message="Loading sites"></app-spinner>
+    <app-spinner size="lg" message="A carregar sites"></app-spinner>
     } @else {
     <app-schedules-panel [sites]="sites()" />
     }
@@ -129,31 +145,31 @@
 
 </div>
 
-<app-dialog [open]="!!selectedJob()" title="Job Detail" size="lg" (closed)="onCloseDetail()">
+<app-dialog [open]="!!selectedJob()" title="Detalhe da recolha" size="lg" (closed)="onCloseDetail()">
   @if (selectedJob()) {
   <app-job-detail [job]="selectedJob()!" (refresh)="onRefreshJobDetail()" />
   }
 </app-dialog>
 
 @if (confirmingCancelJobId()) {
-<app-confirm-dialog message="Cancel this job?" confirmLabel="Yes, cancel" cancelLabel="No"
+<app-confirm-dialog message="Cancelar esta recolha?" confirmLabel="Sim, cancelar" cancelLabel="Não"
   (confirmed)="onConfirmCancelJob()" (cancelled)="confirmingCancelJobId.set(null)" />
 }
 @if (confirmingDeleteJobId()) {
-<app-confirm-dialog message="Delete this job permanently?" confirmLabel="Delete" cancelLabel="Cancel" [danger]="true"
+<app-confirm-dialog message="Eliminar esta recolha definitivamente?" confirmLabel="Eliminar" cancelLabel="Cancelar" [danger]="true"
   (confirmed)="onConfirmDeleteJob()" (cancelled)="confirmingDeleteJobId.set(null)" />
 }
 
-<!-- ── New Job sidebar drawer ────────────────────────────────────────────── -->
+<!-- ── Nova recolha: sidebar drawer ────────────────────────────────────────────── -->
 @if (showJobForm()) {
 <div class="sidebar-overlay" (click)="showJobForm.set(false)" aria-hidden="true"></div>
-<aside class="sidebar-drawer" role="complementary" aria-label="New Job Wizard">
+<aside class="sidebar-drawer" role="complementary" aria-label="Assistente de nova recolha">
   <div class="drawer-header">
     <div class="drawer-title-group">
-      <span class="drawer-badge">Wizard</span>
-      <h2 class="drawer-title">New Scrape Job</h2>
+      <span class="drawer-badge">Assistente</span>
+      <h2 class="drawer-title">Nova recolha</h2>
     </div>
-    <button class="drawer-close" type="button" (click)="showJobForm.set(false)" aria-label="Close wizard">
+    <button class="drawer-close" type="button" (click)="showJobForm.set(false)" aria-label="Fechar assistente">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18" />

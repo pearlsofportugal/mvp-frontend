@@ -133,12 +133,12 @@ export class JobDetailComponent {
 
   protected readonly progressPhase = computed<string>(() => {
     const progress = this.displayJob().progress;
-    if (!progress) return 'A iniciar...';
+    if (!progress) return 'A iniciar…';
 
     if ((progress.listings_found ?? 0) <= 0) {
-      return `A descobrir listings (${progress.pages_visited ?? 0} páginas)`;
+      return `A descobrir anúncios (${progress.pages_visited ?? 0} páginas)`;
     }
-    return `A processar ${progress.listings_scraped ?? 0}/${progress.listings_found ?? 0} listings`;
+    return `A processar ${progress.listings_scraped ?? 0}/${progress.listings_found ?? 0} anúncios`;
   });
 
   protected onRefresh(): void {

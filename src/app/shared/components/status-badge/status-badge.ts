@@ -1,5 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
+/** Rótulos em português para os estados do backend (o valor técnico mantém-se nas classes CSS). */
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Pendente',
+  running: 'Em curso',
+  completed: 'Concluído',
+  failed: 'Falhou',
+  cancelled: 'Cancelado',
+  cancelling: 'A cancelar',
+};
+
 @Component({
   selector: 'app-status-badge',
   imports: [],
@@ -23,6 +33,6 @@ export class StatusBadge {
   protected displayText = computed(() => {
     const s = this.status();
     if (!s) return '';
-    return s.charAt(0).toUpperCase() + s.slice(1);
+    return STATUS_LABELS[s] ?? s.charAt(0).toUpperCase() + s.slice(1);
   });
 }

@@ -11,6 +11,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { RealEstateService } from '../../../../core/services/listings.service';
 import { Spinner } from "../../../../shared/components/spinner/spinner";
 import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
+import { safeValue } from '../../../../core/utils/resource.util';
 
 @Component({
   selector: 'app-listings-stats',
@@ -31,7 +32,7 @@ export class ListingsStatsComponent {
   });
 
   // Computed from resource
-  stats = computed(() => this.statsResource.value());
+  stats = computed(() => safeValue(this.statsResource));
   isLoading = computed(() => this.statsResource.isLoading());
 
 

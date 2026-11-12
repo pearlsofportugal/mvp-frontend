@@ -17,20 +17,20 @@
       <line x1="12" y1="12" x2="12" y2="16" />
       <line x1="10" y1="14" x2="14" y2="14" />
     </svg>
-    <p class="empty-title">No jobs yet</p>
-    <p class="empty-desc">Launch your first scrape job using the form on the left.</p>
+    <p class="empty-title">Ainda não há recolhas</p>
+    <p class="empty-desc">Lança a primeira recolha com o botão «Nova recolha».</p>
   </div>
 } @else {
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Job</th>
-          <th>Status</th>
-          <th>Progress</th>
-          <th>Errors</th>
-          <th>Started</th>
-          <th aria-label="Actions"></th>
+          <th>Recolha</th>
+          <th>Estado</th>
+          <th>Progresso</th>
+          <th>Erros</th>
+          <th>Início</th>
+          <th aria-label="Ações"></th>
         </tr>
       </thead>
       <tbody>
@@ -38,7 +38,7 @@
           <tr>
             <td>
               <span class="job-site">{{ job.site_key }}</span>
-              <span class="job-id">{{ job.id.slice(0, 8) }}&hellip;</span>
+              <span class="job-id" [title]="job.id">{{ job.id.slice(0, 8) }}&hellip;</span>
             </td>
             <td>
               <div class="status-cell">
@@ -49,18 +49,18 @@
               @if (job.progress) {
                 <div class="progress-cell">
                   <span class="progress-nums">
-                    <span title="Pages visited">{{ job.progress.pages_visited ?? 0 }} pg</span>
+                    <span title="Páginas visitadas">{{ job.progress.pages_visited ?? 0 }} pág.</span>
                     <span class="prog-sep">&middot;</span>
-                    <span title="Listings found">{{ job.progress.listings_found ?? 0 }} found</span>
+                    <span title="Anúncios encontrados">{{ job.progress.listings_found ?? 0 }} encontrados</span>
                     <span class="prog-sep">&middot;</span>
-                    <span title="Listings saved">{{ job.progress.listings_scraped ?? 0 }} saved</span>
+                    <span title="Anúncios guardados">{{ job.progress.listings_scraped ?? 0 }} guardados</span>
                   </span>
                   
                   <div class="inline-progress" role="progressbar"
                     [attr.aria-valuenow]="getJobProgressPercentage(job)"
                     [attr.aria-valuemin]="0"
                     [attr.aria-valuemax]="100"
-                    aria-label="Scrape progress">
+                    aria-label="Progresso da recolha">
                     <div class="inline-progress-fill"
                       [class.inline-progress-fill--running]="job.status === 'running'"
                       [style.width.%]="getJobProgressPercentage(job)">
@@ -76,12 +76,12 @@
                 {{ job.progress?.errors ?? 0 }}
               </span>
             </td>
-            <td>{{ job.started_at | formatDate }}</td>
+            <td>{{ job.started_at | formatDate:{ hour: '2-digit', minute: '2-digit' } }}</td>
             <td class="td-actions">
               <div class="menu-wrap" [class.row-active]="openMenuId() === job.id">
                 <app-context-menu>
                   <button class="dropdown-item" role="menuitem" type="button" (click)="onView(job)">
-                    View detail
+                    Ver detalhe
                   </button>
                   @if (job.status === 'running' || job.status === 'pending') {
                     <button
@@ -90,7 +90,7 @@
                       type="button"
                       (click)="onCancel(job.id)"
                     >
-                      Cancel job
+                      Cancelar recolha
                     </button>
                   }
                   <button
@@ -99,7 +99,7 @@
                     type="button"
                     (click)="onDelete(job.id)"
                   >
-                    Delete
+                    Eliminar
                   </button>
                 </app-context-menu>
               </div>

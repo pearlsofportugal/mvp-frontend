@@ -15,10 +15,12 @@ import { SitesService } from '../../core/services/sites.service';
 import type { SiteConfigRead, SiteConfigScheduleInfo } from '../../core/api/model';
 import { SiteListComponent } from './components/site-list/site-list';
 import { Spinner } from "../../shared/components/spinner/spinner";
+import { safeValue } from '../../core/utils/resource.util';
+import { ErrorStateComponent } from '../../shared/components/error-state/error-state';
 
 @Component({
   selector: 'app-sites',
-  imports: [SiteListComponent, Spinner],
+  imports: [SiteListComponent, Spinner, ErrorStateComponent],
   templateUrl: './sites.html',
   styleUrl: './sites.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,7 +38,11 @@ export class SitesComponent {
   });
 
   protected readonly sites = computed<SiteConfigRead[]>(
-    () => this.sitesResource.value() ?? []
+    () => safeValue(this.sitesResource) ?? []
+  );
+
+  protected readonly hasError = computed<boolean>(
+    () => !!this.sitesResource.error() && !this.sitesResource.hasValue()
   );
 
   protected readonly loading = computed<boolean>(

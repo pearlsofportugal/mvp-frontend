@@ -5,6 +5,7 @@ import { HealthService } from '../../core/services/health.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { NAV_ROUTES } from '../../app.routes';
 import { PollingService } from '../../core/services/polling-service';
+import { safeValue } from '../../core/utils/resource.util';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +26,7 @@ export class HeaderComponent {
   });
 
   protected readonly isHealthy = computed(
-    () => this.healthResource.value()?.status === 'healthy',
+    () => safeValue(this.healthResource)?.status === 'healthy',
   );
   protected readonly healthText = computed(() => (this.isHealthy() ? 'Online' : 'Offline'));
 }
