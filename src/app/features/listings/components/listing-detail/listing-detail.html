@@ -209,21 +209,5 @@ realEstate().latitude) {
 
 <!-- Actions -->
 <div class="detail-actions">
-  <div class="imodigi-export">
-    @if (lastExport(); as ex) {
-
-    <app-status-badge variant="export" [status]="ex.status" label="Imodigi"
-      [reference]="ex.imodigi_reference ?? undefined" /> }
-    @if (storeOptions().length > 0) {
-    <app-select-dropdown [formControl]="storeControl" [options]="storeOptions()" placeholder="Default store" />
-    }
-    <button class="btn btn-outline btn-sm" [disabled]="exporting()" (click)="onExportToImodigi()">
-      @if (exporting()) {
-      <app-spinner size="sm" message="Exporting"></app-spinner>
-      } @else {
-      {{ lastExport() ? 'Re-export to Imodigi' : 'Export to Imodigi' }}
-      }
-    </button>
-  </div>
   <button class="btn btn-danger btn-sm" (click)="onDelete()">Delete listing</button>
 </div>

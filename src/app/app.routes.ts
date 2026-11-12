@@ -12,7 +12,6 @@ export const NAV_ROUTES: NavRoute[] = [
   { path: '/jobs', label: 'Recolhas' },
   { path: '/real-estate', label: 'Anúncios' },
   { path: '/enhancement', label: 'Enriquecimento IA' },
-  { path: '/imodigi', label: 'Imodigi' },
   { path: '/export', label: 'Exportar' },
 ];
 
@@ -70,12 +69,6 @@ export const routes: Routes = [
       import('./features/enhancement/enhancement').then(
         (m) => m.EnhancementComponent
       ),
-  },
-  {
-    path: 'imodigi',
-    title: `Imodigi — ${projectName}`,
-    loadComponent: () =>
-      import('./features/imodigi/imodigi').then((m) => m.ImodigiComponent),
   },
   {
     path: 'export',

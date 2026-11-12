@@ -16,7 +16,7 @@ flowchart TD
 
     DC --> SORT[sortColumn / sortDir\nsignal]
     SORT --> P[partners computed\nsort local]
-    P --> TBL[Tabela de Parceiros\ntotal · updated · avg_price\nenriched · imodigi · last_job]
+    P --> TBL[Tabela de Parceiros\ntotal · updated · avg_price\nenriched · last_job]
     TBL -->|click cabeçalho| SORT
 ```
 
@@ -180,29 +180,6 @@ flowchart TD
 
 ---
 
-## 7. Imodigi (Publicação)
-
-```mermaid
-flowchart TD
-    IC[ImodigiComponent]
-
-    IC -->|rxResource| STR[ImodigiService.listStores]
-    STR -->|GET /imodigi/stores| API[(API)]
-    STR --> OPTS[storeOptions computed\nSelectDropdownComponent]
-    OPTS -->|storeControl FormControl| SEL[selectedStore computed]
-
-    IC --> LSC[ListingSelectorComponent\npesquisar e selecionar anúncios]
-    LSC -->|onListingsConfirmed| SLS[selectedListings signal]
-
-    SEL & SLS --> PF[ImodigiPublishFormComponent\nstore · listings selecionados]
-
-    PF -->|POST /imodigi/publish| API
-    API -->|PublishResult\n✓ sucesso por listing| PF
-    PF -->|resultado inline| IC
-```
-
----
-
 ## Visão Global — Routing
 
 ```mermaid
@@ -214,7 +191,6 @@ flowchart LR
     H -->|/real-estate| LISTINGS[Listings]
     H -->|/enhancement| ENH[Enhancement]
     H -->|/export| EXPORT[Export]
-    H -->|/imodigi| IMO[Imodigi]
 
     subgraph Cross-cutting
         AK[apiKeyInterceptor\nX-API-Key em todos os requests]

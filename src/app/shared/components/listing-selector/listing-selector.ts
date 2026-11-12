@@ -28,7 +28,7 @@ import { Spinner } from "../spinner/spinner";
 import { FormatPricePipe } from "../../pipes/format-price-pipe";
 
 export type SortOption = 'title' | 'price_asc' | 'price_desc';
-export type FilterOption = 'all' | 'enriched' | 'not_enriched' | 'exported' | 'not_exported' | string;
+export type FilterOption = 'all' | 'enriched' | 'not_enriched' | string;
 
 const PAGE_SIZE = 20;
 
@@ -86,12 +86,10 @@ export class ListingSelectorComponent {
 
   // ── Filters & sort ────────────────────────────────────────────
   protected readonly activeEnrichedFilter = signal<'enriched' | 'not_enriched' | null>(null);
-  protected readonly activeExportedFilter = signal<'exported' | 'not_exported' | null>(null);
   protected readonly activeSourceFilter = signal<string | null>(null);
   protected readonly isAllActive = computed(
     () =>
       this.activeEnrichedFilter() === null &&
-      this.activeExportedFilter() === null &&
       this.activeSourceFilter() === null,
   );
   protected readonly activeSort = signal<SortOption>('title');
@@ -141,15 +139,12 @@ export class ListingSelectorComponent {
   });
 
   // ── Filter → API params ───────────────────────────────────────
-  private filterToParams(): { is_enriched?: boolean; is_exported_to_imodigi?: boolean; source_partner?: string } {
-    const params: { is_enriched?: boolean; is_exported_to_imodigi?: boolean; source_partner?: string } = {};
+  private filterToParams(): { is_enriched?: boolean; source_partner?: string } {
+    const params: { is_enriched?: boolean; source_partner?: string } = {};
     const enriched = this.activeEnrichedFilter();
-    const exported_ = this.activeExportedFilter();
     const source = this.activeSourceFilter();
     if (enriched === 'enriched') params.is_enriched = true;
     else if (enriched === 'not_enriched') params.is_enriched = false;
-    if (exported_ === 'exported') params.is_exported_to_imodigi = true;
-    else if (exported_ === 'not_exported') params.is_exported_to_imodigi = false;
     if (source) params.source_partner = source;
     return params;
   }
@@ -318,12 +313,9 @@ this.realEstateService.getSourcePartners().subscribe({
   protected setFilter(filter: FilterOption): void {
     if (filter === 'all') {
       this.activeEnrichedFilter.set(null);
-      this.activeExportedFilter.set(null);
       this.activeSourceFilter.set(null);
     } else if (filter === 'enriched' || filter === 'not_enriched') {
       this.activeEnrichedFilter.update((v) => (v === filter ? null : filter));
-    } else if (filter === 'exported' || filter === 'not_exported') {
-      this.activeExportedFilter.update((v) => (v === filter ? null : filter));
     } else {
       // source partner — toggle
       this.activeSourceFilter.update((v) => (v === filter ? null : filter));
