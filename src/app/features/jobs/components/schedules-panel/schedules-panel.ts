@@ -8,6 +8,7 @@ import {
 import type { SiteConfigRead } from '../../../../core/api/model';
 import { AppDialogComponent } from '../../../../shared/components/dialog/dialog';
 import { SiteScheduleFormComponent } from '../site-schedule-form/site-schedule-form';
+import { formatInterval } from '../../../../core/utils/time.util';
 
 @Component({
   selector: 'app-schedules-panel',
@@ -49,12 +50,5 @@ export class SchedulesPanelComponent {
     this.editingSite.set(null);
   }
 
-  protected formatInterval(minutes: number | null | undefined): string {
-    if (!minutes) return '';
-    if (minutes < 60) return `every ${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    const rem = minutes % 60;
-    if (rem === 0) return `every ${hours}h`;
-    return `every ${hours}h ${rem}m`;
-  }
+  protected readonly formatInterval = formatInterval;
 }

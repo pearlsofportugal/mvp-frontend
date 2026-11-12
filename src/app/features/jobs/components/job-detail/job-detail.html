@@ -7,25 +7,25 @@
         <line x1="12" y1="9" x2="12" y2="13"/>
         <line x1="12" y1="17" x2="12.01" y2="17"/>
       </svg>
-      Stream unavailable: {{ streamError() }}. Progress updates continue via polling.
+      Atualização em tempo real indisponível: {{ streamError() }}. Usa «Atualizar» para ver o progresso.
     </div>
   }
 
   @if (displayJob(); as job) {
     <div class="detail-toolbar">
       @if (streaming()) {
-        <span class="live-badge" title="Receiving real-time updates">
+        <span class="live-badge" title="A receber atualizações em tempo real">
 
-          live
+          em direto
         </span>
       } @else {
-        <button class="btn btn-ghost btn-sm" type="button" (click)="onRefresh()" title="Refresh job data">
+        <button class="btn btn-ghost btn-sm" type="button" (click)="onRefresh()" title="Atualizar dados da recolha">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="23 4 23 10 17 10"/>
             <polyline points="1 20 1 14 7 14"/>
             <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
           </svg>
-          Refresh
+          Atualizar
         </button>
       }
     </div>
@@ -47,7 +47,7 @@
       <dt>Site</dt>
       <dd>{{ job.site_key }}</dd>
 
-      <dt>Status</dt>
+      <dt>Estado</dt>
       <dd>
         <app-status-badge [status]="job.status"></app-status-badge>
       </dd>
@@ -55,36 +55,36 @@
       <dt>URL</dt>
       <dd class="cell-truncate">{{ job.start_url }}</dd>
 
-      <dt>Max pages</dt>
+      <dt>Máx. de páginas</dt>
       <dd>{{ job.max_pages }}</dd>
 
-      <dt>Pages visited</dt>
+      <dt>Páginas visitadas</dt>
       <dd>{{ job.progress?.pages_visited ?? '-' }}</dd>
 
-      <dt>Listings found</dt>
+      <dt>Anúncios encontrados</dt>
       <dd>{{ job.progress?.listings_found ?? '-' }}</dd>
 
-      <dt>Listings saved</dt>
+      <dt>Anúncios guardados</dt>
       <dd>{{ job.progress?.listings_scraped ?? '-' }}</dd>
 
-      <dt>Errors</dt>
+      <dt>Erros</dt>
       <dd>{{ job.progress?.errors ?? '-' }}</dd>
 
-      <dt>Started</dt>
+      <dt>Início</dt>
       <dd>{{ job.started_at | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
 
-      <dt>Finished</dt>
+      <dt>Fim</dt>
       <dd>{{ job.completed_at ? (job.completed_at | date:'dd/MM/yyyy HH:mm:ss') : '-' }}</dd>
 
       @if (job.error_message) {
-        <dt>Error</dt>
+        <dt>Erro</dt>
         <dd class="cell-error">{{ job.error_message }}</dd>
       }
     </dl>
 
     @if (job.logs && job.logs.length > 0) {
       <section class="detail-section">
-        <h3 class="section-title">Logs <span class="section-count">({{ job.logs.length }})</span></h3>
+        <h3 class="section-title">Registo <span class="section-count">({{ job.logs.length }})</span></h3>
         <ul class="log-list">
           @for (entry of job.logs; track entry.timestamp) {
             <li class="log-entry" [class.log-entry--warning]="entry.level === 'warning'" [class.log-entry--error]="entry.level === 'error'">
@@ -108,23 +108,23 @@
         <div class="url-stats">
           <div class="url-stat">
             <span class="url-stat-value">{{ job.urls.discovered?.length ?? 0 }}</span>
-            <span class="url-stat-label">Discovered</span>
+            <span class="url-stat-label">Descobertos</span>
           </div>
           <div class="url-stat url-stat--visited">
             <span class="url-stat-value">{{ job.urls.visited?.length ?? 0 }}</span>
-            <span class="url-stat-label">Visited</span>
+            <span class="url-stat-label">Visitados</span>
           </div>
           @if ((job.urls.failed?.length ?? 0) > 0) {
             <div class="url-stat url-stat--failed">
               <span class="url-stat-value">{{ job.urls.failed!.length }}</span>
-              <span class="url-stat-label">Failed</span>
+              <span class="url-stat-label">Falhados</span>
             </div>
           }
         </div>
 
         @if ((job.urls.failed?.length ?? 0) > 0) {
           <div class="url-group">
-            <p class="url-group-title">Failed URLs</p>
+            <p class="url-group-title">URLs com falha</p>
             <ul class="url-list url-list--failed">
               @for (url of job.urls.failed!; track url) {
                 <li class="url-item">

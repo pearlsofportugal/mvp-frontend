@@ -9,18 +9,18 @@
           <polyline points="12 6 12 12 16 14"/>
         </svg>
         <div class="banner-text">
-          <strong>Scheduling active</strong>
-          <span>Runs {{ formatInterval(info.schedule_interval_minutes) }}@if (info.next_run_at) { · next {{ formatNextRun(info.next_run_at) }}}</span>
+          <strong>Agendamento ativo</strong>
+          <span>Executa {{ formatInterval(info.schedule_interval_minutes) }}@if (info.next_run_at) { · próxima {{ formatNextRun(info.next_run_at) }}}</span>
         </div>
       </div>
     }
   }
 
   <!-- Toggle -->
-  <div class="toggle-row" (click)="toggleEnabled()" role="switch" [attr.aria-checked]="scheduleEnabled()" tabindex="0" (keydown.space)="toggleEnabled(); $event.preventDefault()" aria-label="Enable scheduled scraping">
+  <div class="toggle-row" (click)="toggleEnabled()" role="switch" [attr.aria-checked]="scheduleEnabled()" tabindex="0" (keydown.space)="toggleEnabled(); $event.preventDefault()" aria-label="Ativar recolha agendada">
     <div class="toggle-info">
-      <span class="toggle-title">Enable scheduled scraping</span>
-      <span class="toggle-desc">Automatically run scrape jobs at a fixed interval</span>
+      <span class="toggle-title">Ativar recolha agendada</span>
+      <span class="toggle-desc">Executa recolhas automaticamente a intervalos fixos</span>
     </div>
     <div class="toggle-switch" aria-hidden="true">
       <input id="sf_schedule_enabled" type="checkbox" formControlName="schedule_enabled" class="toggle-input" tabindex="-1" />
@@ -34,10 +34,10 @@
     <div class="schedule-fields">
 
       <!-- RECURRENCE -->
-      <p class="section-label">Recurrence</p>
+      <p class="section-label">Frequência</p>
 
       <div class="form-group">
-        <div class="preset-row" role="group" aria-label="Quick interval presets">
+        <div class="preset-row" role="group" aria-label="Frequências habituais">
           @for (preset of presetIntervals; track preset.minutes) {
             <button
               type="button"
@@ -55,7 +55,7 @@
             min="1"
             step="1"
             formControlName="schedule_interval_minutes"
-            placeholder="e.g. 360"
+            placeholder="ex.: 360 (minutos)"
             [class.error]="form.controls.schedule_interval_minutes.invalid && form.controls.schedule_interval_minutes.touched"
           />
           @if (intervalLabel()) {
@@ -65,30 +65,30 @@
         @if (form.controls.schedule_interval_minutes.invalid && form.controls.schedule_interval_minutes.touched) {
           <span class="field-error" role="alert">
             @if (form.controls.schedule_interval_minutes.errors?.['required']) {
-              Interval is required when scheduling is enabled.
+              Indica o intervalo (em minutos) para ativar o agendamento.
             } @else {
-              Must be a whole number ≥ 1.
+              Tem de ser um número inteiro ≥ 1.
             }
           </span>
         }
       </div>
 
       <!-- TIMING -->
-      <p class="section-label">Timing</p>
+      <p class="section-label">Início</p>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="sf_schedule_start_at">First run at</label>
+          <label for="sf_schedule_start_at">Primeira execução em</label>
           <input
             id="sf_schedule_start_at"
             type="datetime-local"
             formControlName="schedule_start_at"
           />
-          <span class="field-hint">Leave blank to start immediately.</span>
+          <span class="field-hint">Deixa em branco para começar de imediato.</span>
         </div>
 
         <div class="form-group">
-          <label for="sf_schedule_timezone">Timezone</label>
+          <label for="sf_schedule_timezone">Fuso horário</label>
           <select id="sf_schedule_timezone" formControlName="schedule_timezone">
             @for (tz of commonTimezones; track tz) {
               <option [value]="tz">{{ tz }}</option>
@@ -107,28 +107,28 @@
         <svg class="chevron" [class.chevron--open]="showAdvanced()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="6 9 12 15 18 9"/>
         </svg>
-        Advanced options
+        Opções avançadas
       </button>
 
       @if (showAdvanced()) {
         <div class="advanced-fields">
           <div class="form-group">
-            <label for="sf_schedule_start_url">Start URL <span class="label-optional">optional</span></label>
+            <label for="sf_schedule_start_url">URL inicial <span class="label-optional">opcional</span></label>
             <input
               id="sf_schedule_start_url"
               type="url"
               formControlName="schedule_start_url"
-              placeholder="Uses site base URL"
+              placeholder="Usa o URL base do site"
               [class.error]="form.controls.schedule_start_url.invalid && form.controls.schedule_start_url.touched"
             />
             @if (form.controls.schedule_start_url.invalid && form.controls.schedule_start_url.touched) {
-              <span class="field-error" role="alert">Must be a valid http/https URL.</span>
+              <span class="field-error" role="alert">Tem de ser um URL http/https válido.</span>
             }
-            <span class="field-hint">Overrides site base URL for scheduled runs (e.g. sorted by newest).</span>
+            <span class="field-hint">Substitui o URL base nas recolhas agendadas (ex.: ordenado por mais recentes).</span>
           </div>
 
           <div class="form-group">
-            <label for="sf_schedule_max_pages">Max pages per run <span class="label-optional">optional · 1–500</span></label>
+            <label for="sf_schedule_max_pages">Máx. de páginas por execução <span class="label-optional">opcional · 1–500</span></label>
             <input
               id="sf_schedule_max_pages"
               type="number"
@@ -136,11 +136,11 @@
               max="500"
               step="1"
               formControlName="schedule_max_pages"
-              placeholder="Uses server default"
+              placeholder="Usa o valor por omissão"
               [class.error]="form.controls.schedule_max_pages.invalid && form.controls.schedule_max_pages.touched"
             />
             @if (form.controls.schedule_max_pages.invalid && form.controls.schedule_max_pages.touched) {
-              <span class="field-error" role="alert">Must be a whole number between 1 and 500.</span>
+              <span class="field-error" role="alert">Tem de ser um número inteiro entre 1 e 500.</span>
             }
           </div>
         </div>
@@ -151,14 +151,14 @@
 
   <div class="form-actions">
     <button type="button" class="btn btn-ghost" (click)="onCancel()" [disabled]="submitting()">
-      Cancel
+      Cancelar
     </button>
     <button type="submit" class="btn btn-primary" [disabled]="submitting()">
       @if (submitting()) {
         <span class="spinner" aria-hidden="true"></span>
-        Saving…
+        A guardar…
       } @else {
-        Save Schedule
+        Guardar agendamento
       }
     </button>
   </div>

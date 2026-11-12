@@ -1,17 +1,17 @@
 <div class="export-page">
 	<header class="page-header">
 		<div>
-			<h1 class="page-title">Export Data</h1>
-			<p class="page-subtitle">Filter listings and download them in your preferred format.</p>
+			<h1 class="page-title">Exportar anúncios</h1>
+			<p class="page-subtitle">Filtra os anúncios e descarrega-os no formato que preferires.</p>
 		</div>
 	</header>
 
 	<div class="export-layout">
 		<aside class="card filter-panel">
 			<div class="filter-panel-head">
-				<span class="panel-eyebrow">Export</span>
-				<h2 class="panel-title">Filter listings</h2>
-				<p class="panel-desc">Narrow down which listings to include in the exported file.</p>
+				<span class="panel-eyebrow">Passo 1</span>
+				<h2 class="panel-title">Escolhe os anúncios</h2>
+				<p class="panel-desc">Define que anúncios entram no ficheiro. Sem filtros, exporta todos.</p>
 			</div>
 			<app-export-form #exportForm />
 		</aside>
@@ -19,25 +19,34 @@
 		<main class="download-column">
 			<div class="card preview-card">
 				<div class="section-head">
-					<h3 class="section-title">Preview</h3>
+					<h3 class="section-title">Pré-visualização</h3>
 				</div>
-				@if (exportForm.previewCount(); as r) {
-					<div class="count-stat">
-						<span class="count-value">{{ r.meta.total ?? 0 }}</span>
-						<span class="count-label">listings match your filters</span>
-					</div>
-				} @else {
-					<div class="count-stat">
-						<span class="count-value count-value--dim">—</span>
-						<span class="count-label">Counting…</span>
-					</div>
+				@switch (exportForm.preview().status) {
+					@case ('ok') {
+						<div class="count-stat">
+							<span class="count-value">{{ exportForm.previewTotal() }}</span>
+							<span class="count-label">{{ exportForm.previewTotal() === 1 ? 'anúncio corresponde' : 'anúncios correspondem' }} aos filtros</span>
+						</div>
+					}
+					@case ('error') {
+						<div class="count-stat" role="alert">
+							<span class="count-value count-value--dim">—</span>
+							<span class="count-label">Não foi possível contar os anúncios. Podes exportar na mesma.</span>
+						</div>
+					}
+					@default {
+						<div class="count-stat">
+							<span class="count-value count-value--dim">—</span>
+							<span class="count-label">A contar…</span>
+						</div>
+					}
 				}
 			</div>
 
 			<div class="card formats-card">
 				<div class="section-head">
-					<h3 class="section-title">Download</h3>
-					<p class="section-desc">Choose a file format to export the filtered listings.</p>
+					<h3 class="section-title">Passo 2 · Descarregar</h3>
+					<p class="section-desc">Escolhe o formato do ficheiro.</p>
 				</div>
 				<div class="formats-grid">
 					<button class="format-btn format-btn--csv" type="button" (click)="exportForm.exportData('csv')">

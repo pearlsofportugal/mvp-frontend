@@ -1,8 +1,8 @@
 <div class="enhancement-page">
   <header class="page-header">
     <div class="page-header-text">
-      <h1 class="page-title">AI Enhancement</h1>
-      <p class="page-subtitle">Enrich property listings with AI-generated, SEO-optimised content</p>
+      <h1 class="page-title">Enriquecimento com IA</h1>
+      <p class="page-subtitle">Gera descrições e traduções otimizadas para SEO com IA para os teus anúncios</p>
     </div>
   </header>
 
@@ -19,7 +19,7 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
       </svg>
-      Enrich
+      Enriquecer
     </button>
     <button
       type="button"
@@ -34,7 +34,7 @@
         <line x1="12" y1="20" x2="12" y2="4" />
         <line x1="6" y1="20" x2="6" y2="14" />
       </svg>
-      Stats
+      Estatísticas
     </button>
   </div>
 
@@ -49,10 +49,10 @@
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          Select properties
+          Escolher anúncios
         </span>
         @if (selectedCount() > 0) {
-          <span class="selector-count">{{ selectedCount() }} selected</span>
+          <span class="selector-count">{{ selectedCount() }} selecionados</span>
         }
       </div>
       <app-listing-selector [multiMode]="true" (listingsConfirmed)="onListingsConfirmed($event)" />
@@ -64,7 +64,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
         </svg>
-        <p>Select one property to preview and edit translations, or multiple properties for bulk processing.</p>
+        <p>Escolhe um anúncio para pré-visualizar e editar as traduções, ou vários para processar em lote.</p>
       </div>
 
     } @else if (selectedCount() === 1) {
@@ -77,9 +77,9 @@
               <path d="M2 12h3M19 12h3M12 2v3M12 19v3" />
               <path d="M7.76 7.76l1.41 1.41M14.83 14.83l1.41 1.41M7.76 16.24l1.41-1.41M14.83 9.17l1.41-1.41" />
             </svg>
-            Translate & Preview
+            Traduzir e pré-visualizar
           </h2>
-          <p class="section-desc">Generate multi-locale SEO content, review and edit before applying.</p>
+          <p class="section-desc">Gera conteúdo SEO em vários idiomas, revê e edita antes de aplicar.</p>
         </div>
         <app-translation-panel [listingId]="selectedListingId()" />
       </div>
@@ -92,16 +92,16 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
-            Bulk Enrich
+            Enriquecimento em lote
           </h2>
-          <p class="section-desc">Enrich {{ selectedCount() }} properties at once. Changes are applied immediately without preview.</p>
+          <p class="section-desc">Enriquece {{ selectedCount() }} anúncios de uma vez. As alterações são aplicadas de imediato, sem pré-visualização.</p>
         </div>
         @if (result(); as r) {
           <div class="last-run-badge">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            Last run: {{ r.total_enriched }} changed · {{ r.duration_seconds | number:'1.1-1' }}s
+            Última execução: {{ r.total_enriched }} alterados · {{ r.duration_seconds | number:'1.1-1' }} s
           </div>
         }
         <app-enrichment-form [listings]="selectedListings()" (success)="onEnrichmentSuccess($event)" />
@@ -119,10 +119,10 @@
             <line x1="12" y1="20" x2="12" y2="4" />
             <line x1="6" y1="20" x2="6" y2="14" />
           </svg>
-          Enhancement overview
+          Resumo do enriquecimento
         </h2>
         <button class="btn-icon" type="button" (click)="reloadStats()" [disabled]="statsLoading()"
-          [class.spinning]="statsLoading()" aria-label="Refresh stats">
+          [class.spinning]="statsLoading()" aria-label="Atualizar estatísticas">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="23 4 23 10 17 10" />
             <polyline points="1 20 1 14 7 14" />
@@ -132,7 +132,7 @@
       </div>
       @switch (statsViewState()) {
         @case ('loading') {
-          <app-spinner size="md" message="Loading overview"></app-spinner>
+          <app-spinner size="md" message="A carregar resumo"></app-spinner>
         }
         @case ('error') {
           <p class="error-msg">{{ statsError() }}</p>
@@ -141,7 +141,7 @@
           <app-enrichment-stats [stats]="stats()!" />
         }
         @default {
-          <p class="empty-state">No overview data yet.</p>
+          <p class="empty-state">Ainda não há dados de resumo.</p>
         }
       }
     </div>

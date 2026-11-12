@@ -40,6 +40,11 @@ getSourcePartners(): Observable<string[]> {
     .listSourcePartners()
     .pipe(map((r) => r.data ?? []));
 }
+  /** Valores válidos de `property_type` e `typology` (vocabulário fechado do backend). */
+  getVocabularies(): Observable<Record<string, string[]>> {
+    return this.api.listingVocabularies().pipe(map((r) => r.data ?? {}));
+  }
+
   getListingStats(sourcePartner?: string): Observable<ListingStats> {
     return this.api
       .listingStats(

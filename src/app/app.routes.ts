@@ -7,13 +7,13 @@ export interface NavRoute {
 }
 
 export const NAV_ROUTES: NavRoute[] = [
-  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/dashboard', label: 'Painel' },
   { path: '/sites', label: 'Sites' },
-  { path: '/jobs', label: 'Jobs' },
-  { path: '/real-estate', label: 'Real Estate' },
-  { path: '/enhancement', label: 'Enhancement' },
+  { path: '/jobs', label: 'Recolhas' },
+  { path: '/real-estate', label: 'Anúncios' },
+  { path: '/enhancement', label: 'Enriquecimento IA' },
   { path: '/imodigi', label: 'Imodigi' },
-  { path: '/export', label: 'Export' },
+  { path: '/export', label: 'Exportar' },
 ];
 
 export const routes: Routes = [
@@ -24,7 +24,7 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    title: `Dashboard — ${projectName}`,
+    title: `Painel — ${projectName}`,
     loadComponent: () =>
       import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
   },
@@ -39,13 +39,13 @@ export const routes: Routes = [
       },
       {
         path: 'new',
-        title: `New Site — ${projectName}`,
+        title: `Novo site — ${projectName}`,
         loadComponent: () =>
           import('./features/sites/wizard/site-wizard').then((m) => m.SiteWizardComponent),
       },
       {
         path: ':key/edit',
-        title: `Edit Site — ${projectName}`,
+        title: `Editar site — ${projectName}`,
         loadComponent: () =>
           import('./features/sites/wizard/site-wizard').then((m) => m.SiteWizardComponent),
       },
@@ -53,19 +53,19 @@ export const routes: Routes = [
   },
   {
     path: 'jobs',
-    title: `Jobs — ${projectName}`,
+    title: `Recolhas — ${projectName}`,
     loadComponent: () =>
       import('./features/jobs/jobs').then((m) => m.JobsComponent),
   },
   {
     path: 'real-estate',
-    title: `Real Estate — ${projectName}`,
+    title: `Anúncios — ${projectName}`,
     loadComponent: () =>
       import('./features/listings/listings').then((m) => m.ListingsComponent),
   },
   {
     path: 'enhancement',
-    title: `Enhancement — ${projectName}`,
+    title: `Enriquecimento IA — ${projectName}`,
     loadComponent: () =>
       import('./features/enhancement/enhancement').then(
         (m) => m.EnhancementComponent
@@ -79,7 +79,7 @@ export const routes: Routes = [
   },
   {
     path: 'export',
-    title: `Export — ${projectName}`,
+    title: `Exportar — ${projectName}`,
     loadComponent: () =>
       import('./features/export/export').then((m) => m.ExportComponent),
   },

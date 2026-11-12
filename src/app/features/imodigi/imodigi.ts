@@ -13,6 +13,7 @@ import { ListingSelectorComponent } from '../../shared/components/listing-select
 import { ImodigiPublishFormComponent } from './components/imodigi-publish-form/imodigi-publish-form';
 import { SelectDropdownComponent, type SelectOption } from '../../shared/components/select-dropdown/select-dropdown';
 import { Spinner } from '../../shared/components/spinner/spinner';
+import { safeValue } from '../../core/utils/resource.util';
 
 @Component({
   selector: 'app-imodigi',
@@ -32,7 +33,7 @@ export class ImodigiComponent {
     stream: () => this.imodigiService.listStores(),
   });
 
-  protected readonly stores = computed<ImodigiStoreRead[]>(() => this.storesResource.value() ?? []);
+  protected readonly stores = computed<ImodigiStoreRead[]>(() => safeValue(this.storesResource) ?? []);
 
   protected readonly storeOptions = computed<SelectOption[]>(() =>
     this.stores().map((s) => ({ value: String(s.id), label: s.name }))

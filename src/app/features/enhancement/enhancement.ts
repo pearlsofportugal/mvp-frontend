@@ -10,6 +10,7 @@ import { DecimalPipe } from '@angular/common';
 import { Spinner } from '../../shared/components/spinner/spinner';
 import { ListingSelectorComponent } from '../../shared/components/listing-selector/listing-selector';
 import type { ListingSearchItem } from '../../core/api/model';
+import { safeValue } from '../../core/utils/resource.util';
 
 type Tab = 'enrich' | 'stats';
 
@@ -42,7 +43,7 @@ export class EnhancementComponent {
     stream: () => this.enrichmentService.getStats(),
   });
 
-  protected readonly stats = computed(() => this.statsResource.value() ?? null);
+  protected readonly stats = computed(() => safeValue(this.statsResource) ?? null);
   protected readonly statsLoading = computed(() => this.statsResource.isLoading());
   protected readonly statsError = computed<string | null>(() => {
     const err = this.statsResource.error();

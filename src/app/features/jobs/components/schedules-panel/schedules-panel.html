@@ -6,13 +6,13 @@
       <line x1="8" y1="2" x2="8" y2="6"/>
       <line x1="3" y1="10" x2="21" y2="10"/>
     </svg>
-    <p class="empty-title">No active sites</p>
-    <p class="empty-desc">Configure and activate a site first to set up scheduled scraping.</p>
+    <p class="empty-title">Não há sites ativos</p>
+    <p class="empty-desc">Configura e ativa um site primeiro para poderes agendar recolhas.</p>
   </div>
 } @else {
   <div class="schedules-header">
     <p class="schedules-meta">
-      {{ scheduledCount() }} of {{ displaySites().length }} site{{ displaySites().length === 1 ? '' : 's' }} with scheduling enabled
+      {{ scheduledCount() }} de {{ displaySites().length }} {{ displaySites().length === 1 ? 'site com agendamento ativo' : 'sites com agendamento ativo' }}
     </p>
   </div>
 
@@ -28,11 +28,11 @@
           @if (site.schedule_enabled) {
             <span class="badge badge--on" role="status">
               <span class="badge-dot" aria-hidden="true"></span>
-              Active
+              Ativo
             </span>
             <span class="schedule-interval">{{ formatInterval(site.schedule_interval_minutes) }}</span>
           } @else {
-            <span class="badge badge--off" role="status">Off</span>
+            <span class="badge badge--off" role="status">Desligado</span>
           }
         </div>
 
@@ -40,9 +40,9 @@
           type="button"
           class="btn btn-ghost btn-sm"
           (click)="openDialog(site)"
-          [attr.aria-label]="'Configure schedule for ' + site.name"
+          [attr.aria-label]="'Configurar agendamento de ' + site.name"
         >
-          Configure
+          Configurar
         </button>
       </div>
     }
@@ -51,7 +51,7 @@
 
 <app-dialog
   [open]="!!editingSite()"
-  [title]="'Schedule — ' + (editingSite()?.name ?? '')"
+  [title]="'Agendamento — ' + (editingSite()?.name ?? '')"
   size="md"
   (closed)="closeDialog()"
 >

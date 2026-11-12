@@ -20,6 +20,8 @@ import type { ListingListRead, ListingDetailRead, SiteConfigRead } from '../../c
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { AppDialogComponent } from '../../shared/components/dialog/dialog';
 import { Spinner } from "../../shared/components/spinner/spinner";
+import { safeValue } from '../../core/utils/resource.util';
+import { ErrorStateComponent } from '../../shared/components/error-state/error-state';
 
 @Component({
   selector: 'app-listings',
@@ -30,7 +32,8 @@ import { Spinner } from "../../shared/components/spinner/spinner";
     ListingEditComponent,
     ConfirmDialogComponent,
     AppDialogComponent,
-    Spinner
+    Spinner,
+    ErrorStateComponent,
 ],
   templateUrl: './listings.html',
   styleUrl: './listings.css',
@@ -78,18 +81,21 @@ readonly detailResource = rxResource<ListingDetailRead | null, string | null>({
   stream: ({ params }) =>
     params ? this.realEstateService.getListingById(params) : of(null),
 });
-  protected readonly realEstates = computed(() => this.realEstatesResource.value()?.items ?? []);
+  protected readonly realEstates = computed(() => safeValue(this.realEstatesResource)?.items ?? []);
   protected readonly isLoadingListings = computed(() => this.realEstatesResource.isLoading());
-  protected readonly paginationData = computed(() => this.realEstatesResource.value());
+  protected readonly listingsError = computed(
+    () => !!this.realEstatesResource.error() && !this.realEstatesResource.hasValue(),
+  );
+  protected readonly paginationData = computed(() => safeValue(this.realEstatesResource));
   protected readonly selectedRealEstate = computed(() =>
-    this.selectedListingId() ? (this.detailResource.value() ?? null) : null
+    this.selectedListingId() ? (safeValue(this.detailResource) ?? null) : null
   );
   protected readonly editingRealEstate = computed(() =>
-    this.editingListingId() ? (this.detailResource.value() ?? null) : null
+    this.editingListingId() ? (safeValue(this.detailResource) ?? null) : null
   );
   protected readonly isLoadingDetail = computed(() => this.detailResource.isLoading());
   protected readonly activeSites = computed<SiteConfigRead[]>(
-    () => (this.sitesResource.value() ?? []).filter((s) => s.is_active),
+    () => (safeValue(this.sitesResource) ?? []).filter((s) => s.is_active),
   );
 
   protected readonly totalListings = computed(() => this.paginationData()?.meta?.total ?? 0);

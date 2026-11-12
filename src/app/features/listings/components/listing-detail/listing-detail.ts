@@ -27,6 +27,7 @@ import { StatusBadge } from "../../../../shared/components/status-badge/status-b
 import { Spinner } from "../../../../shared/components/spinner/spinner";
 import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
 import { FormatDatePipe } from "../../../../shared/pipes/format-date-pipe";
+import { safeValue } from '../../../../core/utils/resource.util';
 
 @Component({
   selector: 'app-listing-detail',
@@ -56,7 +57,7 @@ export class ListingDetailComponent {
     stream: () => this.imodigiService.listStores(),
   });
 
-  protected readonly stores = computed(() => this.storesResource.value() ?? []);
+  protected readonly stores = computed(() => safeValue(this.storesResource) ?? []);
 
   protected readonly storeOptions = computed<SelectOption[]>(() =>
     this.stores().map((s) => ({ value: s.id + '', label: s.name })),
@@ -66,7 +67,7 @@ export class ListingDetailComponent {
    * Pure computed: tenta inferir a store id a partir do partner do listing
    */
   readonly inferredStoreId = computed(() => {
-    const stores = this.storesResource.value();
+    const stores = safeValue(this.storesResource);
     let partner = this.realEstate().source_partner;
     if (!partner) return null;
     if (partner === 'habinedita') partner = 'Habinédita Porto';

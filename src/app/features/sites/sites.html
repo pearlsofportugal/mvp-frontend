@@ -1,15 +1,17 @@
 <div class="sites-page">
   <header class="page-header">
     <div>
-      <h1 class="page-title">Scraping Sites</h1>
-      <p class="page-subtitle">Configure source websites, extraction modes, and CSS selectors for scraping jobs.</p>
+      <h1 class="page-title">Sites de origem</h1>
+      <p class="page-subtitle">Configura os sites de onde recolhemos anúncios, o modo de extração e os seletores CSS.</p>
     </div>
-    <button class="btn btn-primary btn-sm" (click)="onNewSite()">+ New Site</button>
+    <button class="btn btn-primary btn-sm" (click)="onNewSite()">+ Novo site</button>
   </header>
 
   <div class="card">
-    @if (loading()) {
-        <app-spinner size="md" message="Loading sites"></app-spinner>
+    @if (hasError()) {
+      <app-error-state title="Não foi possível carregar os sites" (retry)="sitesResource.reload()" />
+    } @else if (loading()) {
+        <app-spinner size="md" message="A carregar sites"></app-spinner>
     } @else {
       <app-site-list [sites]="sites()" [scheduleInfoMap]="scheduleInfoMap()" (edit)="onEditSite($event)" (delete)="onDeleteSite($event)" (addSite)="onNewSite()" />
     }
