@@ -1,6 +1,8 @@
 steps:
-  # Build da imagem com Kaniko
+  # Build + push da imagem com Kaniko (mesmo padrão do backend: o push faz-se neste passo,
+  # com as credenciais da conta de serviço do trigger).
   - name: 'gcr.io/kaniko-project/executor:v1.23.2'
+    id: Build
     args:
       - '--dockerfile=Dockerfile'
       - '--context=dir:///workspace/'
@@ -8,40 +10,39 @@ steps:
       - '--cache=true'
       - '--cache-ttl=24h'
       - '--cache-repo=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME-cache'
-    id: Build
 
-  # Deploy no Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:513.0.0-slim'
+  # Atualiza só a imagem do serviço Cloud Run (`services update`, não `deploy`), para não
+  # sobrescrever memória/CPU/instâncias definidos no serviço. Mesmo comando e mesma versão
+  # do cloud-sdk que o backend usa (a tag 590.0.0-slim existe e já foi validada lá).
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:590.0.0-slim'
+    id: Deploy
     entrypoint: gcloud
+    waitFor: ['Build']
     args:
       - run
-      - deploy
+      - services
+      - update
       - $_SERVICE_NAME
       - '--platform=managed'
       - '--image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
-      - '--labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID'
+      - '--labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID'
       - '--region=$_DEPLOY_REGION'
-      - '--port=8080'
-      - '--memory=512Mi'
-      - '--cpu=1'
-      - '--concurrency=80'
       - '--quiet'
-      - '--min-instances=0'
-      - '--max-instances=3'
-    id: Deploy
-    waitFor: ['Build']
 
 options:
   substitutionOption: ALLOW_LOOSE
   logging: CLOUD_LOGGING_ONLY
 timeout: '1200s'
 
+# _AR_PROJECT_ID aponta para o projeto onde vive o repositório de imagens (o mesmo do backend).
+# Pode ser sobreposto no trigger; _TRIGGER_ID também (não há variável embutida para o id do trigger).
 substitutions:
   _AR_REPOSITORY: cloud-run-source-deploy
-  _AR_PROJECT_ID: mvp-scraper-488408
+  _AR_PROJECT_ID: rock-voice-352108
   _SERVICE_NAME: mvp-frontend
   _DEPLOY_REGION: europe-west1
   _AR_HOSTNAME: europe-west1-docker.pkg.dev
+  _TRIGGER_ID: manual
 
 tags:
   - gcp-cloud-build-deploy-cloud-run
