@@ -29,6 +29,10 @@ export interface JobRead {
   urls?: JobUrlState | null;
   /** Terminal error message when status='failed'. */
   error_message?: string | null;
+  execution_id?: string | null;
+  attempt_count?: number;
+  dispatch_attempts?: number;
+  dispatched_at?: string | null;
   started_at?: string | null;
   last_heartbeat_at?: string | null;
   cancel_requested_at?: string | null;

@@ -10,12 +10,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import type {
+  ApiResponseDictStrListStr,
   ApiResponseDuplicatesResponse,
+  ApiResponseListStr,
   ApiResponseListingDetailRead,
   ApiResponseListingSearchResponse,
   ApiResponseListingStats,
   ApiResponseNoneType,
-  ApiResponsePaginatedResponse,
+  ApiResponseUnionPaginatedResponsePaginatedDetailResponse,
   DetectDuplicatesParams,
   ListListingsParams,
   ListingCreate,
@@ -33,7 +35,9 @@ export class ListingsService {
    * List listings with filtering, sorting, and pagination.
    * @summary List Listings
    */
-  listListings<TData = ApiResponsePaginatedResponse>(params?: ListListingsParams) {
+  listListings<TData = ApiResponseUnionPaginatedResponsePaginatedDetailResponse>(
+    params?: ListListingsParams,
+  ) {
     return customFetch<TData>(
       {
         url: `/api/v1/listings`,
@@ -83,6 +87,22 @@ export class ListingsService {
       },
       this.http,
     );
+  }
+  /**
+   * @summary List Source Partners
+   */
+  listSourcePartners<TData = ApiResponseListStr>() {
+    return customFetch<TData>(
+      { url: `/api/v1/listings/source-partners`, method: 'GET' },
+      this.http,
+    );
+  }
+  /**
+   * The closed sets `property_type` and `typology` are normalised to.
+   * @summary Listing Vocabularies
+   */
+  listingVocabularies<TData = ApiResponseDictStrListStr>() {
+    return customFetch<TData>({ url: `/api/v1/listings/vocabularies`, method: 'GET' }, this.http);
   }
   /**
    * Lightweight listing picker for the selector UI.
@@ -241,8 +261,11 @@ export class ListingsService {
   }
 }
 
-export type ListListingsClientResult = NonNullable<ApiResponsePaginatedResponse>;
+export type ListListingsClientResult =
+  NonNullable<ApiResponseUnionPaginatedResponsePaginatedDetailResponse>;
 export type CreateListingClientResult = NonNullable<ApiResponseListingDetailRead>;
+export type ListSourcePartnersClientResult = NonNullable<ApiResponseListStr>;
+export type ListingVocabulariesClientResult = NonNullable<ApiResponseDictStrListStr>;
 export type SelectorListingsClientResult = NonNullable<ApiResponseListingSearchResponse>;
 export type ListingStatsClientResult = NonNullable<ApiResponseListingStats>;
 export type DetectDuplicatesClientResult = NonNullable<ApiResponseDuplicatesResponse>;

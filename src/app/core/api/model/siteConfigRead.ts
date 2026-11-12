@@ -40,6 +40,8 @@ export interface SiteConfigRead {
   use_js_render?: boolean;
   /** Whether this site config is enabled for scraping. */
   is_active?: boolean;
+  /** Confidence fields that structurally never apply to this partner (e.g. 'typology' for an English-language site with no T-code convention) — excluded from confidence_scores entirely instead of counting as a 0% failure. Valid values: price, title, area, rooms, location, images, property_type, typology, condition, business_type, land_area. */
+  confidence_not_applicable_fields?: string[] | null;
   /** Whether scheduled scraping is active for this site. */
   schedule_enabled?: boolean;
   /** Interval in minutes between scheduled runs. */
@@ -52,6 +54,16 @@ export interface SiteConfigRead {
   schedule_start_url?: string | null;
   /** Max pages per scheduled run (None = uses server default). */
   schedule_max_pages?: number | null;
+  /** Agency logo URL (https). */
+  logo_url?: string | null;
+  legal_name?: string | null;
+  /** AMI licence number. */
+  ami_licence?: string | null;
+  /** Agency website (default: origin of base_url). */
+  website?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
   id: string;
   key: string;
   confidence_scores?: SiteConfigReadConfidenceScores;

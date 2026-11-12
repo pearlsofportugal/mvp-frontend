@@ -15,4 +15,8 @@ export interface MediaAssetRead {
   alt_text?: string | null;
   type?: 'photo' | 'floorplan' | 'video' | null;
   position?: number | null;
+  /** Pixel width, when known. */
+  width?: number | null;
+  /** Pixel height, when known. */
+  height?: number | null;
 }

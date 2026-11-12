@@ -5,6 +5,7 @@
  * Real Estate Scraper Backend API — scrape, enrich, and serve property listings.
  * OpenAPI spec version: 1.0.0
  */
+import type { ListingListReadStatus } from './listingListReadStatus';
 
 /**
  * Compact listing schema for paginated list views.
@@ -13,18 +14,24 @@ export interface ListingListRead {
   id: string;
   title?: string | null;
   source_partner: string;
-  business_type?: 'sale' | 'rent' | null;
+  business_type?: 'sale' | 'rent' | 'trespasse' | null;
   property_type?: string | null;
   typology?: string | null;
+  typology_extra?: string | null;
   price_amount?: string | null;
   price_currency?: string | null;
   price_per_m2?: string | null;
   district?: string | null;
   county?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_precision?: 'exact' | 'parish' | 'county' | null;
   area_useful_m2?: number | null;
   bedrooms?: number | null;
   bathrooms?: number | null;
   source_url?: string | null;
   created_at: string;
   updated_at: string;
+  /** Lifecycle: `removed` = gone from the source. */
+  status?: ListingListReadStatus;
 }

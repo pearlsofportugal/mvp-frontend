@@ -10,6 +10,18 @@ export type ExportExcelParams = {
   district?: string | null;
   county?: string | null;
   parish?: string | null;
+  /**
+   * Official district code (2 digits).
+   */
+  district_code?: string | null;
+  /**
+   * Official municipality code, DICO (4 digits).
+   */
+  county_code?: string | null;
+  /**
+   * Official parish code, DICOFRE (6 digits).
+   */
+  parish_code?: string | null;
   property_type?: string | null;
   typology?: string | null;
   business_type?: string | null;
@@ -29,7 +41,21 @@ export type ExportExcelParams = {
   has_elevator?: boolean | null;
   has_balcony?: boolean | null;
   has_air_conditioning?: boolean | null;
+  has_garden?: boolean | null;
   created_after?: string | null;
   created_before?: string | null;
+  /**
+   * Only listings whose content (or status) changed at/after this instant. `updated_at` only moves when the content hash changes, so this is safe for incremental sync.
+   */
+  updated_after?: string | null;
+  /**
+   * Only listings last changed at/before this instant.
+   */
+  updated_before?: string | null;
+  /**
+   * Listing lifecycle: `active` (default), `removed` (gone from the source) or `all`.
+   * @pattern ^(active|removed|all)$
+   */
+  status?: string;
   search?: string | null;
 };

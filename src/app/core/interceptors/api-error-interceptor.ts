@@ -15,7 +15,14 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-function extractApiErrorMessage(error: HttpErrorResponse): string {
+/** Forma de `ErrorDetail` no envelope `ApiResponse.errors[]` do backend. */
+interface ApiErrorDetail {
+  code?: string;
+  message?: string;
+  field?: string | null;
+}
+
+export function extractApiErrorMessage(error: HttpErrorResponse): string {
   if (error.status === 0) {
     return 'Sem ligação ao servidor. Verifica se o backend está ativo.';
   }
@@ -26,18 +33,27 @@ function extractApiErrorMessage(error: HttpErrorResponse): string {
 
   const body = error.error;
 
-  if (!body) {
+  // Downloads (responseType: 'blob') devolvem o corpo do erro como Blob.
+  if (!body || body instanceof Blob) {
     return `Erro ${error.status}: algo correu mal.`;
   }
 
-  // 1. ApiResponse.message (erros da app — NotFoundError, DuplicateError, etc.)
-  if (typeof body.message === 'string' && body.message) {
-    return body.message;
+  // 1. ApiResponse.errors[] — objetos { code, message, field }. Tem prioridade sobre
+  //    `message` porque no 422 o `message` é sempre o genérico "Validation failed",
+  //    enquanto `errors[0]` diz qual o campo e o motivo.
+  if (Array.isArray(body.errors) && body.errors.length > 0) {
+    const first = body.errors[0] as ApiErrorDetail | string;
+    if (typeof first === 'string' && first) return first;
+    if (typeof first === 'object' && first?.message) {
+      return first.code === 'VALIDATION_ERROR' && first.field
+        ? `Validação: ${first.field} — ${first.message}`
+        : first.message;
+    }
   }
 
-  // 2. ApiResponse.errors[] (pode ter múltiplos erros de validação)
-  if (Array.isArray(body.errors) && body.errors.length > 0) {
-    return body.errors[0];
+  // 2. ApiResponse.message (erros da app — NotFoundError, DuplicateError, etc.)
+  if (typeof body.message === 'string' && body.message) {
+    return body.message;
   }
 
   // 3. HTTPException.detail (string) — erros FastAPI nativos

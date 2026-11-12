@@ -75,6 +75,7 @@ export class ExportFormComponent {
           : undefined,
     };
 
-    this.exportService.download(format, filters);
+    // Erros (401, 5xx…) já são mostrados pelo apiErrorInterceptor.
+    this.exportService.download(format, filters).subscribe({ error: () => undefined });
   }
 }
