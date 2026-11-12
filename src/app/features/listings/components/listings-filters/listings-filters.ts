@@ -28,8 +28,7 @@ type FilterKey =
   | 'price_min'
   | 'price_max'
   | 'bedrooms'
-  | 'is_enriched'
-  | 'is_exported_to_imodigi';
+  | 'is_enriched';
 
 interface FilterChip {
   key: FilterKey;
@@ -61,7 +60,6 @@ export class ListingsFiltersComponent {
     price_max: new FormControl<number | null>(null),
     bedrooms: new FormControl<number | null>(null),
     is_enriched: new FormControl('', { nonNullable: true }),
-    is_exported_to_imodigi: new FormControl('', { nonNullable: true }),
   });
 
   private readonly formValue = toSignal(this.filterForm.valueChanges, {
@@ -106,23 +104,15 @@ export class ListingsFiltersComponent {
     { value: 'false', label: 'Por enriquecer' },
   ];
 
-  protected readonly imodigiOptions: SelectOption[] = [
-    ALL,
-    { value: 'true', label: 'Publicados' },
-    { value: 'false', label: 'Por publicar' },
-  ];
-
   // ── Filtros ───────────────────────────────────────────────────────────────
 
   readonly filters = computed<RealEstateFilters>(() => {
     const value = this.formValue();
-    const { is_enriched, is_exported_to_imodigi, ...rest } = value;
+    const { is_enriched, ...rest } = value;
     const result = Object.fromEntries(
       Object.entries(rest).filter(([, v]) => v !== null && v !== ''),
     ) as RealEstateFilters;
     if (is_enriched !== '' && is_enriched != null) result.is_enriched = is_enriched === 'true';
-    if (is_exported_to_imodigi !== '' && is_exported_to_imodigi != null)
-      result.is_exported_to_imodigi = is_exported_to_imodigi === 'true';
     return result;
   });
 
@@ -146,9 +136,6 @@ export class ListingsFiltersComponent {
     push('bedrooms', 'Quartos', f.bedrooms);
     if (f.is_enriched !== undefined) {
       push('is_enriched', 'IA', f.is_enriched ? 'enriquecidos' : 'por enriquecer');
-    }
-    if (f.is_exported_to_imodigi !== undefined) {
-      push('is_exported_to_imodigi', 'Imodigi', f.is_exported_to_imodigi ? 'publicados' : 'por publicar');
     }
     return chips;
   });

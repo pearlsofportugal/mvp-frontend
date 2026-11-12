@@ -21,7 +21,6 @@ type SortColumn =
   | 'listings_updated_last_7_days'
   | 'avg_price'
   | 'enriched_count'
-  | 'exported_to_imodigi_count'
   | 'last_listing_updated_at'
   | 'last_job_at';
 
@@ -85,8 +84,6 @@ private getSortValue(partner: PartnerStats, col: SortColumn): string | number {
       return partner.avg_price != null ? Number(partner.avg_price) : 0;
     case 'enriched_count':
       return partner.enriched_count ?? 0;
-    case 'exported_to_imodigi_count':
-      return partner.exported_to_imodigi_count ?? 0;
     case 'last_listing_updated_at':
       return partner.last_listing_updated_at ?? '';
     case 'last_job_at':
@@ -132,16 +129,6 @@ protected readonly loading = computed<boolean>(
   protected readonly activeScrapers = computed<number>(() =>
     this.rawPartners().filter((p) => p.site.is_active).length,
   );
-
-  protected readonly imodigiPct = computed<number>(() => {
-    const total = this.totalListings();
-    const imodigi = this.rawPartners().reduce(
-      (s, p) => s + (p.exported_to_imodigi_count ?? 0),
-      0,
-    );
-    if (!total) return 0;
-    return Math.round((imodigi / total) * 100);
-  });
 
   protected readonly donutDashLength = computed<number>(
     () => (this.globalEnrichmentPct() / 100) * 351.86,

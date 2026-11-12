@@ -76,7 +76,6 @@ getSourcePartners(): Observable<string[]> {
     options: {
       source_partner?: string;
       is_enriched?: boolean;
-      is_exported_to_imodigi?: boolean;
       page?: number;
       page_size?: number;
     } = {},
@@ -88,7 +87,6 @@ getSourcePartners(): Observable<string[]> {
         page_size: options.page_size ?? 20,
         source_partner: options.source_partner,
         is_enriched: options.is_enriched,
-        is_exported_to_imodigi: options.is_exported_to_imodigi,
       })
       .pipe(
         map((r) => ({

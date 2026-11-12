@@ -17,7 +17,7 @@ import { customFetch } from '../../custom-fetch';
 export class DashboardService {
   private readonly http = inject(HttpClient);
   /**
-   * Per-partner dashboard: listing counts, price stats, enrichment, Imodigi export, and last scrape job.
+   * Per-partner dashboard: listing counts, price stats, enrichment, and last scrape job.
    * @summary Partner Stats
    */
   partnerStats<TData = ApiResponsePartnerStatsResponse>() {

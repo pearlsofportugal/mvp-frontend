@@ -1,37 +1,19 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
-  effect,
-  inject,
   input,
   output,
-  signal,
 } from '@angular/core';
-import { takeUntilDestroyed, rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-import { ImodigiService } from '../../../../core/services/imodigi.service';
-import {
-  SelectDropdownComponent,
-  type SelectOption,
-} from '../../../../shared/components/select-dropdown/select-dropdown';
-import type {
-  ListingDetailRead,
-  ImodigiExportResponse,
-  ImodigiStoreRead,
-} from '../../../../core/api/model';
-import { StatusBadge } from "../../../../shared/components/status-badge/status-badge";
-import { Spinner } from "../../../../shared/components/spinner/spinner";
+import type { ListingDetailRead } from '../../../../core/api/model';
 import { FormatPricePipe } from "../../../../shared/pipes/format-price-pipe";
 import { FormatDatePipe } from "../../../../shared/pipes/format-date-pipe";
-import { safeValue } from '../../../../core/utils/resource.util';
 
 @Component({
   selector: 'app-listing-detail',
-  imports: [DecimalPipe, ReactiveFormsModule, SelectDropdownComponent, StatusBadge, Spinner, FormatPricePipe, FormatDatePipe],
+  imports: [DecimalPipe, FormatPricePipe, FormatDatePipe],
   templateUrl: './listing-detail.html',
   styleUrl: './listing-detail.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,67 +21,6 @@ import { safeValue } from '../../../../core/utils/resource.util';
 export class ListingDetailComponent {
   realEstate = input.required<ListingDetailRead>();
   delete = output<string>();
-
-  private readonly imodigiService = inject(ImodigiService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  protected readonly exporting = signal(false);
-  protected readonly lastExport = signal<ImodigiExportResponse | null>(null);
-
-  // FormControl usado pelo SelectDropdownComponent (CVA) — id da store como string
-  protected readonly storeControl = new FormControl<string>('', { nonNullable: true });
-
-  // selectedStoreId reativo derivado do valor do control (number | null para a API)
-  private readonly storeValue = toSignal(this.storeControl.valueChanges, { initialValue: '' });
-  protected readonly selectedStoreId = computed(() => +this.storeValue() || null);
-
-  readonly storesResource = rxResource<ImodigiStoreRead[], void>({
-    stream: () => this.imodigiService.listStores(),
-  });
-
-  protected readonly stores = computed(() => safeValue(this.storesResource) ?? []);
-
-  protected readonly storeOptions = computed<SelectOption[]>(() =>
-    this.stores().map((s) => ({ value: s.id + '', label: s.name })),
-  );
-
-  /**
-   * Pure computed: tenta inferir a store id a partir do partner do listing
-   */
-  readonly inferredStoreId = computed(() => {
-    const stores = safeValue(this.storesResource);
-    let partner = this.realEstate().source_partner;
-    if (!partner) return null;
-    if (partner === 'habinedita') partner = 'Habinédita Porto';
-    const matched = stores?.find((s) => s.name === partner);
-    return matched?.id ?? null;
-  });
-
-  // Inicializa storeControl com o inferido apenas se o utilizador não tiver escolhido nada
-  constructor() {
-    effect(() => {
-      const inferred = this.inferredStoreId();
-      if (!this.storeControl.value && inferred != null) {
-        this.storeControl.setValue(inferred + '');
-      }
-    });
-  }
-
-  onExportToImodigi(): void {
-    if (this.exporting()) return;
-    this.exporting.set(true);
-
-    this.imodigiService
-      .exportListing(this.realEstate().id, this.selectedStoreId())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.lastExport.set(res);
-          this.exporting.set(false);
-        },
-        error: () => this.exporting.set(false),
-      });
-  }
 
   readonly featureList = computed(() => {
     const r = this.realEstate();

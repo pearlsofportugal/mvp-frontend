@@ -110,18 +110,6 @@
                     <span class="pill-dot pill-dot--dim"></span>Not enhanced
                 </button>
 
-                <span class="filter-divider"></span>
-
-                <button class="filter-pill filter-pill--blue" type="button"
-                    [class.active]="activeExportedFilter() === 'exported'" (click)="setFilter('exported')">
-                    <span class="pill-dot pill-dot--blue"></span>Exported
-                </button>
-
-                <button class="filter-pill filter-pill--dim" type="button"
-                    [class.active]="activeExportedFilter() === 'not_exported'" (click)="setFilter('not_exported')">
-                    <span class="pill-dot pill-dot--dim"></span>Not exported
-                </button>
-
                 @if (allSourcePills().length > 0) {
                 <span class="filter-divider"></span>
                 }

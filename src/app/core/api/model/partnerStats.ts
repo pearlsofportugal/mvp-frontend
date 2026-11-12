@@ -31,11 +31,6 @@ export interface PartnerStats {
    * @minimum 0
    */
   enriched_count?: number;
-  /**
-   * Imóveis exportados para Imodigi.
-   * @minimum 0
-   */
-  exported_to_imodigi_count?: number;
   /** updated_at mais recente entre todos os imóveis deste partner. */
   last_listing_updated_at?: string | null;
   /** UUID do job de scraping mais recente. */

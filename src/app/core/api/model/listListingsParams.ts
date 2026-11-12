@@ -12,10 +12,6 @@ export type ListListingsParams = {
    * Filter by AI enrichment status.
    */
   is_enriched?: boolean | null;
-  /**
-   * Filter by Imodigi export status (published or updated).
-   */
-  is_exported_to_imodigi?: boolean | null;
   sort_by?: ListListingsSortBy;
   /**
    * @pattern ^(asc|desc)$
